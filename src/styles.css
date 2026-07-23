@@ -1,3 +1,58 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+
+/* ─── CLINIKA Design Tokens (Custom Theme) ─────────────────────── */
+@theme {
+  --color-primary: #03045e;
+  --color-ocean: #0077b6;
+  --color-cyan: #00b4d8;
+  --color-sky: #90e0ef;
+  --color-ice: #caf0f8;
+
+  --color-primary-hover: #020340;
+  --color-ocean-hover: #005f92;
+  --color-cyan-hover: #009bbd;
+
+  --color-success: #059669;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Global Base Styles ───────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-primary);
+    background-color: #f8fbfe;
+    line-height: 1.6;
+  }
+
+  /* Focus ring for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-ocean);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-sky);
+    color: var(--color-primary);
+  }
+}
