@@ -1,11 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
 
+  readonly isLoading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+  readonly showPassword = signal(false);
+
+  readonly loginForm = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  togglePassword(): void {
+    this.showPassword.update((v) => !v);
+  }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    this.authService.login(this.loginForm.getRawValue()).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        if (!response.isSuccess) {
+          this.errorMessage.set(response.message || 'Login failed. Please try again.');
+        }
+        // On success, AuthService.login() handles navigation via navigateByRole()
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const message =
+          err.error?.message || 'Unable to connect. Please check your connection and try again.';
+        this.errorMessage.set(message);
+      },
+    });
+  }
 }
