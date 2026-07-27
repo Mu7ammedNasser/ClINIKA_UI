@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+.dashboard-page {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+.page-header {
+  @apply flex justify-between items-center mb-8;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-[var(--color-primary)] mb-1;
+}
+
+.page-subtitle {
+  @apply text-gray-500 text-sm;
+}
+
+/* Loading */
+.loading-container {
+  @apply flex flex-col items-center justify-center py-20 text-gray-500 gap-4;
+}
+
+.spinner {
+  @apply w-8 h-8 border-4 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
+}
+
+/* Grid & Cards */
+.metrics-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.metric-card {
+  @apply bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-md hover:-translate-y-1;
+}
+
+.metric-icon-wrapper {
+  @apply flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center;
+}
+
+.metric-info {
+  @apply flex flex-col;
+}
+
+.metric-label {
+  @apply text-sm font-medium text-gray-500 uppercase tracking-wider mb-1;
+}
+
+.metric-value {
+  @apply text-3xl font-bold text-gray-800;
+}

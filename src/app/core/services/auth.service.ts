@@ -37,7 +37,9 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (response.isSuccess && response.data) {
-            this.saveToken(response.data.token);
+            if (response.data.token) {
+              this.saveToken(response.data.token);
+            }
             this.saveUser(response.data);
             this.navigateByRole();
           }

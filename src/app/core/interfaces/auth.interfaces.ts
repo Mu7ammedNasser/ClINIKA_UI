@@ -14,6 +14,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -35,9 +36,10 @@ export interface AuthUser {
   id: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   email: string;
-  token: string;
-  expiresIn: number;
+  token?: string;
+  expiresIn?: number;
 }
 
 export interface ApiResponse<T> {

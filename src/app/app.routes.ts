@@ -159,6 +159,20 @@ export const routes: Routes = [
           import('./components/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'users',
+        loadComponent: () =>
+          import('./components/admin/user-management/user-management').then(
+            (m) => m.UserManagement
+          ),
+      },
+      {
+        path: 'roles',
+        loadComponent: () =>
+          import('./components/admin/role-management/role-management').then(
+            (m) => m.RoleManagement
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./components/settings/settings').then((m) => m.Settings),
