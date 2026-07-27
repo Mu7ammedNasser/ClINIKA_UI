@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+.role-management-page {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+.page-header {
+  @apply flex justify-between items-center mb-8;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-[var(--color-primary)] mb-1;
+}
+
+.page-subtitle {
+  @apply text-gray-500 text-sm;
+}
+
+/* Buttons */
+.btn-outline-primary {
+  @apply bg-white border border-[var(--color-ocean)] text-[var(--color-ocean)] px-4 py-1.5 rounded-lg font-medium 
+         hover:bg-[var(--color-ice)] transition-colors shadow-sm focus:outline-none focus:ring-2 
+         focus:ring-[var(--color-sky)] focus:ring-offset-2 whitespace-nowrap;
+}
+
+.btn-secondary {
+  @apply bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg 
+         font-medium hover:bg-gray-50 transition-colors focus:outline-none 
+         focus:ring-2 focus:ring-[var(--color-sky)] focus:ring-offset-2;
+}
+
+/* Loading */
+.loading-container {
+  @apply flex flex-col items-center justify-center py-20 text-gray-500 gap-4;
+}
+
+.spinner {
+  @apply w-8 h-8 border-4 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
+}
+
+/* Table */
+.table-container {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+}
+
+.roles-table {
+  @apply w-full text-left text-sm whitespace-nowrap;
+}
+
+.roles-table th {
+  @apply bg-gray-50 text-gray-500 font-medium py-4 px-6 border-b border-gray-200 uppercase tracking-wider text-xs;
+}
+
+.roles-table td {
+  @apply py-4 px-6 border-b border-gray-100 text-gray-700;
+}
+
+.roles-table tr:last-child td {
+  @apply border-b-0;
+}
+
+.roles-table tbody tr:hover {
+  @apply bg-gray-50/50 transition-colors;
+}
+
+.role-name {
+  @apply font-medium text-[var(--color-primary)];
+}
+
+.role-desc {
+  @apply text-gray-500 truncate max-w-sm;
+}
+
+/* Empty State */
+.empty-state {
+  @apply text-center py-16 text-gray-500;
+}
+
+.empty-icon {
+  @apply w-12 h-12 mx-auto text-gray-300 mb-4;
+}
+
+/* Toast */
+.toast-notification {
+  @apply fixed bottom-4 right-4 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg z-50 text-sm font-medium animate-bounce;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.toast-success {
+  @apply bg-emerald-50 text-emerald-800 border border-emerald-200;
+}
+
+.toast-error {
+  @apply bg-red-50 text-red-800 border border-red-200;
+}
+
+.toast-icon {
+  @apply w-5 h-5;
+}
+
+/* Modal */
+.modal-overlay {
+  @apply fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-100 transition-opacity;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  @apply bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden;
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  @apply flex justify-between items-center p-6 border-b border-gray-100;
+}
+
+.modal-title {
+  @apply text-xl font-bold text-[var(--color-primary)];
+}
+
+.close-btn {
+  @apply text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100;
+}
+
+.close-btn svg {
+  @apply w-5 h-5;
+}
+
+.modal-body {
+  @apply p-6 bg-gray-50/50;
+}
+
+.detail-card {
+  @apply bg-white border border-gray-100 rounded-lg shadow-sm p-4 flex flex-col gap-3;
+}
+
+.detail-row {
+  @apply flex flex-col gap-1 pb-3 border-b border-gray-100;
+}
+
+.detail-label {
+  @apply text-xs uppercase font-semibold text-gray-400 tracking-wider;
+}
+
+.detail-value {
+  @apply text-sm text-gray-700 break-words;
+}
+
+.modal-actions {
+  @apply flex justify-end gap-3 p-6 border-t border-gray-100 bg-white;
+}

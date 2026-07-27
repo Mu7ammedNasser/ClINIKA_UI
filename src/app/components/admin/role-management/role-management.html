@@ -1,0 +1,131 @@
+<div class="role-management-page">
+  
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Role Management</h1>
+      <p class="page-subtitle">View and manage system roles and permissions.</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  @if (toastMessage()) {
+    <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'" [class.toast-error]="toastMessage()?.type === 'error'">
+      @if (toastMessage()?.type === 'success') {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <path d="m9 11 3 3L22 4"/>
+        </svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" x2="12" y1="8" y2="12"/>
+          <line x1="12" x2="12.01" y1="16" y2="16"/>
+        </svg>
+      }
+      <span>{{ toastMessage()?.text }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <span class="spinner"></span>
+      <p>Loading roles...</p>
+    </div>
+  } @else {
+    <!-- Roles Table -->
+    <div class="table-container">
+      <table class="roles-table">
+        <thead>
+          <tr>
+            <th>Role Name</th>
+            <th>Description</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (role of roles(); track role.id) {
+            <tr>
+              <td>
+                <div class="role-name">{{ role.name }}</div>
+              </td>
+              <td>
+                <div class="role-desc">{{ role.description }}</div>
+              </td>
+              <td class="text-right">
+                <button class="btn-outline-primary btn-sm" (click)="viewRole(role.id)">
+                  View Details
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <p>No roles found in the system.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- View Role Details Modal -->
+  @if (isModalOpen()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <h2 class="modal-title">Role Details</h2>
+          <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          @if (isLoadingDetails()) {
+            <div class="loading-container py-8">
+              <span class="spinner"></span>
+              <p>Loading details...</p>
+            </div>
+          } @else if (selectedRole()) {
+            <div class="detail-card">
+              <div class="detail-row">
+                <span class="detail-label">Role ID</span>
+                <span class="detail-value font-mono text-xs">{{ selectedRole()?.id }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Role Name</span>
+                <span class="detail-value font-medium text-[var(--color-primary)]">{{ selectedRole()?.name }}</span>
+              </div>
+              <div class="detail-row border-none pb-0">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{ selectedRole()?.description }}</span>
+              </div>
+            </div>
+          } @else {
+            <div class="text-center text-gray-500 py-8">
+              Could not load role details.
+            </div>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Close</button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

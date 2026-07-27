@@ -31,6 +31,7 @@ export class Register {
     {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -91,6 +92,14 @@ export class Register {
       },
       error: (err) => {
         this.isLoading.set(false);
+        
+        if (err.error?.errors) {
+          const firstErrorKey = Object.keys(err.error.errors)[0];
+          const validationMessage = err.error.errors[firstErrorKey][0];
+          this.errorMessage.set(validationMessage);
+          return;
+        }
+
         const message =
           err.error?.message || 'Unable to connect. Please check your connection and try again.';
         this.errorMessage.set(message);

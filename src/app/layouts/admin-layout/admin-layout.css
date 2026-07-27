@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+.admin-layout {
+  @apply flex h-screen bg-gray-50 overflow-hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  @apply w-64 bg-white border-r border-gray-200 flex flex-col justify-between shrink-0 shadow-sm z-10;
+}
+
+.sidebar-header {
+  @apply p-6 flex items-center gap-3 border-b border-gray-100;
+}
+
+.logo-icon {
+  @apply w-8 h-8 text-[var(--color-ocean)];
+}
+
+.brand-name {
+  @apply font-bold text-lg text-[var(--color-primary)] tracking-wide;
+}
+
+.sidebar-nav {
+  @apply flex-1 px-4 py-6 space-y-1 overflow-y-auto;
+}
+
+.nav-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900;
+}
+
+.nav-link.active {
+  @apply bg-[var(--color-ice)] text-[var(--color-primary)] font-semibold shadow-sm;
+}
+
+.nav-link.active .nav-icon {
+  @apply text-[var(--color-ocean)];
+}
+
+.nav-icon {
+  @apply w-5 h-5 text-gray-400 transition-colors;
+}
+
+.nav-link:hover .nav-icon {
+  @apply text-gray-600;
+}
+
+/* Footer */
+.sidebar-footer {
+  @apply p-4 border-t border-gray-100;
+}
+
+.logout-btn {
+  @apply w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors;
+}
+
+.logout-btn .nav-icon {
+  @apply text-red-500 w-4 h-4;
+}
+
+/* Main Content Area */
+.main-content {
+  @apply flex-1 overflow-y-auto;
+}

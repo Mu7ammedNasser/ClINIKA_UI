@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+.user-management-page {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+.page-header {
+  @apply flex justify-between items-center mb-8;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-[var(--color-primary)] mb-1;
+}
+
+.page-subtitle {
+  @apply text-gray-500 text-sm;
+}
+
+/* Header Actions & Filters */
+.header-actions {
+  @apply flex items-center gap-3 flex-wrap;
+}
+
+.search-box {
+  @apply relative flex items-center;
+}
+
+.search-icon {
+  @apply absolute left-3 w-4 h-4 text-gray-400 pointer-events-none;
+}
+
+.search-input {
+  @apply pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-[var(--color-ocean)] focus:ring-1 focus:ring-[var(--color-ocean)] transition-colors w-64 placeholder:text-gray-400;
+}
+
+.filter-select {
+  @apply relative;
+}
+
+.role-select {
+  @apply appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-[var(--color-ocean)] focus:ring-1 focus:ring-[var(--color-ocean)] transition-colors cursor-pointer text-gray-700 min-w-[140px];
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-[var(--color-ocean)] text-white px-5 py-2.5 rounded-lg font-medium 
+         flex items-center gap-2 hover:bg-[var(--color-ocean-hover)] 
+         transition-colors shadow-sm focus:outline-none focus:ring-2 
+         focus:ring-[var(--color-sky)] focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg 
+         font-medium hover:bg-gray-50 transition-colors focus:outline-none 
+         focus:ring-2 focus:ring-[var(--color-sky)] focus:ring-offset-2;
+}
+
+.btn-primary:disabled {
+  @apply opacity-70 cursor-not-allowed;
+}
+
+.btn-icon {
+  @apply w-5 h-5;
+}
+
+/* Loading */
+.loading-container {
+  @apply flex flex-col items-center justify-center py-20 text-gray-500 gap-4;
+}
+
+.spinner {
+  @apply w-8 h-8 border-4 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
+}
+
+.spinner-small {
+  @apply w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block align-middle mr-2;
+}
+
+/* Table */
+.table-container {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+}
+
+.users-table {
+  @apply w-full text-left text-sm whitespace-nowrap;
+}
+
+.users-table th {
+  @apply bg-gray-50 text-gray-500 font-medium py-4 px-6 border-b border-gray-200 uppercase tracking-wider text-xs;
+}
+
+.users-table td {
+  @apply py-4 px-6 border-b border-gray-100 text-gray-700;
+}
+
+.users-table tr:last-child td {
+  @apply border-b-0;
+}
+
+.users-table tbody tr:hover {
+  @apply bg-gray-50/50 transition-colors;
+}
+
+.user-name {
+  @apply font-medium text-[var(--color-primary)];
+}
+
+/* Roles Badges */
+.roles-container {
+  @apply flex gap-2 flex-wrap;
+}
+
+.role-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700;
+}
+
+.role-patient {
+  @apply bg-[var(--color-ice)] text-[var(--color-primary)];
+}
+
+.role-doctor {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.role-admin {
+  @apply bg-purple-100 text-purple-800;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  @apply relative inline-block w-11 h-6 cursor-pointer;
+}
+
+.toggle-switch input {
+  @apply opacity-0 w-0 h-0;
+}
+
+.slider {
+  @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-colors duration-300 rounded-full;
+}
+
+.slider:before {
+  @apply absolute content-[''] h-5 w-5 left-[2px] bottom-[2px] bg-white transition-transform duration-300 rounded-full shadow-sm;
+}
+
+input:checked + .slider {
+  @apply bg-[var(--color-success)];
+}
+
+input:focus + .slider {
+  @apply ring-2 ring-[var(--color-sky)] ring-offset-1;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Empty State */
+.empty-state {
+  @apply text-center py-16 text-gray-500;
+}
+
+.empty-icon {
+  @apply w-12 h-12 mx-auto text-gray-300 mb-4;
+}
+
+/* Toast */
+.toast-notification {
+  @apply fixed bottom-4 right-4 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg z-50 text-sm font-medium animate-bounce;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.toast-success {
+  @apply bg-emerald-50 text-emerald-800 border border-emerald-200;
+}
+
+.toast-error {
+  @apply bg-red-50 text-red-800 border border-red-200;
+}
+
+.toast-icon {
+  @apply w-5 h-5;
+}
+
+/* Modal */
+.modal-overlay {
+  @apply fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-100 transition-opacity;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  @apply bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden;
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  @apply flex justify-between items-center p-6 border-b border-gray-100;
+}
+
+.modal-title {
+  @apply text-xl font-bold text-[var(--color-primary)];
+}
+
+.close-btn {
+  @apply text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100;
+}
+
+.close-btn svg {
+  @apply w-5 h-5;
+}
+
+.modal-form {
+  @apply p-6 space-y-4;
+}
+
+.form-row {
+  @apply grid grid-cols-2 gap-4;
+}
+
+.form-group {
+  @apply flex flex-col gap-1.5;
+}
+
+.form-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.form-input, .form-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
+         focus:outline-none focus:border-[var(--color-ocean)] focus:ring-1 focus:ring-[var(--color-ocean)]
+         transition-colors placeholder:text-gray-400 bg-white;
+}
+
+.input-error {
+  @apply border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50/30;
+}
+
+.field-error {
+  @apply text-xs text-red-500;
+}
+
+/* Custom Select */
+.select-wrapper {
+  @apply relative;
+}
+
+.select-wrapper .form-select {
+  @apply appearance-none pr-10;
+}
+
+.select-icon {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400;
+}
+
+.select-icon svg {
+  @apply w-4 h-4;
+}
+
+.modal-actions {
+  @apply flex justify-end gap-3 pt-6 mt-6 border-t border-gray-100;
+}
