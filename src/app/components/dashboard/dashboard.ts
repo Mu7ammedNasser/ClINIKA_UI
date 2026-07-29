@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../core/services/user.service';
 import { RoleService } from '../../core/services/role.service';
+import { DiseaseService } from '../../core/services/disease.service';
+import { AllergyService } from '../../core/services/allergy.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -14,10 +16,14 @@ import { forkJoin } from 'rxjs';
 export class Dashboard implements OnInit {
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
+  private readonly diseaseService = inject(DiseaseService);
+  private readonly allergyService = inject(AllergyService);
 
   readonly totalUsers = signal<number>(0);
   readonly activeUsers = signal<number>(0);
   readonly totalRoles = signal<number>(0);
+  readonly totalDiseases = signal<number>(0);
+  readonly totalAllergies = signal<number>(0);
   readonly isLoading = signal(true);
 
   ngOnInit(): void {
@@ -25,7 +31,9 @@ export class Dashboard implements OnInit {
     
     forkJoin({
       users: this.userService.getUsers(),
-      roles: this.roleService.getRoles()
+      roles: this.roleService.getRoles(),
+      diseases: this.diseaseService.getDiseases(),
+      allergies: this.allergyService.getAllergies()
     }).subscribe({
       next: (res) => {
         if (res.users.isSuccess && res.users.data) {
@@ -34,6 +42,12 @@ export class Dashboard implements OnInit {
         }
         if (res.roles.isSuccess && res.roles.data) {
           this.totalRoles.set(res.roles.data.length);
+        }
+        if (res.diseases.isSuccess && res.diseases.data) {
+          this.totalDiseases.set(res.diseases.data.length);
+        }
+        if (res.allergies.isSuccess && res.allergies.data) {
+          this.totalAllergies.set(res.allergies.data.length);
         }
         this.isLoading.set(false);
       },

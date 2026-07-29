@@ -173,6 +173,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'diseases',
+        loadComponent: () =>
+          import('./components/admin/disease-management/disease-management').then(
+            (m) => m.DiseaseManagement
+          ),
+      },
+      {
+        path: 'allergies',
+        loadComponent: () =>
+          import('./components/admin/allergy-management/allergy-management').then(
+            (m) => m.AllergyManagement
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./components/settings/settings').then((m) => m.Settings),
