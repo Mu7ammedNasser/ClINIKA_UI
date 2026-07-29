@@ -1,1 +1,235 @@
-<p>profile works!</p>
+<div class="profile-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Patient Profile</h1>
+      <p class="page-subtitle">Manage your personal and medical information.</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  @if (toastMessage()) {
+    <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'" [class.toast-error]="toastMessage()?.type === 'error'">
+      <span>{{ toastMessage()?.text }}</span>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <span class="spinner"></span>
+      <p>Loading profile...</p>
+    </div>
+  } @else {
+    
+    <div class="profile-container">
+      
+      <!-- Read-Only Personal Information Card -->
+      <div class="card info-card">
+        <h2 class="card-title">Personal Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>First Name</label>
+            <p>{{ patientProfile()?.firstName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Last Name</label>
+            <p>{{ patientProfile()?.lastName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Email Address</label>
+            <p>{{ patientProfile()?.email }}</p>
+          </div>
+          <div class="info-item">
+            <label>Phone Number</label>
+            <p>{{ patientProfile()?.phone }}</p>
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form-container">
+
+        <!-- Demographic Info (Editable) -->
+        <div class="card form-card">
+          <h2 class="card-title">Demographic Information</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select formControlName="gender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Blood Type</label>
+              <select formControlName="bloodType" class="form-select">
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">National ID</label>
+              <input type="text" formControlName="nationalId" class="form-input" placeholder="14-digit National ID">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" formControlName="dateOfBirth" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Medications -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Active Medications</h2>
+            <button type="button" class="btn-secondary btn-sm" (click)="addMedication()">+ Add Medication</button>
+          </div>
+          
+          <div formArrayName="medications" class="array-container">
+            @for (med of medications.controls; track $index) {
+              <div [formGroupName]="$index" class="array-item">
+                <div class="form-grid-3">
+                  <div class="form-group">
+                    <label class="form-label">Drug Name</label>
+                    <input type="text" formControlName="drugName" class="form-input" placeholder="e.g. Metformin">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Dosage</label>
+                    <input type="text" formControlName="dosage" class="form-input" placeholder="e.g. 500 mg">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Frequency</label>
+                    <input type="text" formControlName="frequency" class="form-input" placeholder="e.g. Twice daily">
+                  </div>
+                </div>
+                <button type="button" class="btn-remove" (click)="removeMedication($index)" aria-label="Remove medication">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            }
+            @if (medications.controls.length === 0) {
+              <p class="empty-text">No active medications recorded.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Diseases -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Diseases History</h2>
+            <button type="button" class="btn-secondary btn-sm" (click)="addDisease()">+ Add Disease</button>
+          </div>
+          
+          <div formArrayName="diseases" class="array-container">
+            @for (disease of diseases.controls; track $index) {
+              <div [formGroupName]="$index" class="array-item">
+                <div class="custom-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" formControlName="isCustom" (change)="onDiseaseCustomToggle($index)">
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label">Custom Disease (Not in list)</span>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Disease Name</label>
+                    @if (disease.get('isCustom')?.value) {
+                      <input type="text" formControlName="rawDiseaseName" class="form-input" placeholder="Enter custom disease name">
+                    } @else {
+                      <select formControlName="diseaseId" class="form-select">
+                        <option [ngValue]="null" disabled>Select a disease...</option>
+                        @for (sd of systemDiseases(); track sd.id) {
+                          <option [value]="sd.id">{{ sd.diseaseName }}</option>
+                        }
+                      </select>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Diagnosed Date</label>
+                    <input type="date" formControlName="diagnosedDate" class="form-input">
+                  </div>
+                </div>
+                
+                <button type="button" class="btn-remove" (click)="removeDisease($index)" aria-label="Remove disease">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            }
+            @if (diseases.controls.length === 0) {
+              <p class="empty-text">No diseases recorded.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Allergies</h2>
+            <button type="button" class="btn-secondary btn-sm" (click)="addAllergy()">+ Add Allergy</button>
+          </div>
+          
+          <div formArrayName="allergies" class="array-container">
+            @for (allergy of allergies.controls; track $index) {
+              <div [formGroupName]="$index" class="array-item">
+                <div class="custom-toggle">
+                  <label class="toggle-switch">
+                    <input type="checkbox" formControlName="isCustom" (change)="onAllergyCustomToggle($index)">
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label">Custom Allergy (Not in list)</span>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Allergen Name</label>
+                    @if (allergy.get('isCustom')?.value) {
+                      <input type="text" formControlName="rawAllergenName" class="form-input" placeholder="Enter custom allergy name">
+                    } @else {
+                      <select formControlName="allergyId" class="form-select">
+                        <option [ngValue]="null" disabled>Select an allergy...</option>
+                        @for (sa of systemAllergies(); track sa.id) {
+                          <option [value]="sa.id">{{ sa.allergenName }}</option>
+                        }
+                      </select>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Severity</label>
+                    <select formControlName="severity" class="form-select">
+                      <option value="Mild">Mild</option>
+                      <option value="Moderate">Moderate</option>
+                      <option value="Severe">Severe</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <button type="button" class="btn-remove" (click)="removeAllergy($index)" aria-label="Remove allergy">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            }
+            @if (allergies.controls.length === 0) {
+              <p class="empty-text">No allergies recorded.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions sticky-bottom">
+          <button type="submit" class="btn-primary btn-lg" [disabled]="profileForm.invalid || isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner-small"></span> Saving...
+            } @else {
+              Save Profile Updates
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+</div>

@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+.profile-page {
+  @apply p-8 max-w-5xl mx-auto min-h-screen bg-transparent;
+}
+
+.page-header {
+  @apply mb-8 flex justify-between items-end;
+}
+
+.page-title {
+  @apply text-3xl font-bold text-[var(--color-primary)] tracking-tight;
+}
+
+.page-subtitle {
+  @apply text-[var(--color-ocean)] opacity-80 mt-1;
+}
+
+/* Loading state */
+.loading-container {
+  @apply flex flex-col items-center justify-center p-12 text-[var(--color-ocean)] gap-4;
+}
+
+.spinner {
+  @apply w-8 h-8 border-4 border-[var(--color-sky)] border-t-[var(--color-primary)] rounded-full animate-spin;
+}
+
+.spinner-small {
+  @apply w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block mr-2;
+}
+
+/* Toast */
+.toast-notification {
+  @apply fixed top-6 right-6 p-4 rounded-xl shadow-lg flex items-center gap-3 z-50 transition-all duration-300;
+}
+.toast-success {
+  @apply bg-emerald-50 text-[var(--color-success)] border border-emerald-200;
+}
+.toast-error {
+  @apply bg-red-50 text-[var(--color-danger)] border border-red-200;
+}
+
+/* Container */
+.profile-container {
+  @apply flex flex-col gap-6;
+}
+
+/* Cards */
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-[var(--color-ice)] p-6;
+}
+
+.card-title {
+  @apply text-lg font-semibold text-[var(--color-primary)] mb-6;
+}
+
+.card-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.card-header .card-title {
+  @apply mb-0;
+}
+
+/* Info Grid (Read-only) */
+.info-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.info-item label {
+  @apply block text-sm font-medium text-[var(--color-ocean)] mb-1;
+}
+
+.info-item p {
+  @apply text-[var(--color-primary)] font-medium bg-[var(--color-ice)]/30 px-4 py-2.5 rounded-lg border border-[var(--color-ice)];
+}
+
+/* Form Structure */
+.form-container {
+  @apply flex flex-col gap-6;
+}
+
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.form-grid-3 {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4 flex-1;
+}
+
+.form-grid-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 flex-1;
+}
+
+.form-group {
+  @apply flex flex-col gap-1.5;
+}
+
+.form-label {
+  @apply text-sm font-medium text-[var(--color-primary)];
+}
+
+.form-input, .form-select {
+  @apply w-full px-4 py-2.5 rounded-lg border border-[var(--color-sky)] bg-white text-[var(--color-primary)] outline-none transition-all focus:ring-2 focus:ring-[var(--color-ocean)]/30 focus:border-[var(--color-ocean)] disabled:bg-[var(--color-ice)]/30 disabled:text-[var(--color-ocean)]/70 disabled:border-[var(--color-ice)];
+}
+
+/* Arrays */
+.array-container {
+  @apply flex flex-col gap-4;
+}
+
+.array-item {
+  @apply flex flex-col gap-4 p-5 pr-16 bg-[var(--color-ice)]/20 border border-[var(--color-ice)] rounded-xl relative transition-colors hover:bg-[var(--color-ice)]/40;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-lg {
+  @apply py-3 px-8 text-lg;
+}
+
+.btn-secondary {
+  @apply flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-[var(--color-primary)] bg-[var(--color-sky)] hover:bg-[var(--color-cyan)] hover:text-white transition-colors;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-remove {
+  @apply absolute top-3 right-3 p-2.5 text-[var(--color-ocean)] hover:text-[var(--color-danger)] hover:bg-red-50 rounded-lg transition-colors; 
+}
+
+/* Toggles */
+.custom-toggle {
+  @apply flex items-center gap-3 w-full mb-4 col-span-full pb-4 border-b border-[var(--color-ice)];
+}
+
+.toggle-label {
+  @apply text-sm font-medium text-[var(--color-primary)];
+}
+
+.toggle-switch {
+  @apply relative inline-block w-10 h-6 shrink-0 cursor-pointer;
+}
+
+.toggle-switch input {
+  @apply opacity-0 w-0 h-0;
+}
+
+.slider {
+  @apply absolute inset-0 bg-[var(--color-sky)] rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300 before:shadow-sm;
+}
+
+.toggle-switch input:checked + .slider {
+  @apply bg-[var(--color-ocean)];
+}
+
+.toggle-switch input:checked + .slider:before {
+  @apply transform translate-x-4;
+}
+
+.empty-text {
+  @apply text-[var(--color-ocean)] text-sm italic py-4 text-center border-2 border-dashed border-[var(--color-sky)] rounded-lg;
+}
+
+/* Sticky Footer */
+.form-actions {
+  @apply flex justify-end pt-4 bg-transparent pb-4 z-10;
+}
+.sticky-bottom {
+  @apply sticky bottom-0;
+}
