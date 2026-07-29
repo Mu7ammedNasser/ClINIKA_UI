@@ -1,0 +1,162 @@
+<div class="allergy-management-page user-management-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Allergy Management</h1>
+      <p class="page-subtitle">Manage system allergies records.</p>
+    </div>
+    <div class="header-actions">
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input #searchInput type="text" placeholder="Search allergies..." (input)="searchQuery.set(searchInput.value)" class="search-input">
+      </div>
+      
+      <button class="btn-primary" (click)="openModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+          <path d="M5 12h14"/>
+          <path d="M12 5v14"/>
+        </svg>
+        <span>Add Allergy</span>
+      </button>
+    </div>
+  </div>
+
+  @if (toastMessage()) {
+    <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'" [class.toast-error]="toastMessage()?.type === 'error'">
+      @if (toastMessage()?.type === 'success') {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <path d="m9 11 3 3L22 4"/>
+        </svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" x2="12" y1="8" y2="12"/>
+          <line x1="12" x2="12.01" y1="16" y2="16"/>
+        </svg>
+      }
+      <span>{{ toastMessage()?.text }}</span>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <span class="spinner"></span>
+      <p>Loading allergies...</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Allergen Name</th>
+            <th>Allergy Type</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (allergy of filteredAllergies(); track allergy.id) {
+            <tr>
+              <td>
+                <div class="user-name">{{ allergy.allergenName }}</div>
+              </td>
+              <td>{{ allergy.allergyType }}</td>
+              <td class="actions-cell">
+                <button class="icon-btn edit-btn" (click)="openModal(allergy)" aria-label="Edit allergy">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                  </svg>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteAllergy(allergy.id)" aria-label="Delete allergy">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <p>No allergies found in the system.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (isModalOpen()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+          <h2 class="modal-title">{{ editMode() ? 'Edit Allergy' : 'Create New Allergy' }}</h2>
+          <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <form [formGroup]="allergyForm" (ngSubmit)="onSubmit()" novalidate class="modal-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="allergenName" class="form-label">Allergen Name</label>
+              <input id="allergenName" type="text" formControlName="allergenName" class="form-input" placeholder="e.g. Peanuts" [class.input-error]="allergyForm.get('allergenName')?.invalid && allergyForm.get('allergenName')?.touched">
+              @if (allergyForm.get('allergenName')?.invalid && allergyForm.get('allergenName')?.touched) {
+                <span class="field-error">Required (min 2 chars)</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="allergyType" class="form-label">Allergy Type</label>
+              <div class="select-wrapper">
+                <select id="allergyType" formControlName="allergyType" class="form-select" [class.input-error]="allergyForm.get('allergyType')?.invalid && allergyForm.get('allergyType')?.touched">
+                  <option value="" disabled selected>Select allergy type</option>
+                  <option value="Food">Food</option>
+                  <option value="Drug">Drug</option>
+                  <option value="Environmental">Environmental</option>
+                  <option value="Insect">Insect</option>
+                  <option value="Latex">Latex</option>
+                  <option value="Mold">Mold</option>
+                  <option value="Animal">Animal</option>
+                  <option value="Contact">Contact</option>
+                  <option value="Other">Other</option>
+                </select>
+                <div class="select-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+              @if (allergyForm.get('allergyType')?.invalid && allergyForm.get('allergyType')?.touched) {
+                <span class="field-error">Please select an allergy type</span>
+              }
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner-small"></span> Saving...
+              } @else {
+                {{ editMode() ? 'Update Allergy' : 'Create Allergy' }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

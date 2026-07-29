@@ -58,6 +58,33 @@
         </div>
       </div>
 
+      <!-- Total Diseases Card -->
+      <div class="metric-card">
+        <div class="metric-icon-wrapper bg-rose-50 text-rose-600">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <h3 class="metric-label">Total Diseases</h3>
+          <p class="metric-value">{{ totalDiseases() }}</p>
+        </div>
+      </div>
+
+      <!-- Total Allergies Card -->
+      <div class="metric-card">
+        <div class="metric-icon-wrapper bg-amber-50 text-amber-600">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="M12 2v20"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <h3 class="metric-label">Total Allergies</h3>
+          <p class="metric-value">{{ totalAllergies() }}</p>
+        </div>
+      </div>
+
       <!-- System Status Card -->
       <div class="metric-card">
         <div class="metric-icon-wrapper bg-[var(--color-ice)] text-[var(--color-ocean)]">

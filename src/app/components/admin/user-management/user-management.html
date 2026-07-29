@@ -1,5 +1,5 @@
 <div class="user-management-page">
-  
+
   <!-- Header -->
   <div class="page-header">
     <div>
@@ -8,13 +8,15 @@
     </div>
     <div class="header-actions">
       <div class="search-box">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input #searchInput type="text" placeholder="Search users..." (input)="searchQuery.set(searchInput.value)" class="search-input">
+        <input type="text" placeholder="Search users..." #searchInput (input)="searchQuery.set(searchInput.value)"
+          class="search-input">
       </div>
-      
+
       <div class="filter-select">
         <select #roleSelect (change)="roleFilter.set(roleSelect.value)" class="role-select">
           <option value="All">All Roles</option>
@@ -23,16 +25,18 @@
           <option value="Patient">Patient</option>
         </select>
         <div class="select-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
       </div>
 
       <button class="btn-primary" (click)="openModal()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
-          <path d="M5 12h14"/>
-          <path d="M12 5v14"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
         </svg>
         <span>Add User</span>
       </button>
@@ -41,178 +45,192 @@
 
   <!-- Toast Notification -->
   @if (toastMessage()) {
-    <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'" [class.toast-error]="toastMessage()?.type === 'error'">
-      @if (toastMessage()?.type === 'success') {
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <path d="m9 11 3 3L22 4"/>
-        </svg>
-      } @else {
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" x2="12" y1="8" y2="12"/>
-          <line x1="12" x2="12.01" y1="16" y2="16"/>
-        </svg>
-      }
-      <span>{{ toastMessage()?.text }}</span>
-    </div>
+  <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'"
+    [class.toast-error]="toastMessage()?.type === 'error'">
+    @if (toastMessage()?.type === 'success') {
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="m9 11 3 3L22 4" />
+    </svg>
+    } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="8" y2="12" />
+      <line x1="12" x2="12.01" y1="16" y2="16" />
+    </svg>
+    }
+    <span>{{ toastMessage()?.text }}</span>
+  </div>
   }
 
   <!-- Loading State -->
   @if (isLoading()) {
-    <div class="loading-container">
-      <span class="spinner"></span>
-      <p>Loading users...</p>
-    </div>
+  <div class="loading-container">
+    <span class="spinner"></span>
+    <p>Loading users...</p>
+  </div>
   } @else {
-    <!-- Users Table -->
-    <div class="table-container">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Role</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (user of filteredUsers(); track user.id) {
-            <tr>
-              <td>
-                <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
-              </td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.phoneNumber || 'N/A' }}</td>
-              <td>
-                <div class="roles-container">
-                  @if (user.roles && user.roles.length > 0) {
-                    @for (role of user.roles; track role) {
-                      <span class="role-badge" [ngClass]="'role-' + role.toLowerCase()">{{ role }}</span>
-                    }
-                  } @else {
-                    <span class="role-badge">No Role</span>
-                  }
-                </div>
-              </td>
-              <td>
-                <label class="toggle-switch" [attr.aria-label]="user.isActive ? 'Deactivate user' : 'Activate user'">
-                  <input type="checkbox" [checked]="user.isActive" (change)="toggleUserStatus(user)">
-                  <span class="slider"></span>
-                </label>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                <p>No users found in the system.</p>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+  <!-- Users Table -->
+  <div class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone Number</th>
+          <th>Role</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filteredUsers(); track user.id) {
+        <tr>
+          <td>
+            <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phoneNumber || 'N/A' }}</td>
+          <td>
+            <div class="roles-container">
+              @if (user.roles && user.roles.length > 0) {
+              @for (role of user.roles; track role) {
+              <span class="role-badge" [ngClass]="'role-' + role.toLowerCase()">{{ role }}</span>
+              }
+              } @else {
+              <span class="role-badge">No Role</span>
+              }
+            </div>
+          </td>
+          <td>
+            <label class="toggle-switch" [attr.aria-label]="user.isActive ? 'Deactivate user' : 'Activate user'">
+              <input type="checkbox" [checked]="user.isActive" (change)="toggleUserStatus(user)">
+              <span class="slider"></span>
+            </label>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="5" class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <p>No users found in the system.</p>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   }
 
   <!-- Add User Modal -->
   @if (isModalOpen()) {
-    <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        
-        <div class="modal-header">
-          <h2 class="modal-title">Create New User</h2>
-          <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2 class="modal-title">Create New User</h2>
+        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate class="modal-form">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName" class="form-label">First Name</label>
+            <input id="firstName" type="text" formControlName="firstName" class="form-input" placeholder="e.g. John"
+              [class.input-error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+            @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
+            <span class="field-error">Required (min 2 chars)</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="form-label">Last Name</label>
+            <input id="lastName" type="text" formControlName="lastName" class="form-input" placeholder="e.g. Doe"
+              [class.input-error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+            @if (userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched) {
+            <span class="field-error">Required (min 2 chars)</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input id="email" type="email" formControlName="email" class="form-input" placeholder="e.g. john@example.com"
+            [class.input-error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+          @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+          <span class="field-error">Please enter a valid email</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber" class="form-label">Phone Number</label>
+          <input id="phoneNumber" type="tel" formControlName="phoneNumber" class="form-input"
+            placeholder="e.g. 01011111111"
+            [class.input-error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+          @if (userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched) {
+          <span class="field-error">Valid phone number required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input id="password" type="password" formControlName="password" class="form-input"
+            placeholder="Min 6 characters"
+            [class.input-error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+          @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+          <span class="field-error">Password must be at least 6 characters</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="role" class="form-label">System Role</label>
+          <div class="select-wrapper">
+            <select id="role" formControlName="role" class="form-select"
+              [class.input-error]="userForm.get('role')?.invalid && userForm.get('role')?.touched">
+              <option value="Patient">Patient</option>
+              <option value="Doctor">Doctor</option>
+              <option value="Admin">Admin</option>
+            </select>
+            <div class="select-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+          @if (userForm.get('role')?.invalid && userForm.get('role')?.touched) {
+          <span class="field-error">Please select a role</span>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+            <span class="spinner-small"></span> Creating...
+            } @else {
+            Create User
+            }
           </button>
         </div>
 
-        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate class="modal-form">
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName" class="form-label">First Name</label>
-              <input id="firstName" type="text" formControlName="firstName" class="form-input" placeholder="e.g. John" [class.input-error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
-              @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
-                <span class="field-error">Required (min 2 chars)</span>
-              }
-            </div>
-
-            <div class="form-group">
-              <label for="lastName" class="form-label">Last Name</label>
-              <input id="lastName" type="text" formControlName="lastName" class="form-input" placeholder="e.g. Doe" [class.input-error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
-              @if (userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched) {
-                <span class="field-error">Required (min 2 chars)</span>
-              }
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="email" class="form-label">Email Address</label>
-            <input id="email" type="email" formControlName="email" class="form-input" placeholder="e.g. john@example.com" [class.input-error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-            @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
-              <span class="field-error">Please enter a valid email</span>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="phoneNumber" class="form-label">Phone Number</label>
-            <input id="phoneNumber" type="tel" formControlName="phoneNumber" class="form-input" placeholder="e.g. 01011111111" [class.input-error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
-            @if (userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched) {
-              <span class="field-error">Valid phone number required</span>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input id="password" type="password" formControlName="password" class="form-input" placeholder="Min 6 characters" [class.input-error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
-            @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
-              <span class="field-error">Password must be at least 6 characters</span>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="role" class="form-label">System Role</label>
-            <div class="select-wrapper">
-              <select id="role" formControlName="role" class="form-select" [class.input-error]="userForm.get('role')?.invalid && userForm.get('role')?.touched">
-                <option value="Patient">Patient</option>
-                <option value="Doctor">Doctor</option>
-                <option value="Admin">Admin</option>
-              </select>
-              <div class="select-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
-            </div>
-            @if (userForm.get('role')?.invalid && userForm.get('role')?.touched) {
-              <span class="field-error">Please select a role</span>
-            }
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
-            <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-              @if (isSubmitting()) {
-                <span class="spinner-small"></span> Creating...
-              } @else {
-                Create User
-              }
-            </button>
-          </div>
-
-        </form>
-      </div>
+      </form>
     </div>
+  </div>
   }
 
 </div>
