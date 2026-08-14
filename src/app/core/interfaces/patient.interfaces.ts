@@ -74,3 +74,22 @@ export interface UpdateMedicalInfoRequest {
     severity: string;
   }[];
 }
+
+export interface PatientSearchDto {
+  id: number;
+  fullName: string;
+  dateOfBirth: string | null;
+  gender: string | null;
+  bloodType: string | null;
+  nationalId: string | null;
+}
+
+export interface PatientHistoryDto {
+  patientId: number;
+  fullName: string;
+  dateOfBirth: string | null;
+  gender: string | null;
+  diseases: PatientDiseaseDto[];
+  allergies: PatientAllergyDto[];
+  activeMedications: MedicationDto[];
+}
