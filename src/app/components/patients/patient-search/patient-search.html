@@ -1,1 +1,78 @@
-<p>patient-search works!</p>
+<div class="p-6 max-w-4xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Patient Search</h1>
+    
+    <div class="flex gap-4">
+      <div class="relative flex-1">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (keyup.enter)="search()"
+          class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-colors" 
+          placeholder="Search by Name or National ID..."
+        >
+      </div>
+      <button 
+        (click)="search()"
+        [disabled]="isLoading || !searchTerm.trim()"
+        class="bg-[var(--color-primary)] hover:bg-[var(--color-ocean)] text-white px-6 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      >
+        <span *ngIf="isLoading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        Search
+      </button>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="mt-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center gap-3">
+      <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+      </svg>
+      {{ error }}
+    </div>
+  </div>
+
+  <!-- Results Card -->
+  <div *ngIf="patient" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+    <div class="border-b border-gray-100 p-6 flex justify-between items-center bg-gray-50/50">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-[var(--color-ice)] text-[var(--color-primary)] rounded-full flex items-center justify-center font-bold text-xl">
+          {{ patient.fullName.charAt(0) }}
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">{{ patient.fullName }}</h2>
+          <p class="text-gray-500 text-sm">National ID: {{ patient.nationalId || 'N/A' }}</p>
+        </div>
+      </div>
+      <a 
+        [routerLink]="['/doctor/patients', patient.id, 'history']" 
+        class="text-[var(--color-primary)] bg-[var(--color-ice)] hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
+      >
+        View History
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="space-y-1">
+        <p class="text-sm font-medium text-gray-500">Date of Birth</p>
+        <p class="font-semibold text-gray-900">{{ patient.dateOfBirth | date:'longDate' }}</p>
+      </div>
+      <div class="space-y-1">
+        <p class="text-sm font-medium text-gray-500">Gender</p>
+        <p class="font-semibold text-gray-900">{{ patient.gender || 'Unknown' }}</p>
+      </div>
+      <div class="space-y-1">
+        <p class="text-sm font-medium text-gray-500">Blood Type</p>
+        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          {{ patient.bloodType || 'Unknown' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,7 +6,9 @@ import { ApiResponse } from '../interfaces/auth.interfaces';
 import { 
   PatientProfileDto, 
   PatientMedicalDataDto, 
-  UpdateMedicalInfoRequest 
+  UpdateMedicalInfoRequest,
+  PatientSearchDto,
+  PatientHistoryDto
 } from '../interfaces/patient.interfaces';
 
 @Injectable({
@@ -26,5 +28,15 @@ export class PatientService {
 
   updateMedicalInfo(data: UpdateMedicalInfoRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/Patient/medical-info`, data);
+  }
+
+  searchPatient(query: string): Observable<ApiResponse<PatientSearchDto>> {
+    // Note: User mentioned "take name or national id in query".
+    // Checking standard query string for such scenarios, assume ?searchTerm= or ?query=
+    return this.http.get<ApiResponse<PatientSearchDto>>(`${this.apiUrl}/Patient/search?query=${encodeURIComponent(query)}`);
+  }
+
+  getPatientHistory(id: number): Observable<ApiResponse<PatientHistoryDto>> {
+    return this.http.get<ApiResponse<PatientHistoryDto>>(`${this.apiUrl}/Patient/history/${id}`);
   }
 }
