@@ -68,6 +68,11 @@ describe('Chatbot', () => {
     expect(component.getRelativeTime(now.toISOString())).toBe('Just now');
   });
 
+  it('should parse UTC dates without trailing Z correctly as Just now', () => {
+    const nowUtcString = new Date().toISOString().replace('Z', '');
+    expect(component.getRelativeTime(nowUtcString)).toBe('Just now');
+  });
+
   it('should format timestamp to time string', () => {
     const result = component.formatTimestamp('2026-08-15T14:30:00Z');
     expect(result).toBeTruthy();

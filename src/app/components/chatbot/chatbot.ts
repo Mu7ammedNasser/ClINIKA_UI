@@ -176,15 +176,25 @@ export class Chatbot implements OnInit {
 
   // ─── Helpers ──────────────────────────────────────────────────
 
+  private parseDate(dateStr: string): Date {
+    if (!dateStr) return new Date();
+    let s = dateStr.trim();
+    if (!s.endsWith('Z') && !/[+-]\d{2}(?::?\d{2})?$/.test(s)) {
+      s += 'Z';
+    }
+    return new Date(s);
+  }
+
   getRelativeTime(dateStr: string): string {
-    const date = new Date(dateStr);
+    const date = this.parseDate(dateStr);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
+
+    if (diffMs < 60000) return 'Just now';
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
@@ -192,7 +202,7 @@ export class Chatbot implements OnInit {
   }
 
   formatTimestamp(dateStr: string): string {
-    const date = new Date(dateStr);
+    const date = this.parseDate(dateStr);
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   }
 
