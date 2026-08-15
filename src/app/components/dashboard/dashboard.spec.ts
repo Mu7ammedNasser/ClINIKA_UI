@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { Dashboard } from './dashboard';
 
 describe('Dashboard', () => {
@@ -8,9 +9,9 @@ describe('Dashboard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Dashboard]
-    })
-    .compileComponents();
+      imports: [Dashboard],
+      providers: [provideHttpClient(), provideRouter([])],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Dashboard);
     component = fixture.componentInstance;
@@ -19,5 +20,17 @@ describe('Dashboard', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should initialize counters to zero', () => {
+    expect(component.totalUsers()).toBe(0);
+    expect(component.activeUsers()).toBe(0);
+    expect(component.totalRoles()).toBe(0);
+    expect(component.totalDiseases()).toBe(0);
+    expect(component.totalAllergies()).toBe(0);
+  });
+
+  it('should have a role signal', () => {
+    expect(component.role).toBeDefined();
   });
 });
