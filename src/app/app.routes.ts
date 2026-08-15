@@ -130,6 +130,11 @@ export const routes: Routes = [
           import('./components/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: 'chat',
+        loadComponent: () =>
+          import('./components/chatbot/chatbot').then((m) => m.Chatbot),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./components/profile/profile').then((m) => m.Profile),
