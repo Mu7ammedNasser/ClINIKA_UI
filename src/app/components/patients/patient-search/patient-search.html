@@ -48,15 +48,27 @@
           <p class="text-gray-500 text-sm">National ID: {{ patient.nationalId || 'N/A' }}</p>
         </div>
       </div>
-      <a 
-        [routerLink]="['/doctor/patients', patient.id, 'history']" 
-        class="text-[var(--color-primary)] bg-[var(--color-ice)] hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
-      >
-        View History
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </a>
+      <div class="flex items-center gap-2">
+        <a 
+          [routerLink]="['/doctor/sessions/create']" 
+          [queryParams]="{ search: patient.fullName }"
+          class="bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)] text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-1.5 shadow-sm"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Start Session
+        </a>
+        <a 
+          [routerLink]="['/doctor/patients', patient.id, 'history']" 
+          class="text-[var(--color-primary)] bg-[var(--color-ice)] hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
+        >
+          View History
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
     </div>
     <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="space-y-1">

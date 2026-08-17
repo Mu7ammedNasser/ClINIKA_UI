@@ -1,1 +1,498 @@
-<p>diagnosis works!</p>
+<div class="diagnosis-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <div class="flex items-center gap-3">
+        <button (click)="startNewSession()" class="back-btn" title="Back to Start Session">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div>
+          <h1 class="page-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="title-icon">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            AI Consultation & Diagnosis
+          </h1>
+          <p class="page-subtitle">
+            Provide consultation audio and medical findings to generate automated clinical insights.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Session Badge -->
+    <div *ngIf="sessionId" class="session-badge">
+      <span class="pulse-dot"></span>
+      <span class="font-medium text-gray-700">Active Session <strong class="text-[var(--color-primary)]">#{{ sessionId }}</strong></span>
+      <span *ngIf="patientName" class="text-gray-400">|</span>
+      <span *ngIf="patientName" class="patient-tag font-semibold text-[var(--color-ocean)]">{{ patientName }}</span>
+    </div>
+  </div>
+
+  <!-- Step Progress Indicator -->
+  <div class="steps-indicator">
+    <div class="step step-done">
+      <div class="step-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <span class="step-label">Patient Selected</span>
+    </div>
+    <div class="step-line step-line-active"></div>
+    <div class="step step-done">
+      <div class="step-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <span class="step-label">Session Created</span>
+    </div>
+    <div class="step-line step-line-active"></div>
+    <div class="step" [class.step-active]="!diagnosisComplete" [class.step-done]="diagnosisComplete">
+      <div class="step-circle">
+        <span *ngIf="!diagnosisComplete">3</span>
+        <svg *ngIf="diagnosisComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <span class="step-label">AI Diagnosis</span>
+    </div>
+  </div>
+
+  <!-- Missing Session ID Alert -->
+  <div *ngIf="!sessionId" class="no-session-card animate-slide-up">
+    <div class="warning-icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 text-amber-500">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">No Active Session Found</h2>
+    <p class="text-gray-500 mb-6 text-sm max-w-md">Please start a clinical session first by selecting a patient.</p>
+    <button (click)="startNewSession()" class="btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      Find Patient & Start Session
+    </button>
+  </div>
+
+  <!-- Main Diagnosis Grid -->
+  <div *ngIf="sessionId" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left Column: Audio & Medical Documents -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Consultation Audio Card -->
+      <div class="upload-card">
+        <div class="card-header">
+          <div class="flex items-center gap-2.5">
+            <div class="icon-bubble bg-blue-50 text-[var(--color-ocean)]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Consultation Audio <span class="text-rose-500">*</span></h2>
+              <p class="card-subtitle">Voice recording of doctor-patient dialogue</p>
+            </div>
+          </div>
+          <span *ngIf="audioFile" class="status-pill status-ready">Audio Ready</span>
+        </div>
+
+        <!-- Mode Selector: File Upload vs Record -->
+        <div *ngIf="!audioFile && !isDiagnosing && !diagnosisComplete" class="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
+          <button (click)="setAudioInputMode('upload')"
+            class="flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+            [class.bg-white]="audioInputMode === 'upload'"
+            [class.shadow-xs]="audioInputMode === 'upload'"
+            [class.text-[var(--color-primary)]]="audioInputMode === 'upload'"
+            [class.text-gray-500]="audioInputMode !== 'upload'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Upload File
+          </button>
+          <button (click)="setAudioInputMode('record')"
+            class="flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+            [class.bg-white]="audioInputMode === 'record'"
+            [class.shadow-xs]="audioInputMode === 'record'"
+            [class.text-rose-600]="audioInputMode === 'record'"
+            [class.text-gray-500]="audioInputMode !== 'record'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            </svg>
+            Record Live Microphone
+          </button>
+        </div>
+
+        <!-- Mode 1: File Dropzone -->
+        <div *ngIf="audioInputMode === 'upload' && !audioFile && !isDiagnosing && !diagnosisComplete"
+          class="dropzone"
+          [class.drag-over]="isAudioDragOver"
+          (dragover)="isAudioDragOver = true; $event.preventDefault()"
+          (dragleave)="isAudioDragOver = false"
+          (drop)="onAudioDrop($event)"
+          (click)="audioInput.click()">
+          <input #audioInput type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm" class="hidden"
+            (change)="onAudioSelected($event)" />
+          <div class="dropzone-content">
+            <div class="dropzone-icon bg-blue-50 text-[var(--color-ocean)]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="dropzone-title">Click or drag audio file here</p>
+            <p class="dropzone-hint">Supports MP3, WAV, M4A, AAC, WEBM (Max 50MB)</p>
+          </div>
+        </div>
+
+        <!-- Mode 2: Live Recording Box -->
+        <div *ngIf="audioInputMode === 'record' && !audioFile && !isDiagnosing && !diagnosisComplete"
+          class="record-box animate-slide-up">
+          <div class="flex flex-col items-center gap-4 py-4">
+            
+            <!-- Pulse Ring Indicator -->
+            <div class="relative flex items-center justify-center">
+              <div *ngIf="isRecording" class="absolute w-20 h-20 rounded-full bg-rose-500/20 animate-ping"></div>
+              <button (click)="isRecording ? stopRecording() : startRecording()"
+                class="relative z-10 w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-md"
+                [class.bg-rose-600]="isRecording"
+                [class.hover:bg-rose-700]="isRecording"
+                [class.bg-[var(--color-ocean)]]="!isRecording"
+                [class.hover:bg-[var(--color-ocean-hover)]]="!isRecording"
+                [title]="isRecording ? 'Stop Recording' : 'Start Recording'">
+                <svg *ngIf="!isRecording" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <div *ngIf="isRecording" class="w-6 h-6 rounded bg-white"></div>
+              </button>
+            </div>
+
+            <!-- Timer & Status -->
+            <div class="text-center">
+              <p *ngIf="isRecording" class="text-2xl font-mono font-bold text-rose-600 tracking-wider">
+                {{ formatRecordingTime(recordingSeconds) }}
+              </p>
+              <p class="text-xs font-medium text-gray-500 mt-1">
+                {{ isRecording ? 'Recording consultation... Click square button to finish' : 'Click microphone to begin recording' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Selected Preview & Player -->
+        <div *ngIf="audioFile" class="file-preview-card animate-slide-up">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 text-[var(--color-ocean)] flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                  <path d="M9 18V5l12-2v13"/>
+                  <circle cx="6" cy="18" r="3"/>
+                  <circle cx="18" cy="16" r="3"/>
+                </svg>
+              </div>
+              <div class="truncate">
+                <p class="text-sm font-semibold text-gray-800 truncate">{{ audioPreviewName }}</p>
+                <p class="text-xs text-gray-500">{{ formatFileSize(audioFile.size) }} • Ready for AI processing</p>
+              </div>
+            </div>
+
+            <!-- Audio Player -->
+            <div class="flex items-center gap-3">
+              <audio *ngIf="audioPreviewUrl" [src]="audioPreviewUrl" controls class="h-9 w-52 sm:w-60"></audio>
+              <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeAudio()" class="remove-btn" title="Remove Audio">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Documents / Images Card -->
+      <div class="upload-card">
+        <div class="card-header">
+          <div class="flex items-center gap-2.5">
+            <div class="icon-bubble bg-purple-50 text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Medical Images & Documents <span class="text-xs font-normal text-gray-400">(Optional)</span></h2>
+              <p class="card-subtitle">X-rays, lab findings, MRI scans, or PDF medical reports</p>
+            </div>
+          </div>
+          <span *ngIf="documentPreviews.length > 0" class="status-pill status-docs">
+            {{ documentPreviews.length }} File{{ documentPreviews.length > 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <!-- Documents Dropzone -->
+        <div *ngIf="!isDiagnosing && !diagnosisComplete"
+          class="dropzone dropzone-sm"
+          [class.drag-over]="isDocsDragOver"
+          (dragover)="isDocsDragOver = true; $event.preventDefault()"
+          (dragleave)="isDocsDragOver = false"
+          (drop)="onDocsDrop($event)"
+          (click)="docsInput.click()">
+          <input #docsInput type="file" multiple accept="image/*,.pdf" class="hidden"
+            (change)="onDocumentsSelected($event)" />
+          <div class="dropzone-content">
+            <div class="dropzone-icon bg-purple-50 text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <p class="dropzone-title">Click or drag images (JPEG, PNG) and PDF documents</p>
+            <p class="dropzone-hint">Multi-file selection supported</p>
+          </div>
+        </div>
+
+        <!-- Uploaded Document Previews Grid -->
+        <div *ngIf="documentPreviews.length > 0" class="docs-grid mt-4">
+          <div *ngFor="let doc of documentPreviews; let i = index" class="doc-item animate-slide-up">
+            
+            <!-- Image Thumbnail or PDF Icon -->
+            <div class="doc-thumbnail">
+              <img *ngIf="doc.isImage && doc.previewUrl" [src]="doc.previewUrl" [alt]="doc.file.name"
+                class="w-full h-full object-cover rounded-lg" />
+              <div *ngIf="doc.isPdf" class="w-full h-full rounded-lg bg-red-50 flex items-center justify-center text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Doc Info -->
+            <div class="doc-info truncate">
+              <p class="doc-name truncate">{{ doc.file.name }}</p>
+              <p class="doc-meta">{{ formatFileSize(doc.file.size) }}</p>
+            </div>
+
+            <!-- Remove Button -->
+            <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeDocument(i)" class="remove-doc-btn" title="Remove File">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: AI Execution & Live Pipeline Status -->
+    <div class="space-y-6">
+
+      <!-- Action Card -->
+      <div class="action-card">
+        <h3 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-[var(--color-ocean)]">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          AI Pipeline Execution
+        </h3>
+        <p class="text-xs text-gray-500 mb-5">
+          Our multimodal AI engine transcribes audio, analyzes patient symptoms, and generates differential diagnoses.
+        </p>
+
+        <!-- Initial Ready State -->
+        <div *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete">
+          <button (click)="submitDiagnosis()" [disabled]="!audioFile" class="btn-diagnose">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Run AI Diagnosis
+          </button>
+          <p *ngIf="!audioFile" class="text-xs text-amber-600 mt-2.5 text-center flex items-center justify-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 flex-shrink-0">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Audio recording is required to diagnose
+          </p>
+        </div>
+
+        <!-- Uploading Files State -->
+        <div *ngIf="isSubmitting" class="py-6 text-center">
+          <div class="spinner-large mx-auto mb-3"></div>
+          <p class="font-semibold text-gray-800 text-sm">Uploading consultation files...</p>
+          <p class="text-xs text-gray-500 mt-1">Transferring audio & documents to server</p>
+        </div>
+
+        <!-- Live Diagnosing (SSE Stream Active) -->
+        <div *ngIf="isDiagnosing" class="ai-processing-card animate-slide-up">
+          <div class="ai-glow-ring">
+            <div class="ai-brain-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white">
+                <path d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
+                <path d="M6 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
+                <path d="M18 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
+                <path d="M12 14a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
+              </svg>
+            </div>
+          </div>
+
+          <h4 class="font-bold text-gray-900 mt-4 text-center">AI Analysis in Progress</h4>
+          <p class="text-xs text-gray-500 text-center mb-4">Listening for live updates from Activepieces workflow...</p>
+
+          <div class="pipeline-steps space-y-2.5">
+            <div class="pipeline-step step-completed">
+              <span class="dot-check">✓</span>
+              <span class="text-xs font-medium text-gray-700">Audio & Docs Uploaded</span>
+            </div>
+            <div class="pipeline-step step-active">
+              <span class="dot-pulse"></span>
+              <span class="text-xs font-medium text-[var(--color-ocean)]">Transcribing Speech via Whisper AI...</span>
+            </div>
+            <div class="pipeline-step step-pending">
+              <span class="dot-empty"></span>
+              <span class="text-xs font-medium text-gray-400">Extracting Symptoms & History</span>
+            </div>
+            <div class="pipeline-step step-pending">
+              <span class="dot-empty"></span>
+              <span class="text-xs font-medium text-gray-400">Generating AI Differential Diagnosis</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Diagnosis State -->
+        <div *ngIf="diagnosisComplete" class="completed-card animate-slide-up">
+          <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h4 class="font-bold text-emerald-900 text-center text-base">Diagnosis Complete!</h4>
+          <p class="text-xs text-emerald-700 text-center mb-5 mt-1">
+            Data saved to database. AI summary and suggested investigations are ready.
+          </p>
+
+          <div class="space-y-2.5">
+            <button (click)="goToReports()" class="btn-report">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              View Clinical Report
+            </button>
+
+            <button (click)="goToInteractionCheck()" class="btn-secondary-action">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[var(--color-ocean)]">
+                <path d="M10.5 20.5 19 12l-8.5-8.5"/>
+                <path d="m13.5 12-5 5-5-5 5-5z"/>
+              </svg>
+              Check Drug Interactions
+            </button>
+
+            <button (click)="startNewSession()" class="btn-new-session">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Start Another Session
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Error Alert -->
+        <div *ngIf="submitError" class="error-alert mt-4">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>{{ submitError }}</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" class="toast-notification"
+    [class.toast-success]="toastMessage.type === 'success'"
+    [class.toast-error]="toastMessage.type === 'error'"
+    [class.toast-info]="toastMessage.type === 'info'">
+    <svg *ngIf="toastMessage.type === 'success'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="m9 11 3 3L22 4" />
+    </svg>
+    <svg *ngIf="toastMessage.type === 'error'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+    <svg *ngIf="toastMessage.type === 'info'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+    <span>{{ toastMessage.text }}</span>
+  </div>
+
+</div>

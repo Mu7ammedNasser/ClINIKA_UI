@@ -25,27 +25,37 @@
 
   <ng-container *ngIf="history && !isLoading">
     <!-- Header Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 flex items-center gap-6 animate-fade-in-up">
-      <div class="w-16 h-16 bg-[var(--color-ice)] text-[var(--color-primary)] rounded-full flex items-center justify-center font-bold text-3xl">
-        {{ history.fullName.charAt(0) }}
-      </div>
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ history.fullName }}</h1>
-        <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">
-          <div class="flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            DOB: <span class="font-medium text-gray-700">{{ history.dateOfBirth | date }}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            Gender: <span class="font-medium text-gray-700">{{ history.gender || 'N/A' }}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-            ID: <span class="font-medium text-gray-700">{{ history.patientId }}</span>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 animate-fade-in-up">
+      <div class="flex items-center gap-6">
+        <div class="w-16 h-16 bg-[var(--color-ice)] text-[var(--color-primary)] rounded-full flex items-center justify-center font-bold text-3xl">
+          {{ history.fullName.charAt(0) }}
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">{{ history.fullName }}</h1>
+          <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              DOB: <span class="font-medium text-gray-700">{{ history.dateOfBirth | date }}</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Gender: <span class="font-medium text-gray-700">{{ history.gender || 'N/A' }}</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              ID: <span class="font-medium text-gray-700">{{ history.patientId }}</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <a [routerLink]="['/doctor/sessions/create']" [queryParams]="{ search: history.fullName }"
+        class="inline-flex items-center gap-2 bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)] text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm self-start sm:self-auto text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Start Session
+      </a>
     </div>
 
     <!-- Data Grid -->
