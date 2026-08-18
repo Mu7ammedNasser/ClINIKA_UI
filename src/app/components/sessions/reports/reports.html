@@ -1,1 +1,570 @@
-<p>reports works!</p>
+<div class="reports-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <div class="flex items-center gap-3">
+        <div class="header-icon-bubble">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="page-title">Clinical Diagnosis Reports</h1>
+          <p class="page-subtitle">
+            Browse consultation reports, review AI clinical insights, and inspect patient prescriptions.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button (click)="startNewConsultation()" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Start New Consultation
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Controls -->
+  <div class="filter-card mb-6">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <!-- Search Input -->
+      <div class="relative flex-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"
+          class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" (keyup.enter)="searchByDirectSessionId()"
+          placeholder="Search by Session #, Patient Name, Diagnosis, or Symptoms..." class="search-input" />
+        <button *ngIf="searchTerm" (click)="clearSearch()" class="search-clear-btn" title="Clear search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quick Session ID Lookup Button if numeric -->
+      <button *ngIf="isNumericSearch" (click)="searchByDirectSessionId()" class="btn-primary whitespace-nowrap animate-slide-up">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        View Session #{{ searchTerm.trim() }} Report
+      </button>
+
+      <!-- Refresh Button -->
+      <button (click)="loadReports()" [disabled]="isLoading" class="btn-refresh" title="Reload reports">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" [class.animate-spin]="isLoading">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div *ngFor="let s of [1, 2, 3, 4, 5, 6]" class="skeleton-card">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-20 h-5 bg-gray-200 rounded-md animate-pulse"></div>
+        <div class="w-16 h-5 bg-gray-200 rounded-full animate-pulse"></div>
+      </div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+        <div class="space-y-2 flex-1">
+          <div class="w-3/4 h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div class="w-1/2 h-3 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+      <div class="w-full h-16 bg-gray-200 rounded-xl animate-pulse mb-4"></div>
+      <div class="w-full h-9 bg-gray-200 rounded-xl animate-pulse"></div>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="errorMessage && !isLoading" class="error-banner mb-6 animate-slide-up">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage }}</span>
+    <button (click)="loadReports()" class="ml-auto underline font-semibold text-xs">Try Again</button>
+  </div>
+
+  <!-- Reports Grid -->
+  <div *ngIf="!isLoading && filteredReports.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div *ngFor="let report of filteredReports" class="report-card animate-slide-up">
+      <!-- Card Top Bar -->
+      <div class="flex items-center justify-between mb-3.5">
+        <div class="flex items-center gap-2">
+          <span class="session-id-pill">#{{ report.sessionId }}</span>
+          <span *ngIf="report.hasAiReport" class="ai-ready-badge" title="AI Analysis available">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
+            </svg>
+            AI Ready
+          </span>
+        </div>
+
+        <span class="status-badge" [class.status-completed]="report.status === 'Completed'"
+          [class.status-inprogress]="report.status === 'In Progress'"
+          [class.status-processing]="report.status === 'Processing'">
+          {{ report.status }}
+        </span>
+      </div>
+
+      <!-- Patient Info Header -->
+      <div class="flex items-center gap-3 mb-3.5">
+        <div class="patient-avatar">
+          {{ getInitials(report.patientName) }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-gray-900 text-base truncate">{{ report.patientName }}</h3>
+          <div class="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+            <span *ngIf="report.patientGender">{{ report.patientGender }}</span>
+            <span *ngIf="report.patientGender" class="text-gray-300">•</span>
+            <span>{{ formatDate(report.visitDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clinical Insights Summary Snippet -->
+      <div class="report-summary-box mb-4">
+        <p *ngIf="report.possibleDiagnoses" class="text-xs text-gray-800 line-clamp-2">
+          <strong class="text-blue-900">Possible Diagnosis:</strong> {{ report.possibleDiagnoses }}
+        </p>
+        <p *ngIf="!report.possibleDiagnoses && report.patientSummary" class="text-xs text-gray-700 line-clamp-2">
+          {{ report.patientSummary }}
+        </p>
+        <p *ngIf="!report.possibleDiagnoses && !report.patientSummary && report.finalDiagnosis"
+          class="text-xs text-gray-800 line-clamp-2">
+          <strong class="text-emerald-900">Diagnosis:</strong> {{ report.finalDiagnosis }}
+        </p>
+        <p *ngIf="!report.possibleDiagnoses && !report.patientSummary && !report.finalDiagnosis"
+          class="text-xs text-gray-400 italic">
+          Consultation recorded. Click below to inspect findings.
+        </p>
+      </div>
+
+      <!-- Card Footer / Action Buttons -->
+      <div class="card-footer-actions">
+        <div class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-emerald-600">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+            <path d="m8.5 8.5 7 7" />
+          </svg>
+          <span>{{ report.prescribedMedicationsCount }} Prescribed Med{{ report.prescribedMedicationsCount !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button (click)="openReportDetail(report.sessionId)" class="btn-view-report flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            View Clinical Report
+          </button>
+
+          <button (click)="goToInteractionCheck(report.sessionId)" class="btn-icon-action"
+            title="Check Drug Interactions">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+              <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+              <path d="m8.5 8.5 7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State (No Search Results or No Reports) -->
+  <div *ngIf="!isLoading && filteredReports.length === 0" class="empty-state-card animate-slide-up">
+    <div class="empty-icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 text-gray-400">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </div>
+    <h3 class="text-lg font-bold text-gray-800 mb-1">No Consultation Reports Found</h3>
+    <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">
+      <span *ngIf="searchTerm">No reports match "{{ searchTerm }}". Try adjusting your search query or filters.</span>
+      <span *ngIf="!searchTerm">You haven't conducted any consultation sessions yet. Start your first clinical session
+        now.</span>
+    </p>
+    <div class="flex items-center justify-center gap-3">
+      <button *ngIf="searchTerm" (click)="clearSearch()" class="btn-secondary">
+        Clear Search
+      </button>
+      <button (click)="startNewConsultation()" class="btn-primary">
+        Start Consultation
+      </button>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <!-- DETAILED CLINICAL REPORT MODAL (/api/Sessions/{id}/diagnosis) -->
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <div *ngIf="selectedSessionId" class="modal-backdrop animate-fade-in" (click)="closeReportDetail()">
+    <div class="modal-container animate-scale-up" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-[var(--color-ocean)] flex items-center justify-center font-bold">
+            #{{ selectedSessionId }}
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              Clinical Report
+              <span *ngIf="selectedReport?.status" class="status-badge text-xs"
+                [class.status-completed]="selectedReport?.status === 'Completed'"
+                [class.status-inprogress]="selectedReport?.status === 'In Progress'">
+                {{ selectedReport?.status }}
+              </span>
+            </h2>
+            <p class="text-xs text-gray-500">
+              <span *ngIf="selectedReport?.patientName" class="font-semibold text-gray-800">{{ selectedReport?.patientName }}</span>
+              <span *ngIf="selectedReport?.patientGender"> ({{ selectedReport?.patientGender }})</span>
+              <span *ngIf="selectedReport?.visitDate"> • {{ formatDate(selectedReport?.visitDate) }}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button (click)="printReport()" class="btn-icon-header" title="Print Report">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+          </button>
+          <button (click)="closeReportDetail()" class="btn-close-modal" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Loading) -->
+      <div *ngIf="isLoadingDetail" class="p-8 text-center">
+        <div class="spinner-large mx-auto mb-3"></div>
+        <p class="text-sm font-semibold text-gray-800">Fetching Clinical Report #{{ selectedSessionId }}...</p>
+        <p class="text-xs text-gray-400 mt-1">Retrieving AI summary, speech transcript, and diagnosis data</p>
+      </div>
+
+      <!-- Modal Body (Error) -->
+      <div *ngIf="detailError && !isLoadingDetail" class="p-8 text-center">
+        <div class="w-14 h-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <h3 class="font-bold text-gray-800 text-base mb-1">Could Not Load Report</h3>
+        <p class="text-sm text-gray-500 mb-4">{{ detailError }}</p>
+        <button (click)="openReportDetail(selectedSessionId!)" class="btn-primary">Try Again</button>
+      </div>
+
+      <!-- Modal Content (Report Data Available) -->
+      <div *ngIf="selectedReport && !isLoadingDetail" class="modal-body">
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav mb-5">
+          <button (click)="setDetailTab('overview')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'overview'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            Clinical Overview
+          </button>
+          <button (click)="setDetailTab('transcript')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'transcript'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            </svg>
+            Speech Transcript
+          </button>
+          <button (click)="setDetailTab('medications')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'medications'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+              <path d="m8.5 8.5 7 7"/>
+            </svg>
+            Prescriptions ({{ selectedReport.prescribedMedications.length }})
+          </button>
+          <button (click)="setDetailTab('investigations')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'investigations'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Investigations & Safety
+          </button>
+        </div>
+
+        <!-- TAB 1: Clinical Overview -->
+        <div *ngIf="activeDetailTab === 'overview'" class="space-y-4 animate-slide-up">
+          
+          <!-- Possible Diagnoses Box -->
+          <div *ngIf="selectedReport.possibleDiagnoses" class="detail-box bg-blue-50/60 border-blue-100">
+            <h4 class="detail-box-title text-blue-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-blue-600">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+              AI Differential Diagnoses
+            </h4>
+            <p class="text-sm text-gray-800 leading-relaxed font-medium mt-1">
+              {{ selectedReport.possibleDiagnoses }}
+            </p>
+          </div>
+
+          <!-- Patient Summary Box -->
+          <div *ngIf="selectedReport.patientSummary" class="detail-box">
+            <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[var(--color-ocean)]">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              </svg>
+              Clinical Patient Summary
+            </h4>
+            <p class="text-sm text-gray-700 leading-relaxed mt-1 whitespace-pre-line">
+              {{ selectedReport.patientSummary }}
+            </p>
+          </div>
+
+          <!-- Final Diagnosis (if recorded by doctor) -->
+          <div *ngIf="selectedReport.finalDiagnosis" class="detail-box bg-emerald-50/60 border-emerald-100">
+            <h4 class="detail-box-title text-emerald-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Final Recorded Diagnosis
+            </h4>
+            <p class="text-sm text-emerald-950 font-bold mt-1">
+              {{ selectedReport.finalDiagnosis }}
+            </p>
+          </div>
+
+          <!-- Clinical Alerts -->
+          <div *ngIf="selectedReport.clinicalAlerts" class="detail-box bg-amber-50/60 border-amber-100">
+            <h4 class="detail-box-title text-amber-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-amber-600">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Clinical Alerts & Cautions
+            </h4>
+            <p class="text-sm text-amber-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.clinicalAlerts }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: Speech Transcript -->
+        <div *ngIf="activeDetailTab === 'transcript'" class="space-y-4 animate-slide-up">
+          <div class="detail-box">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-blue-600">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                </svg>
+                AI Audio Transcription (Whisper)
+              </h4>
+              <span *ngIf="selectedReport.audioTranscript" class="text-xs text-gray-400 font-mono">
+                {{ selectedReport.audioTranscript.split(' ').length }} words
+              </span>
+            </div>
+            
+            <div *ngIf="selectedReport.audioTranscript" class="p-4 bg-gray-50 rounded-xl text-sm text-gray-800 leading-relaxed font-normal whitespace-pre-line border border-gray-100 max-h-96 overflow-y-auto font-sans">
+              {{ selectedReport.audioTranscript }}
+            </div>
+
+            <div *ngIf="!selectedReport.audioTranscript" class="text-center py-8 text-gray-400 text-sm">
+              No audio transcript available for this session.
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Prescribed Medications -->
+        <div *ngIf="activeDetailTab === 'medications'" class="space-y-4 animate-slide-up">
+          
+          <!-- Prescriptions Table -->
+          <div class="detail-box">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600">
+                  <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                </svg>
+                Prescribed Medications for this Visit
+              </h4>
+              <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                {{ selectedReport.prescribedMedications.length }} Items
+              </span>
+            </div>
+
+            <div *ngIf="selectedReport.prescribedMedications.length > 0" class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-gray-200 bg-gray-50/80 text-gray-600 font-bold uppercase tracking-wider">
+                    <th class="py-2.5 px-3 rounded-l-lg">Drug Name</th>
+                    <th class="py-2.5 px-3">Dosage</th>
+                    <th class="py-2.5 px-3">Frequency</th>
+                    <th class="py-2.5 px-3">Duration</th>
+                    <th class="py-2.5 px-3 rounded-r-lg">Notes / Instructions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr *ngFor="let med of selectedReport.prescribedMedications" class="hover:bg-gray-50/60 transition-colors">
+                    <td class="py-3 px-3 font-bold text-gray-900">{{ med.drugName }}</td>
+                    <td class="py-3 px-3 font-semibold text-blue-700">{{ med.dosage || '—' }}</td>
+                    <td class="py-3 px-3 font-semibold text-purple-700">{{ med.frequency || '—' }}</td>
+                    <td class="py-3 px-3 text-gray-600">{{ med.duration || '—' }}</td>
+                    <td class="py-3 px-3 text-gray-500 italic">{{ med.notes || '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div *ngIf="selectedReport.prescribedMedications.length === 0" class="text-center py-8 text-gray-400 text-sm">
+              No medications prescribed during this consultation.
+            </div>
+          </div>
+
+          <!-- Drug Interactions -->
+          <div *ngIf="selectedReport.drugInteractions" class="detail-box bg-rose-50/60 border-rose-100">
+            <h4 class="detail-box-title text-rose-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-rose-600">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Drug Interactions Identified
+            </h4>
+            <p class="text-sm text-rose-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.drugInteractions }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- TAB 4: Investigations & Safety -->
+        <div *ngIf="activeDetailTab === 'investigations'" class="space-y-4 animate-slide-up">
+          
+          <!-- Extracted Symptoms -->
+          <div *ngIf="selectedReport.extractedSymptoms" class="detail-box">
+            <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+              Extracted Symptoms & Clinical Findings
+            </h4>
+            <p class="text-sm text-gray-800 mt-1 whitespace-pre-line">
+              {{ selectedReport.extractedSymptoms }}
+            </p>
+          </div>
+
+          <!-- Suggested Investigations -->
+          <div *ngIf="selectedReport.suggestedInvestigations" class="detail-box bg-purple-50/60 border-purple-100">
+            <h4 class="detail-box-title text-purple-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+              </svg>
+              Suggested Laboratory Tests & Diagnostic Scans
+            </h4>
+            <p class="text-sm text-purple-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.suggestedInvestigations }}
+            </p>
+          </div>
+
+          <!-- Contraindications -->
+          <div *ngIf="selectedReport.contraindications" class="detail-box bg-amber-50/60 border-amber-100">
+            <h4 class="detail-box-title text-amber-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-amber-600">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+              Contraindications & Patient Warnings
+            </h4>
+            <p class="text-sm text-amber-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.contraindications }}
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div *ngIf="selectedReport && !isLoadingDetail" class="modal-footer">
+        <button (click)="goToInteractionCheck(selectedReport.sessionId)" class="btn-secondary flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+          </svg>
+          Check Drug Interactions
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button (click)="printReport()" class="btn-secondary flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print
+          </button>
+          <button (click)="closeReportDetail()" class="btn-primary">
+            Done
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

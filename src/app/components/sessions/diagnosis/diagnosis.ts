@@ -492,7 +492,13 @@ export class Diagnosis implements OnInit, OnDestroy {
   }
 
   goToReports(): void {
-    this.router.navigate(['/doctor/sessions/reports']);
+    if (this.sessionId) {
+      this.router.navigate(['/doctor/sessions/reports'], {
+        queryParams: { sessionId: this.sessionId },
+      });
+    } else {
+      this.router.navigate(['/doctor/sessions/reports']);
+    }
   }
 
   goToInteractionCheck(): void {
