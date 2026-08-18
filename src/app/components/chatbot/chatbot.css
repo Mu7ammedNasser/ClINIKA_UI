@@ -301,6 +301,23 @@
   @apply text-sm leading-relaxed whitespace-pre-wrap break-words;
 }
 
+.message-content strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+.message-content em {
+  font-style: italic;
+}
+
+.message-content .chat-inline-code {
+  @apply px-1.5 py-0.5 rounded text-xs font-mono bg-gray-100 text-gray-800 border border-gray-200;
+}
+
+.user-bubble .message-content .chat-inline-code {
+  @apply bg-white/20 text-white border-white/30;
+}
+
 .message-time {
   @apply block text-[10px] mt-1.5 opacity-60;
 }

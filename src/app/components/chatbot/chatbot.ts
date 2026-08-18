@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ChatService } from '../../core/services/chat.service';
 import { PatientService } from '../../core/services/patient.service';
 import { ChatMessage, ChatSessionSummary } from '../../core/interfaces/chat.interfaces';
@@ -18,6 +19,7 @@ export class Chatbot implements OnInit {
 
   private readonly chatService = inject(ChatService);
   private readonly patientService = inject(PatientService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   // ─── State ────────────────────────────────────────────────────
   readonly patientId = signal<number | null>(null);
@@ -237,5 +239,28 @@ export class Chatbot implements OnInit {
         this.messageTextarea.nativeElement.style.height = 'auto';
       }
     }, 0);
+  }
+
+  renderMarkdown(content: string): SafeHtml {
+    if (!content) return '';
+
+    // 1. Escape HTML special characters
+    let html = content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2. Inline code (`code`)
+    html = html.replace(/`([^`]+)`/g, '<code class="chat-inline-code">$1</code>');
+
+    // 3. Bold (**text** or __text__)
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+    // 4. Italic (*text* or _text_)
+    html = html.replace(/\*([^\*\n]+)\*/g, '<em>$1</em>');
+    html = html.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 }
