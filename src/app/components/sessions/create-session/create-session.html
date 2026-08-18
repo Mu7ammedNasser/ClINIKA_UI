@@ -1,1 +1,188 @@
-<p>create-session works!</p>
+<div class="session-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <h1 class="page-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="title-icon">
+          <path d="M12 8v4l3 3" />
+          <circle cx="12" cy="12" r="10" />
+        </svg>
+        Start Clinical Session
+      </h1>
+      <p class="page-subtitle">Search for a patient to begin a new diagnosis session.</p>
+    </div>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="steps-indicator">
+    <div class="step" [class.step-active]="!sessionCreated" [class.step-done]="sessionCreated">
+      <div class="step-circle">
+        <span *ngIf="!sessionCreated">1</span>
+        <svg *ngIf="sessionCreated" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <span class="step-label">Find Patient</span>
+    </div>
+    <div class="step-line" [class.step-line-active]="sessionCreated"></div>
+    <div class="step" [class.step-active]="sessionCreated">
+      <div class="step-circle">2</div>
+      <span class="step-label">Start Session</span>
+    </div>
+    <div class="step-line" [class.step-line-active]="false"></div>
+    <div class="step">
+      <div class="step-circle">3</div>
+      <span class="step-label">Diagnose</span>
+    </div>
+  </div>
+
+  <!-- Search Card -->
+  <div class="search-card">
+    <div class="search-card-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <h2 class="card-title">Search Patient</h2>
+    </div>
+    <div class="search-row">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+        </svg>
+        <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="searchPatient()"
+          placeholder="Enter patient name or national ID..." class="search-input" [disabled]="sessionCreated">
+      </div>
+      <button (click)="searchPatient()" [disabled]="isSearching || !searchTerm.trim() || sessionCreated"
+        class="btn-search">
+        <span *ngIf="isSearching" class="spinner-small"></span>
+        <svg *ngIf="!isSearching" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        Search
+      </button>
+    </div>
+
+    <!-- Search Error -->
+    <div *ngIf="searchError" class="error-alert">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" x2="12" y1="8" y2="12" />
+        <line x1="12" x2="12.01" y1="16" y2="16" />
+      </svg>
+      <span>{{ searchError }}</span>
+    </div>
+  </div>
+
+  <!-- Patient Result Card -->
+  <div *ngIf="patient" class="patient-card animate-slide-up">
+    <div class="patient-card-header">
+      <div class="patient-info">
+        <div class="patient-avatar">
+          {{ patient.fullName.charAt(0) }}
+        </div>
+        <div>
+          <h3 class="patient-name">{{ patient.fullName }}</h3>
+          <p class="patient-id">National ID: {{ patient.nationalId || 'N/A' }}</p>
+        </div>
+      </div>
+      <div class="patient-status-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="badge-icon">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <path d="m9 11 3 3L22 4" />
+        </svg>
+        Patient Found
+      </div>
+    </div>
+
+    <div class="patient-details-grid">
+      <div class="detail-item">
+        <span class="detail-label">Date of Birth</span>
+        <span class="detail-value">{{ patient.dateOfBirth ? (patient.dateOfBirth | date:'mediumDate') : 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Gender</span>
+        <span class="detail-value">{{ patient.gender || 'Unknown' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Blood Type</span>
+        <span class="detail-value blood-type">{{ patient.bloodType || 'Unknown' }}</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="patient-actions">
+      <button *ngIf="!sessionCreated" (click)="startSession()" [disabled]="isCreating" class="btn-start-session">
+        <span *ngIf="isCreating" class="spinner-small"></span>
+        <svg *ngIf="!isCreating" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        {{ isCreating ? 'Starting Session...' : 'Start Clinical Session' }}
+      </button>
+
+      <!-- Session Created Success -->
+      <div *ngIf="sessionCreated" class="session-success animate-slide-up">
+        <div class="success-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="success-icon">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="m9 11 3 3L22 4" />
+          </svg>
+          <div>
+            <p class="success-title">Session Created — ID: #{{ sessionId }}</p>
+            <p class="success-subtitle">Ready for diagnosis. Upload audio and documents.</p>
+          </div>
+        </div>
+        <button (click)="goToDiagnosis()" class="btn-proceed">
+          Proceed to Diagnosis
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Session Error -->
+      <div *ngIf="sessionError && !sessionCreated" class="error-alert mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+        <span>{{ sessionError }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" class="toast-notification"
+    [class.toast-success]="toastMessage.type === 'success'"
+    [class.toast-error]="toastMessage.type === 'error'">
+    <svg *ngIf="toastMessage.type === 'success'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="m9 11 3 3L22 4" />
+    </svg>
+    <svg *ngIf="toastMessage.type === 'error'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="8" y2="12" />
+      <line x1="12" x2="12.01" y1="16" y2="16" />
+    </svg>
+    <span>{{ toastMessage.text }}</span>
+  </div>
+
+</div>

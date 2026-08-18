@@ -1,41 +1,49 @@
 <div class="chatbot-container">
-  <!-- Sidebar Toggle (Mobile) -->
-  <button class="sidebar-toggle" (click)="toggleSidebar()" [class.sidebar-open]="sidebarOpen()">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-      stroke-linecap="round" stroke-linejoin="round">
-      @if (sidebarOpen()) {
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      } @else {
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      }
-    </svg>
-  </button>
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-backdrop" (click)="toggleSidebar()" aria-hidden="true"></div>
+  }
 
   <!-- ─── Chat Sidebar ──────────────────────────────────────────── -->
-  <aside class="chat-sidebar" [class.open]="sidebarOpen()">
+  <aside class="chat-sidebar" [class.open]="sidebarOpen()" aria-label="Chat history sidebar">
     <div class="sidebar-top">
-      <div class="sidebar-brand">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" class="brand-icon">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        <span>AI Assistant</span>
+      <div class="sidebar-header-row">
+        <div class="sidebar-brand">
+          <div class="brand-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="brand-icon">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <div class="brand-meta">
+            <span class="brand-title">AI Assistant</span>
+            <span class="brand-badge">CliniKa</span>
+          </div>
+        </div>
+        <!-- Mobile Drawer Close Button -->
+        <button class="sidebar-close-btn" (click)="toggleSidebar()" aria-label="Close sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
       </div>
+
       <button class="new-chat-btn" (click)="startNewChat()" id="btn-new-chat">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14" />
           <path d="M5 12h14" />
         </svg>
-        <span>New Chat</span>
+        <span>New Conversation</span>
       </button>
     </div>
 
     <div class="chat-list">
       @if (isLoadingChats()) {
         <!-- Skeleton loaders -->
-        @for (i of [1, 2, 3]; track i) {
+        @for (i of [1, 2, 3, 4]; track i) {
           <div class="chat-item-skeleton">
             <div class="skeleton-line long"></div>
             <div class="skeleton-line short"></div>
@@ -43,10 +51,12 @@
         }
       } @else if (chats().length === 0) {
         <div class="empty-chats">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
+          <div class="empty-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
           <p>No conversations yet</p>
           <span>Start a new chat to begin</span>
         </div>
@@ -56,10 +66,10 @@
             (click)="openChat(chat.chatSessionId)" [id]="'chat-item-' + chat.chatSessionId">
             <div class="chat-item-content">
               <span class="chat-title">{{ chat.title }}</span>
-              <span class="chat-meta">
+              <div class="chat-meta">
                 <span class="chat-time">{{ getRelativeTime(chat.lastMessageAt) }}</span>
                 <span class="chat-count">{{ chat.messageCount }} msgs</span>
-              </span>
+              </div>
             </div>
           </button>
         }
@@ -69,53 +79,120 @@
 
   <!-- ─── Main Chat Area ────────────────────────────────────────── -->
   <main class="chat-main">
-    @if (isLoadingProfile()) {
-      <!-- Profile loading -->
-      <div class="loading-overlay">
-        <div class="loader-spinner"></div>
-        <p>Loading your profile...</p>
-      </div>
-    } @else if (isLoadingHistory()) {
-      <!-- History loading -->
-      <div class="loading-overlay">
-        <div class="loader-spinner"></div>
-        <p>Loading conversation...</p>
-      </div>
-    } @else if (messages().length === 0 && !activeChatId()) {
-      <!-- Empty state / Welcome -->
-      <div class="welcome-state">
-        <div class="welcome-icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="welcome-icon">
-            <path
-              d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
-            <path d="M12 8v8" />
-            <path d="M8 12h8" />
+    <!-- Chat Header Bar -->
+    <header class="chat-header">
+      <div class="chat-header-left">
+        <!-- Sidebar Toggle (Visible on mobile/tablet when sidebar is collapsed) -->
+        <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [class.sidebar-open]="sidebarOpen()"
+          aria-label="Toggle chat history sidebar" id="btn-toggle-sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
-        </div>
-        <h2>CliniKa AI Assistant</h2>
-        <p class="welcome-text">
-          Ask me anything about your health. I have access to your medical profile
-          and can provide personalized guidance.
-        </p>
-        <div class="suggestions">
-          <button class="suggestion-chip" (click)="messageInput.set('What medications am I currently taking?')">
-            💊 My medications
-          </button>
-          <button class="suggestion-chip" (click)="messageInput.set('Can you explain my medical conditions?')">
-            🩺 My conditions
-          </button>
-          <button class="suggestion-chip" (click)="messageInput.set('What should I know about my allergies?')">
-            ⚠️ My allergies
-          </button>
+        </button>
+
+        <div class="chat-header-info">
+          <div class="chat-header-title-row">
+            <h1 class="chat-header-title">CliniKa AI</h1>
+            <div class="online-badge">
+              <span class="online-dot"></span>
+              <span class="online-text">Medical Assistant</span>
+            </div>
+          </div>
+          <p class="chat-header-subtitle">Ask questions about your health, medications, and records</p>
         </div>
       </div>
-    } @else {
-      <!-- Messages -->
-      <div class="messages-area" #messagesContainer>
-        @for (msg of messages(); track trackByIndex($index)) {
-          <div class="message-row" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
-            @if (msg.role === 'assistant') {
+
+      <div class="chat-header-actions">
+        <button class="header-action-btn" (click)="startNewChat()" title="Start New Conversation" aria-label="Start New Chat">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          <span class="action-btn-text">New Chat</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat Content Area -->
+    <div class="chat-body">
+      @if (isLoadingProfile()) {
+        <!-- Profile loading -->
+        <div class="loading-overlay">
+          <div class="loader-spinner"></div>
+          <p>Loading your medical profile...</p>
+        </div>
+      } @else if (isLoadingHistory()) {
+        <!-- History loading -->
+        <div class="loading-overlay">
+          <div class="loader-spinner"></div>
+          <p>Loading conversation...</p>
+        </div>
+      } @else if (messages().length === 0 && !activeChatId()) {
+        <!-- Empty state / Welcome -->
+        <div class="welcome-container">
+          <div class="welcome-state">
+            <div class="welcome-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="welcome-icon">
+                <path
+                  d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
+                <path d="M12 8v8" />
+                <path d="M8 12h8" />
+              </svg>
+            </div>
+            <h2>CliniKa AI Assistant</h2>
+            <p class="welcome-text">
+              Ask me anything about your health. I have access to your medical profile
+              and can provide personalized guidance.
+            </p>
+            <div class="suggestions-section">
+              <span class="suggestions-label">Suggested Questions</span>
+              <div class="suggestions">
+                <button class="suggestion-chip" (click)="messageInput.set('What medications am I currently taking?')">
+                  <span class="chip-icon">💊</span>
+                  <span class="chip-text">What medications am I currently taking?</span>
+                </button>
+                <button class="suggestion-chip" (click)="messageInput.set('Can you explain my medical conditions?')">
+                  <span class="chip-icon">🩺</span>
+                  <span class="chip-text">Can you explain my medical conditions?</span>
+                </button>
+                <button class="suggestion-chip" (click)="messageInput.set('What should I know about my allergies?')">
+                  <span class="chip-icon">⚠️</span>
+                  <span class="chip-text">What should I know about my allergies?</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- Messages -->
+        <div class="messages-area" #messagesContainer>
+          @for (msg of messages(); track trackByIndex($index)) {
+            <div class="message-row" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
+              @if (msg.role === 'assistant') {
+                <div class="avatar ai-avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
+                  </svg>
+                </div>
+              }
+              <div class="message-bubble" [class.user-bubble]="msg.role === 'user'"
+                [class.ai-bubble]="msg.role === 'assistant'">
+                <div class="message-content">{{ msg.content }}</div>
+                <span class="message-time">{{ formatTimestamp(msg.timestamp) }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Typing indicator -->
+          @if (isSending()) {
+            <div class="message-row assistant">
               <div class="avatar ai-avatar">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -123,44 +200,27 @@
                     d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
                 </svg>
               </div>
-            }
-            <div class="message-bubble" [class.user-bubble]="msg.role === 'user'"
-              [class.ai-bubble]="msg.role === 'assistant'">
-              <div class="message-content" [innerHTML]="renderMarkdown(msg.content)"></div>
-              <span class="message-time">{{ formatTimestamp(msg.timestamp) }}</span>
+              <div class="message-bubble ai-bubble typing-indicator">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
             </div>
-          </div>
-        }
-
-        <!-- Typing indicator -->
-        @if (isSending()) {
-          <div class="message-row assistant">
-            <div class="avatar ai-avatar">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path
-                  d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
-              </svg>
-            </div>
-            <div class="message-bubble ai-bubble typing-indicator">
-              <span class="dot"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </div>
-          </div>
-        }
-      </div>
-    }
+          }
+        </div>
+      }
+    </div>
 
     <!-- ─── Input Bar ─────────────────────────────────────────────── -->
     <div class="input-bar">
       <div class="input-wrapper">
         <textarea #messageTextarea rows="1" [ngModel]="messageInput()"
           (ngModelChange)="messageInput.set($event)" (keydown)="onKeydown($event)" (input)="autoResize($event)"
-          placeholder="Ask about your health..." [disabled]="isSending() || isLoadingProfile()"
+          placeholder="Ask about your health, medications, conditions..." [disabled]="isSending() || isLoadingProfile()"
           id="chat-message-input" class="message-textarea"></textarea>
         <button class="send-btn" (click)="sendMessage()"
-          [disabled]="!messageInput().trim() || isSending() || isLoadingProfile()" id="btn-send-message">
+          [disabled]="!messageInput().trim() || isSending() || isLoadingProfile()" id="btn-send-message"
+          aria-label="Send message">
           @if (isSending()) {
             <div class="send-spinner"></div>
           } @else {
