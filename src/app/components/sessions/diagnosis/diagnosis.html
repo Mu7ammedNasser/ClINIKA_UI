@@ -13,9 +13,9 @@
         </button>
         <div>
           <h1 class="page-title">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" class="title-icon">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
             </svg>
             AI Consultation & Diagnosis
           </h1>
@@ -29,7 +29,8 @@
     <!-- Active Session Badge -->
     <div *ngIf="sessionId" class="session-badge">
       <span class="pulse-dot"></span>
-      <span class="font-medium text-gray-700">Active Session <strong class="text-[var(--color-primary)]">#{{ sessionId }}</strong></span>
+      <span class="font-medium text-gray-700">Active Session <strong class="text-[var(--color-primary)]">#{{ sessionId
+          }}</strong></span>
       <span *ngIf="patientName" class="text-gray-400">|</span>
       <span *ngIf="patientName" class="patient-tag font-semibold text-[var(--color-ocean)]">{{ patientName }}</span>
     </div>
@@ -39,8 +40,8 @@
   <div class="steps-indicator">
     <div class="step step-done">
       <div class="step-circle">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round" class="check-icon">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </div>
@@ -49,8 +50,8 @@
     <div class="step-line step-line-active"></div>
     <div class="step step-done">
       <div class="step-circle">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round" class="check-icon">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </div>
@@ -104,10 +105,10 @@
             <div class="icon-bubble bg-blue-50 text-[var(--color-ocean)]">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="23"/>
-                <line x1="8" y1="23" x2="16" y2="23"/>
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
               </svg>
             </div>
             <div>
@@ -119,53 +120,47 @@
         </div>
 
         <!-- Mode Selector: File Upload vs Record -->
-        <div *ngIf="!audioFile && !isDiagnosing && !diagnosisComplete" class="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
+        <div *ngIf="!audioFile && !isDiagnosing && !diagnosisComplete"
+          class="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
           <button (click)="setAudioInputMode('upload')"
             class="flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-            [class.bg-white]="audioInputMode === 'upload'"
-            [class.shadow-xs]="audioInputMode === 'upload'"
+            [class.bg-white]="audioInputMode === 'upload'" [class.shadow-xs]="audioInputMode === 'upload'"
             [class.text-[var(--color-primary)]]="audioInputMode === 'upload'"
             [class.text-gray-500]="audioInputMode !== 'upload'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
             Upload File
           </button>
           <button (click)="setAudioInputMode('record')"
             class="flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-            [class.bg-white]="audioInputMode === 'record'"
-            [class.shadow-xs]="audioInputMode === 'record'"
-            [class.text-rose-600]="audioInputMode === 'record'"
-            [class.text-gray-500]="audioInputMode !== 'record'">
+            [class.bg-white]="audioInputMode === 'record'" [class.shadow-xs]="audioInputMode === 'record'"
+            [class.text-rose-600]="audioInputMode === 'record'" [class.text-gray-500]="audioInputMode !== 'record'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
             </svg>
             Record Live Microphone
           </button>
         </div>
 
         <!-- Mode 1: File Dropzone -->
-        <div *ngIf="audioInputMode === 'upload' && !audioFile && !isDiagnosing && !diagnosisComplete"
-          class="dropzone"
-          [class.drag-over]="isAudioDragOver"
-          (dragover)="isAudioDragOver = true; $event.preventDefault()"
-          (dragleave)="isAudioDragOver = false"
-          (drop)="onAudioDrop($event)"
-          (click)="audioInput.click()">
+        <div *ngIf="audioInputMode === 'upload' && !audioFile && !isDiagnosing && !diagnosisComplete" class="dropzone"
+          [class.drag-over]="isAudioDragOver" (dragover)="isAudioDragOver = true; $event.preventDefault()"
+          (dragleave)="isAudioDragOver = false" (drop)="onAudioDrop($event)" (click)="audioInput.click()">
           <input #audioInput type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm" class="hidden"
             (change)="onAudioSelected($event)" />
           <div class="dropzone-content">
             <div class="dropzone-icon bg-blue-50 text-[var(--color-ocean)]">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             </div>
             <p class="dropzone-title">Click or drag audio file here</p>
@@ -177,23 +172,23 @@
         <div *ngIf="audioInputMode === 'record' && !audioFile && !isDiagnosing && !diagnosisComplete"
           class="record-box animate-slide-up">
           <div class="flex flex-col items-center gap-4 py-4">
-            
+
             <!-- Pulse Ring Indicator -->
             <div class="relative flex items-center justify-center">
               <div *ngIf="isRecording" class="absolute w-20 h-20 rounded-full bg-rose-500/20 animate-ping"></div>
               <button (click)="isRecording ? stopRecording() : startRecording()"
                 class="relative z-10 w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-md"
-                [class.bg-rose-600]="isRecording"
-                [class.hover:bg-rose-700]="isRecording"
+                [class.bg-rose-600]="isRecording" [class.hover:bg-rose-700]="isRecording"
                 [class.bg-[var(--color-ocean)]]="!isRecording"
                 [class.hover:bg-[var(--color-ocean-hover)]]="!isRecording"
                 [title]="isRecording ? 'Stop Recording' : 'Start Recording'">
                 <svg *ngIf="!isRecording" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                  <line x1="12" y1="19" x2="12" y2="23"/>
-                  <line x1="8" y1="23" x2="16" y2="23"/>
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="w-8 h-8 text-white">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
                 </svg>
                 <div *ngIf="isRecording" class="w-6 h-6 rounded bg-white"></div>
               </button>
@@ -205,7 +200,8 @@
                 {{ formatRecordingTime(recordingSeconds) }}
               </p>
               <p class="text-xs font-medium text-gray-500 mt-1">
-                {{ isRecording ? 'Recording consultation... Click square button to finish' : 'Click microphone to begin recording' }}
+                {{ isRecording ? 'Recording consultation... Click square button to finish' : 'Click microphone to begin
+                recording' }}
               </p>
             </div>
           </div>
@@ -215,12 +211,13 @@
         <div *ngIf="audioFile" class="file-preview-card animate-slide-up">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-lg bg-blue-100 text-[var(--color-ocean)] flex items-center justify-center flex-shrink-0">
+              <div
+                class="w-10 h-10 rounded-lg bg-blue-100 text-[var(--color-ocean)] flex items-center justify-center flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-                  <path d="M9 18V5l12-2v13"/>
-                  <circle cx="6" cy="18" r="3"/>
-                  <circle cx="18" cy="16" r="3"/>
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
                 </svg>
               </div>
               <div class="truncate">
@@ -232,11 +229,12 @@
             <!-- Audio Player -->
             <div class="flex items-center gap-3">
               <audio *ngIf="audioPreviewUrl" [src]="audioPreviewUrl" controls class="h-9 w-52 sm:w-60"></audio>
-              <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeAudio()" class="remove-btn" title="Remove Audio">
+              <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeAudio()"
+                class="remove-btn" title="Remove Audio">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
@@ -251,13 +249,14 @@
             <div class="icon-bubble bg-purple-50 text-purple-600">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
             <div>
-              <h2 class="card-title">Medical Images & Documents <span class="text-xs font-normal text-gray-400">(Optional)</span></h2>
+              <h2 class="card-title">Medical Images & Documents <span
+                  class="text-xs font-normal text-gray-400">(Optional)</span></h2>
               <p class="card-subtitle">X-rays, lab findings, MRI scans, or PDF medical reports</p>
             </div>
           </div>
@@ -267,23 +266,19 @@
         </div>
 
         <!-- Documents Dropzone -->
-        <div *ngIf="!isDiagnosing && !diagnosisComplete"
-          class="dropzone dropzone-sm"
-          [class.drag-over]="isDocsDragOver"
-          (dragover)="isDocsDragOver = true; $event.preventDefault()"
-          (dragleave)="isDocsDragOver = false"
-          (drop)="onDocsDrop($event)"
-          (click)="docsInput.click()">
+        <div *ngIf="!isDiagnosing && !diagnosisComplete" class="dropzone dropzone-sm" [class.drag-over]="isDocsDragOver"
+          (dragover)="isDocsDragOver = true; $event.preventDefault()" (dragleave)="isDocsDragOver = false"
+          (drop)="onDocsDrop($event)" (click)="docsInput.click()">
           <input #docsInput type="file" multiple accept="image/*,.pdf" class="hidden"
             (change)="onDocumentsSelected($event)" />
           <div class="dropzone-content">
             <div class="dropzone-icon bg-purple-50 text-purple-600">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="12" y1="18" x2="12" y2="12"/>
-                <line x1="9" y1="15" x2="15" y2="15"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
               </svg>
             </div>
             <p class="dropzone-title">Click or drag images (JPEG, PNG) and PDF documents</p>
@@ -294,16 +289,17 @@
         <!-- Uploaded Document Previews Grid -->
         <div *ngIf="documentPreviews.length > 0" class="docs-grid mt-4">
           <div *ngFor="let doc of documentPreviews; let i = index" class="doc-item animate-slide-up">
-            
+
             <!-- Image Thumbnail or PDF Icon -->
             <div class="doc-thumbnail">
               <img *ngIf="doc.isImage && doc.previewUrl" [src]="doc.previewUrl" [alt]="doc.file.name"
                 class="w-full h-full object-cover rounded-lg" />
-              <div *ngIf="doc.isPdf" class="w-full h-full rounded-lg bg-red-50 flex items-center justify-center text-red-500">
+              <div *ngIf="doc.isPdf"
+                class="w-full h-full rounded-lg bg-red-50 flex items-center justify-center text-red-500">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
                 </svg>
               </div>
             </div>
@@ -315,17 +311,194 @@
             </div>
 
             <!-- Remove Button -->
-            <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeDocument(i)" class="remove-doc-btn" title="Remove File">
+            <button *ngIf="!isSubmitting && !isDiagnosing && !diagnosisComplete" (click)="removeDocument(i)"
+              class="remove-doc-btn" title="Remove File">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
         </div>
       </div>
 
+      <!-- Prescribed Medications Card -->
+      <div class="upload-card">
+        <div class="card-header">
+          <div class="flex items-center gap-2.5">
+            <div class="icon-bubble bg-emerald-50 text-emerald-600">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+                <path d="m8.5 8.5 7 7" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">scribed Medications <span
+                  class="text-xs font-normal text-gray-400">(Optional)</span></h2>
+            </div>
+          </div>
+          <span *ngIf="totalMedsCount > 0" class="status-meds">
+            {{ totalMedsCount }} Prescribed
+          </span>
+        </div>
+
+        <!-- Add Medication Input Form -->
+        <div *ngIf="!isDiagnosing && !diagnosisComplete"
+          class="bg-gray-50/70 p-4 rounded-xl border border-gray-100 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+            <!-- Drug Name -->
+            <div class="sm:col-span-2 md:col-span-1">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Drug Name <span
+                  class="text-rose-500">*</span></label>
+              <input type="text" [(ngModel)]="newMed.drugName" placeholder="e.g. Amoxicillin, Paracetamol"
+                class="med-input-control" (keyup.enter)="addMedication()" />
+            </div>
+
+            <!-- Dosage -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Dosage</label>
+              <input type="text" [(ngModel)]="newMed.dosage" placeholder="e.g. 500mg, 10ml" class="med-input-control"
+                (keyup.enter)="addMedication()" />
+            </div>
+
+            <!-- Frequency -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Frequency</label>
+              <input type="text" [(ngModel)]="newMed.frequency" placeholder="e.g. 3 times daily"
+                class="med-input-control" (keyup.enter)="addMedication()" />
+            </div>
+
+            <!-- Duration -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Duration</label>
+              <input type="text" [(ngModel)]="newMed.duration" placeholder="e.g. 7 days, 2 weeks"
+                class="med-input-control" (keyup.enter)="addMedication()" />
+            </div>
+
+            <!-- Notes -->
+            <div class="sm:col-span-2 md:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Doctor Notes / Instructions</label>
+              <div class="flex gap-2">
+                <input type="text" [(ngModel)]="newMed.notes"
+                  placeholder="e.g. Take after meals with full glass of water" class="med-input-control flex-1"
+                  (keyup.enter)="addMedication()" />
+                <button type="button" (click)="addMedication()" [disabled]="!newMed.drugName.trim()"
+                  class="btn-add-med">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Unsaved Medications List -->
+        <div *ngIf="pendingMeds.length > 0" class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Pending Medications ({{ pendingMeds.length }})
+            </h4>
+            <button type="button" (click)="saveMedications()" [disabled]="isSavingMeds" class="btn-save-meds">
+              <svg *ngIf="!isSavingMeds" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="w-3.5 h-3.5">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              <span *ngIf="isSavingMeds"
+                class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              {{ isSavingMeds ? 'Saving...' : 'Save to DB Now' }}
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <div *ngFor="let med of pendingMeds; let i = index" class="med-card-row animate-slide-up">
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="font-bold text-gray-900 text-sm">{{ med.drugName }}</span>
+                  <span *ngIf="med.dosage"
+                    class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
+                    {{ med.dosage }}
+                  </span>
+                  <span *ngIf="med.frequency"
+                    class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-xs font-semibold border border-purple-100">
+                    {{ med.frequency }}
+                  </span>
+                  <span *ngIf="med.duration"
+                    class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
+                    {{ med.duration }}
+                  </span>
+                </div>
+                <p *ngIf="med.notes" class="text-xs text-gray-500 italic">"{{ med.notes }}"</p>
+              </div>
+              <button *ngIf="!isDiagnosing && !diagnosisComplete" (click)="removePendingMed(i)"
+                class="remove-doc-btn text-gray-400 hover:text-red-500" title="Remove">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Prescribed Medications in DB List -->
+        <div *ngIf="prescribedMeds.length > 0" class="mb-2">
+          <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Saved Prescriptions ({{ prescribedMeds.length }})
+          </h4>
+
+          <div class="space-y-2">
+            <div *ngFor="let med of prescribedMeds; let i = index"
+              class="med-card-row bg-emerald-50/30 border-emerald-100 animate-slide-up">
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="font-bold text-emerald-950 text-sm">{{ med.drugName }}</span>
+                  <span *ngIf="med.dosage"
+                    class="px-2 py-0.5 rounded-md bg-white text-emerald-800 text-xs font-semibold border border-emerald-200">
+                    {{ med.dosage }}
+                  </span>
+                  <span *ngIf="med.frequency"
+                    class="px-2 py-0.5 rounded-md bg-white text-emerald-800 text-xs font-semibold border border-emerald-200">
+                    {{ med.frequency }}
+                  </span>
+                  <span *ngIf="med.duration"
+                    class="px-2 py-0.5 rounded-md bg-white text-gray-700 text-xs font-medium border border-gray-200">
+                    {{ med.duration }}
+                  </span>
+                  <span
+                    class="text-[10px] font-bold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="w-2.5 h-2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Saved in DB
+                  </span>
+                </div>
+                <p *ngIf="med.notes" class="text-xs text-gray-500 italic">"{{ med.notes }}"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="pendingMeds.length === 0 && prescribedMeds.length === 0"
+          class="text-center py-5 border border-dashed border-gray-200 rounded-xl">
+          <p class="text-xs text-gray-400">No medications added for this session yet.</p>
+          <p class="text-[11px] text-gray-400 mt-0.5">Medications entered above will automatically be saved and
+            evaluated during drug interaction checks.</p>
+        </div>
+      </div>
     </div>
 
     <!-- Right Column: AI Execution & Live Pipeline Status -->
@@ -334,9 +507,10 @@
       <!-- Action Card -->
       <div class="action-card">
         <h3 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-[var(--color-ocean)]">
-            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-[var(--color-ocean)]">
+            <path
+              d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
           </svg>
           AI Pipeline Execution
         </h3>
@@ -349,11 +523,12 @@
           <button (click)="submitDiagnosis()" [disabled]="!audioFile" class="btn-diagnose">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-              <polygon points="5 3 19 12 5 21 5 3"/>
+              <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
             Run AI Diagnosis
           </button>
-          <p *ngIf="!audioFile" class="text-xs text-amber-600 mt-2.5 text-center flex items-center justify-center gap-1.5">
+          <p *ngIf="!audioFile"
+            class="text-xs text-amber-600 mt-2.5 text-center flex items-center justify-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 flex-shrink-0">
               <circle cx="12" cy="12" r="10"></circle>
@@ -377,10 +552,10 @@
             <div class="ai-brain-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-white">
-                <path d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/>
-                <path d="M6 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
-                <path d="M18 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
-                <path d="M12 14a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z"/>
+                <path d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z" />
+                <path d="M6 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z" />
+                <path d="M18 10a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z" />
+                <path d="M12 14a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0v-2a4 4 0 0 0-4-4z" />
               </svg>
             </div>
           </div>
@@ -410,7 +585,8 @@
 
         <!-- Completed Diagnosis State -->
         <div *ngIf="diagnosisComplete" class="completed-card animate-slide-up">
-          <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div
+            class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
               <polyline points="20 6 9 17 4 12"></polyline>
@@ -425,19 +601,20 @@
             <button (click)="goToReports()" class="btn-report">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
               </svg>
               View Clinical Report
             </button>
 
             <button (click)="goToInteractionCheck()" class="btn-secondary-action">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[var(--color-ocean)]">
-                <path d="M10.5 20.5 19 12l-8.5-8.5"/>
-                <path d="m13.5 12-5 5-5-5 5-5z"/>
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="w-4 h-4 text-[var(--color-ocean)]">
+                <path d="M10.5 20.5 19 12l-8.5-8.5" />
+                <path d="m13.5 12-5 5-5-5 5-5z" />
               </svg>
               Check Drug Interactions
             </button>
@@ -445,8 +622,8 @@
             <button (click)="startNewSession()" class="btn-new-session">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Start Another Session
             </button>
@@ -455,11 +632,11 @@
 
         <!-- Submit Error Alert -->
         <div *ngIf="submitError" class="error-alert mt-4">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <span>{{ submitError }}</span>
         </div>
@@ -471,10 +648,8 @@
   </div>
 
   <!-- Toast Notification -->
-  <div *ngIf="toastMessage" class="toast-notification"
-    [class.toast-success]="toastMessage.type === 'success'"
-    [class.toast-error]="toastMessage.type === 'error'"
-    [class.toast-info]="toastMessage.type === 'info'">
+  <div *ngIf="toastMessage" class="toast-notification" [class.toast-success]="toastMessage.type === 'success'"
+    [class.toast-error]="toastMessage.type === 'error'" [class.toast-info]="toastMessage.type === 'info'">
     <svg *ngIf="toastMessage.type === 'success'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />

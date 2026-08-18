@@ -1,7 +1,13 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { SessionService } from '../../../core/services/session.service';
+import {
+  PrescribeMedicationRequest,
+  PrescribedMedicationDto,
+} from '../../../core/interfaces/session.interfaces';
 
 export interface DocumentPreview {
   file: File;
@@ -13,7 +19,7 @@ export interface DocumentPreview {
 @Component({
   selector: 'app-diagnosis',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './diagnosis.html',
   styleUrl: './diagnosis.css',
 })
@@ -47,6 +53,22 @@ export class Diagnosis implements OnInit, OnDestroy {
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
 
+  // ─── Prescribed Medications ─────────────────────────────────
+  prescribedMeds: PrescribedMedicationDto[] = [];
+  pendingMeds: PrescribeMedicationRequest[] = [];
+  isSavingMeds = false;
+  medsSaved = false;
+  medsError = '';
+
+  // New medication form
+  newMed: PrescribeMedicationRequest = {
+    drugName: '',
+    dosage: '',
+    frequency: '',
+    duration: '',
+    notes: '',
+  };
+
   // Submission state
   isSubmitting = false;
   submitError = '';
@@ -66,7 +88,27 @@ export class Diagnosis implements OnInit, OnDestroy {
     this.route.queryParams.subscribe((params) => {
       this.sessionId = params['sessionId'] ? +params['sessionId'] : null;
       this.patientName = params['patientName'] || '';
+      if (this.sessionId) {
+        this.loadPrescribedMedications();
+      }
       this.cdr.detectChanges();
+    });
+  }
+
+  loadPrescribedMedications(): void {
+    if (!this.sessionId) return;
+    this.sessionService.getPrescribedMedications(this.sessionId).subscribe({
+      next: (res: any) => {
+        const rawData = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
+        if (Array.isArray(rawData) && rawData.length > 0) {
+          this.prescribedMeds = rawData;
+          this.medsSaved = true;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.warn('[Diagnosis] Could not load existing prescriptions:', err);
+      },
     });
   }
 
@@ -103,7 +145,7 @@ export class Diagnosis implements OnInit, OnDestroy {
         const extension = mimeType.includes('mp4') ? 'm4a' : (mimeType.includes('ogg') ? 'ogg' : 'webm');
         const audioBlob = new Blob(this.audioChunks, { type: mimeType });
         const fileName = `consultation_recording_${Date.now()}.${extension}`;
-        
+
         this.audioFile = new File([audioBlob], fileName, { type: mimeType });
         this.audioPreviewName = fileName;
         if (this.audioPreviewUrl) {
@@ -248,9 +290,126 @@ export class Diagnosis implements OnInit, OnDestroy {
     }
   }
 
+  // ─── Prescribed Medications ─────────────────────────────────
+
+  addMedication(): void {
+    if (!this.newMed.drugName.trim()) {
+      this.showToast('error', 'Drug name is required.');
+      return;
+    }
+
+    this.pendingMeds.push({
+      drugName: this.newMed.drugName.trim(),
+      dosage: this.newMed.dosage?.trim() || undefined,
+      frequency: this.newMed.frequency?.trim() || undefined,
+      duration: this.newMed.duration?.trim() || undefined,
+      notes: this.newMed.notes?.trim() || undefined,
+    });
+
+    // Reset form
+    this.newMed = { drugName: '', dosage: '', frequency: '', duration: '', notes: '' };
+    this.cdr.detectChanges();
+  }
+
+  removePendingMed(index: number): void {
+    this.pendingMeds.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  removeSavedMed(index: number): void {
+    this.prescribedMeds.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  saveMedications(): void {
+    if (!this.sessionId || this.pendingMeds.length === 0) return;
+
+    this.isSavingMeds = true;
+    this.medsError = '';
+    this.cdr.detectChanges();
+
+    const medsToSave = [...this.pendingMeds];
+
+    this.sessionService
+      .prescribeMedications(this.sessionId, medsToSave)
+      .pipe(
+        finalize(() => {
+          this.isSavingMeds = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res: any) => {
+          const isSuccess = res?.isSuccess ?? res?.IsSuccess ?? true;
+          const rawData = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : null);
+
+          if (isSuccess) {
+            if (Array.isArray(rawData) && rawData.length > 0) {
+              this.prescribedMeds.push(...rawData);
+            } else {
+              this.prescribedMeds.push(...medsToSave.map((m, idx) => ({ id: idx + 1, ...m })));
+            }
+            this.pendingMeds = this.pendingMeds.filter(
+              (p) => !medsToSave.some((s) => s.drugName === p.drugName)
+            );
+            this.medsSaved = true;
+            this.medsError = '';
+            this.showToast('success', res?.message || res?.Message || 'Prescription confirmed successfully!');
+          } else {
+            this.medsError = res?.message || res?.Message || 'Failed to save prescription.';
+            this.showToast('error', this.medsError);
+          }
+        },
+        error: (err) => {
+          let errorMsg = 'Failed to save prescription. Please try again.';
+          if (err.error?.message) {
+            errorMsg = err.error.message;
+          } else if (err.error?.detail) {
+            errorMsg = err.error.detail;
+          } else if (err.error?.title) {
+            errorMsg = err.error.title;
+          } else if (typeof err.error === 'string') {
+            errorMsg = err.error;
+          }
+          this.medsError = errorMsg;
+          this.showToast('error', errorMsg);
+        },
+      });
+  }
+
+  get totalMedsCount(): number {
+    return this.prescribedMeds.length + this.pendingMeds.length;
+  }
+
   // ─── Submit & SSE ───────────────────────────────────────────
 
   submitDiagnosis(): void {
+    if (!this.sessionId || !this.audioFile) return;
+
+    // If there are pending unsaved medications, auto-save them first
+    if (this.pendingMeds.length > 0) {
+      this.sessionService.prescribeMedications(this.sessionId, this.pendingMeds).subscribe({
+        next: (res: any) => {
+          const rawData = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : null);
+          if (Array.isArray(rawData) && rawData.length > 0) {
+            this.prescribedMeds.push(...rawData);
+          } else {
+            this.prescribedMeds.push(...this.pendingMeds.map((m, idx) => ({ id: idx + 1, ...m })));
+          }
+          this.pendingMeds = [];
+          this.medsSaved = true;
+          this.executeDiagnosisSubmission();
+        },
+        error: () => {
+          this.executeDiagnosisSubmission();
+        }
+      });
+    } else {
+      this.executeDiagnosisSubmission();
+    }
+  }
+
+  private executeDiagnosisSubmission(): void {
     if (!this.sessionId || !this.audioFile) return;
 
     this.isSubmitting = true;

@@ -3,7 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../enviroments/environment';
 import { ApiResponse } from '../interfaces/auth.interfaces';
-import { CreateSessionRequest } from '../interfaces/session.interfaces';
+import {
+  CreateSessionRequest,
+  PrescribeMedicationRequest,
+  PrescribedMedicationDto,
+} from '../interfaces/session.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
@@ -39,6 +43,29 @@ export class SessionService {
   }
 
   /**
+   * Prescribes one or more medications for a session.
+   * Accepts an array of medications to be saved in the PrescribedMedications table.
+   */
+  prescribeMedications(
+    sessionId: number,
+    medications: PrescribeMedicationRequest[]
+  ): Observable<ApiResponse<PrescribedMedicationDto[]>> {
+    return this.http.post<ApiResponse<PrescribedMedicationDto[]>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe`,
+      medications
+    );
+  }
+
+  /**
+   * Retrieves already prescribed medications for a session.
+   */
+  getPrescribedMedications(sessionId: number): Observable<ApiResponse<PrescribedMedicationDto[]>> {
+    return this.http.get<ApiResponse<PrescribedMedicationDto[]>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe`
+    );
+  }
+
+  /**
    * Connects to the SSE stream to wait for diagnosis completion.
    * Returns an EventSource that emits 'diagnosis-complete' events.
    */
@@ -46,3 +73,4 @@ export class SessionService {
     return new EventSource(`${this.apiUrl}/Sessions/${sessionId}/diagnosis-stream`);
   }
 }
+
