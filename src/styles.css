@@ -56,3 +56,78 @@
     color: var(--color-primary);
   }
 }
+
+/* ─── Global Chat Markdown Styles ──────────────────────────────── */
+.message-content {
+  line-height: 1.6;
+}
+
+.message-content p {
+  margin: 0 0 0.625rem 0;
+  line-height: 1.6;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content strong {
+  font-weight: 700 !important;
+}
+
+.ai-bubble .message-content strong {
+  color: #03045e !important;
+}
+
+.user-bubble .message-content strong {
+  color: #ffffff !important;
+}
+
+.message-content ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  margin: 0.5rem 0 0.75rem 0 !important;
+  padding-left: 1.35rem !important;
+}
+
+.message-content ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  margin: 0.5rem 0 0.75rem 0 !important;
+  padding-left: 1.35rem !important;
+}
+
+.message-content ul.chat-sublist {
+  list-style-type: circle !important;
+  margin: 0.25rem 0 0.375rem 0 !important;
+  padding-left: 1.25rem !important;
+}
+
+.message-content ol.chat-sublist {
+  margin: 0.25rem 0 0.375rem 0 !important;
+  padding-left: 1.25rem !important;
+}
+
+.message-content li {
+  display: list-item !important;
+  margin-bottom: 0.375rem !important;
+  line-height: 1.55 !important;
+  padding-left: 0.15rem !important;
+}
+
+.message-content li::marker {
+  color: #0077b6 !important;
+}
+
+.user-bubble .message-content li::marker {
+  color: #ffffff !important;
+}
+
+.message-content ul:last-child,
+.message-content ol:last-child {
+  margin-bottom: 0 !important;
+}
+
+.message-content li:last-child {
+  margin-bottom: 0 !important;
+}
