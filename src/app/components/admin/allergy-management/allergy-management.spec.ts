@@ -1,17 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { AllergyManagement } from './allergy-management';
 import { AllergyDto } from '../../../core/interfaces/allergy.interfaces';
+import { AllergyService } from '../../../core/services/allergy.service';
 
 describe('AllergyManagement', () => {
   let component: AllergyManagement;
   let fixture: ComponentFixture<AllergyManagement>;
 
+  const mockAllergyService = {
+    getAllergies: () => of({ isSuccess: true, data: [] as AllergyDto[] }),
+    createAllergy: () => of({ isSuccess: true }),
+    updateAllergy: () => of({ isSuccess: true }),
+    deleteAllergy: () => of({ isSuccess: true }),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AllergyManagement],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: AllergyService, useValue: mockAllergyService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AllergyManagement);

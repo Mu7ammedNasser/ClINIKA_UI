@@ -1,0 +1,485 @@
+<div class="admin-dashboard-container">
+  
+  <!-- ─── Dashboard Header ─── -->
+  <header class="dashboard-header">
+    <div class="header-main">
+      <div class="header-title-group">
+        <div class="title-with-badge">
+          <h1 class="page-title">Admin Dashboard</h1>
+          <span class="status-live-badge">
+            <span class="status-dot"></span>
+            Live System
+          </span>
+        </div>
+        <p class="page-subtitle">
+          Real-time clinical metrics, MedGemma AI diagnostic analytics, and infrastructure summary.
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button 
+          class="btn-refresh" 
+          (click)="refreshData()" 
+          [disabled]="isLoading() || isRefreshing()"
+          title="Refresh Metrics"
+          aria-label="Refresh Dashboard Metrics">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            class="refresh-icon"
+            [class.animate-spin]="isRefreshing()">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+            <path d="M16 21h5v-5"/>
+          </svg>
+          <span class="refresh-text">{{ isRefreshing() ? 'Updating...' : 'Refresh Data' }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Error State Banner ─── -->
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert">
+      <div class="error-content">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="error-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div class="error-text">
+          <p class="error-title">Failed to load live summary</p>
+          <p class="error-desc">{{ errorMessage() }}</p>
+        </div>
+      </div>
+      <button class="btn-retry" (click)="fetchDashboardSummary()">Retry Connection</button>
+    </div>
+  }
+
+  <!-- ─── 1. TOP METRICS (Dynamic Overview) ─── -->
+  <section class="metrics-section" aria-label="System Metrics Overview">
+    @if (isLoading()) {
+      <!-- Modern Skeleton Loading State for 2 Top Metric Widgets -->
+      <div class="metrics-grid">
+        <div class="metric-card skeleton-card" aria-hidden="true">
+          <div class="metric-top-row">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-pill"></div>
+          </div>
+          <div class="skeleton-info">
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-value"></div>
+            <div class="skeleton-line skeleton-sub"></div>
+          </div>
+        </div>
+
+        <div class="metric-card skeleton-card" aria-hidden="true">
+          <div class="metric-top-row">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-pill"></div>
+          </div>
+          <div class="skeleton-info">
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-value"></div>
+            <div class="skeleton-line skeleton-sub"></div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="metrics-grid">
+        
+        <!-- Total Users Widget -->
+        <article class="metric-card user-metric-card">
+          <div class="metric-top-row">
+            <div class="metric-icon-badge bg-ocean-light text-ocean">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-svg">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <span class="metric-badge-tag">Directory Active</span>
+          </div>
+
+          <div class="metric-body">
+            <h2 class="metric-label">Total Users</h2>
+            <div class="metric-value-wrap">
+              <span class="metric-number">{{ summaryData()?.totalUsers ?? 0 }}</span>
+              <span class="metric-unit">Accounts</span>
+            </div>
+            <p class="metric-caption">
+              Registered administrators, medical doctors, and patient profiles.
+            </p>
+          </div>
+
+          <div class="metric-footer-accent accent-ocean"></div>
+        </article>
+
+        <!-- Total AI Sessions Widget -->
+        <article class="metric-card ai-metric-card">
+          <div class="metric-top-row">
+            <div class="metric-icon-badge bg-cyan-light text-cyan">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-svg">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                <path d="M5 3v4"/>
+                <path d="M19 17v4"/>
+                <path d="M3 5h4"/>
+                <path d="M17 19h4"/>
+              </svg>
+            </div>
+            <span class="metric-badge-tag badge-ai">MedGemma Inferences</span>
+          </div>
+
+          <div class="metric-body">
+            <h2 class="metric-label">Total AI Sessions</h2>
+            <div class="metric-value-wrap">
+              <span class="metric-number">{{ summaryData()?.totalAiSessions ?? 0 }}</span>
+              <span class="metric-unit">Inferences</span>
+            </div>
+            <p class="metric-caption">
+              Clinical diagnostic evaluations and drug-interaction analyses.
+            </p>
+          </div>
+
+          <div class="metric-footer-accent accent-cyan"></div>
+        </article>
+
+      </div>
+    }
+  </section>
+
+  <!-- ─── 2. & 3. MAIN ANALYTICS & MEDGEMMA AI HIGHLIGHT SECTION ─── -->
+  <section class="analytics-ai-grid" aria-label="Analytics and AI Architecture">
+    
+    <!-- 2. Analytics Visualization (Dynamic Chart) -->
+    <div class="card analytics-chart-card">
+      <div class="card-header">
+        <div class="card-header-titles">
+          <div class="card-tag">Top Diseases Frequency</div>
+          <h2 class="card-title">Top Diagnosed Medical Conditions</h2>
+          <p class="card-subtitle">
+            Dynamic distribution of diseases recorded across consultations and AI sessions.
+          </p>
+        </div>
+
+        <!-- Chart Mode Toggle Switch -->
+        <div class="chart-view-toggle" role="group" aria-label="Chart view switcher">
+          <button 
+            type="button"
+            class="toggle-btn" 
+            [class.active]="activeChartView() === 'bars'" 
+            (click)="setChartView('bars')"
+            title="Distribution Bars">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toggle-icon">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span>Bars</span>
+          </button>
+          <button 
+            type="button"
+            class="toggle-btn" 
+            [class.active]="activeChartView() === 'donut'" 
+            (click)="setChartView('donut')"
+            title="Proportions Donut">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toggle-icon">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+            </svg>
+            <span>Donut</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart Content Area -->
+      <div class="card-body">
+        @if (isLoading()) {
+          <!-- Skeleton for Chart -->
+          <div class="chart-skeleton-container" aria-hidden="true">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <div class="skeleton-chart-row">
+                <div class="skeleton-line w-1/3"></div>
+                <div class="skeleton-bar"></div>
+              </div>
+            }
+          </div>
+        } @else if (topDiseases().length === 0) {
+          <div class="chart-empty-state">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/>
+                <path d="m19 9-5 5-4-4-3 3"/>
+              </svg>
+            </div>
+            <p class="empty-title">No Disease Data Available</p>
+            <p class="empty-text">Disease statistics will populate as medical sessions are recorded.</p>
+          </div>
+        } @else {
+          
+          <!-- View 1: Responsive Horizontal Distribution Bars -->
+          @if (activeChartView() === 'bars') {
+            <div class="bars-chart-wrapper">
+              <div class="chart-legend-header">
+                <span class="legend-col">Condition Name</span>
+                <span class="legend-col text-right">Frequency & Share</span>
+              </div>
+
+              <div class="disease-bars-list">
+                @for (disease of topDiseases(); track disease.diseaseName; let idx = $index) {
+                  <div 
+                    class="disease-bar-row"
+                    (mouseenter)="hoveredIndex.set(idx)"
+                    (mouseleave)="hoveredIndex.set(null)"
+                    [class.is-hovered]="hoveredIndex() === idx">
+                    
+                    <!-- Disease Info & Rank -->
+                    <div class="disease-meta">
+                      <span class="disease-rank" [style.background-color]="getColor(idx).light" [style.color]="getColor(idx).fill">
+                        #{{ idx + 1 }}
+                      </span>
+                      <div class="disease-names">
+                        <span class="disease-title" [title]="disease.diseaseName">{{ disease.diseaseName }}</span>
+                      </div>
+                      <div class="disease-stat-badge">
+                        <span class="disease-count">{{ disease.count }} <small>cases</small></span>
+                        <span class="disease-pct">{{ getPercentage(disease.count) }}%</span>
+                      </div>
+                    </div>
+
+                    <!-- Visual Progress Bar -->
+                    <div class="bar-track">
+                      <div 
+                        class="bar-fill"
+                        [style.width.%]="getBarWidth(disease.count)"
+                        [style.background]="getColor(idx).gradient">
+                        <div class="bar-glow"></div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="chart-summary-footer">
+                <div class="summary-pill">
+                  <span class="pill-label">Total Sampled:</span>
+                  <span class="pill-val">{{ totalDiseaseConsultations() }} Recorded Cases</span>
+                </div>
+                <div class="summary-pill">
+                  <span class="pill-label">Top Condition:</span>
+                  <span class="pill-val highlight">{{ topDiseases()[0]?.diseaseName || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- View 2: Responsive SVG Donut Visualization -->
+          @if (activeChartView() === 'donut') {
+            <div class="donut-chart-wrapper">
+              <div class="donut-visual-container">
+                <div class="svg-container">
+                  <svg viewBox="0 0 100 100" class="donut-svg">
+                    <circle 
+                      cx="50" 
+                      cy="50" 
+                      r="40" 
+                      class="donut-bg-circle" />
+                    
+                    @for (seg of getDonutSegments(); track seg.diseaseName; let i = $index) {
+                      <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        fill="transparent"
+                        [attr.stroke]="seg.color"
+                        stroke-width="12"
+                        [attr.stroke-dasharray]="seg.strokeDasharray"
+                        [attr.stroke-dashoffset]="seg.strokeDashoffset"
+                        class="donut-segment"
+                        (mouseenter)="hoveredIndex.set(i)"
+                        (mouseleave)="hoveredIndex.set(null)"
+                        [class.segment-highlight]="hoveredIndex() === i"
+                        transform="rotate(-90 50 50)" />
+                    }
+                  </svg>
+
+                  <!-- Center Text Overlay -->
+                  <div class="donut-center-info">
+                    <span class="center-sub">Total Cases</span>
+                    <span class="center-value">{{ totalDiseaseConsultations() }}</span>
+                    <span class="center-label">Top {{ topDiseases().length }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Donut Breakdown Legend -->
+              <div class="donut-legend-container">
+                @for (seg of getDonutSegments(); track seg.diseaseName; let i = $index) {
+                  <div 
+                    class="legend-item"
+                    (mouseenter)="hoveredIndex.set(i)"
+                    (mouseleave)="hoveredIndex.set(null)"
+                    [class.is-hovered]="hoveredIndex() === i">
+                    <span class="legend-color-dot" [style.background-color]="seg.color"></span>
+                    <div class="legend-item-info">
+                      <span class="legend-name" [title]="seg.diseaseName">{{ seg.diseaseName }}</span>
+                      <span class="legend-numbers">{{ seg.count }} cases ({{ seg.percent }}%)</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+        }
+      </div>
+    </div>
+
+    <!-- 3. MedGemma AI Engine Info-Panel (Highlight Section) -->
+    <aside class="medgemma-panel" aria-label="MedGemma AI Engine Overview">
+      <div class="medgemma-glow-orb"></div>
+      
+      <!-- Panel Header -->
+      <div class="medgemma-header">
+        <div class="medgemma-badge-row">
+          <div class="ai-spark-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spark-icon">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+              <circle cx="18" cy="6" r="1.5"/>
+              <circle cx="6" cy="18" r="1.5"/>
+            </svg>
+            <span>Clinical AI Engine</span>
+          </div>
+          <span class="model-pill">v1.5 Active</span>
+        </div>
+
+        <h2 class="medgemma-title">MedGemma Intelligence</h2>
+        <div class="model-meta">Differential Diagnosis Core</div>
+      </div>
+
+      <!-- Exact Descriptive Text Required -->
+      <div class="medgemma-body">
+        <blockquote class="medgemma-description">
+          Powered by MedGemma 1.5 (4B Parameters). An advanced AI Model for Differential Diagnosis, assisting doctors with real-time, highly accurate medical predictions.
+        </blockquote>
+
+        <!-- Clinical Feature Matrix -->
+        <div class="ai-features-list">
+          <div class="ai-feature-card">
+            <div class="feature-icon bg-ice text-ocean">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="feature-texts">
+              <span class="feature-title">Real-Time Precision</span>
+              <span class="feature-desc">Sub-second medical inference latency</span>
+            </div>
+          </div>
+
+          <div class="ai-feature-card">
+            <div class="feature-icon bg-ice text-ocean">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="feature-texts">
+              <span class="feature-title">Differential Matrix</span>
+              <span class="feature-desc">Multi-condition probability weighting</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Footer Status -->
+      <div class="medgemma-footer">
+        <div class="engine-status-indicator">
+          <span class="pulse-ring"></span>
+          <span class="status-label">Model Endpoint Healthy & Synchronized</span>
+        </div>
+      </div>
+    </aside>
+
+  </section>
+
+  <!-- ─── 4. ADMINISTRATOR CAPABILITIES OVERVIEW (Static Text) ─── -->
+  <section class="admin-capabilities-section" aria-label="Administrator Capabilities Overview">
+    <div class="card capabilities-card">
+      <div class="capabilities-header">
+        <div class="shield-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shield-icon">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+            <path d="M12 8v4"/>
+            <path d="M12 16h.01"/>
+          </svg>
+        </div>
+        <div class="capabilities-title-wrap">
+          <h2 class="capabilities-heading">Administrator Capabilities Overview</h2>
+          <span class="capabilities-sub">Security, Governance & Medical Lexicons</span>
+        </div>
+      </div>
+
+      <!-- Exact Text Required for Static Overview Block -->
+      <div class="capabilities-content">
+        <p class="capabilities-text">
+          System Privileges Overview: As an administrator, utilize the sidebar navigation to manage user accounts, oversee system roles, and dynamically seed core medical records including Allergies and Diseases.
+        </p>
+
+        <!-- Static Informational Capability Pillars (No Action Buttons) -->
+        <div class="capability-pillars-grid">
+          
+          <div class="pillar-item">
+            <div class="pillar-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="pillar-info">
+              <h3 class="pillar-title">User Account Directory</h3>
+              <p class="pillar-desc">Provision, activate, or deactivate accounts for doctors, patients, and staff.</p>
+            </div>
+          </div>
+
+          <div class="pillar-item">
+            <div class="pillar-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="pillar-info">
+              <h3 class="pillar-title">Role-Based Access Control</h3>
+              <p class="pillar-desc">Govern role definitions, authorization boundaries, and clinical clearance levels.</p>
+            </div>
+          </div>
+
+          <div class="pillar-item">
+            <div class="pillar-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
+            <div class="pillar-info">
+              <h3 class="pillar-title">Clinical Record Seeding</h3>
+              <p class="pillar-desc">Maintain curated diagnostic lexicons, allergy taxonomies, and disease registries.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
