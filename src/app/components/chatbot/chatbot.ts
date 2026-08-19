@@ -259,7 +259,7 @@ export class Chatbot implements OnInit {
         : '';
       const html = `<div class="chat-code-wrapper">${langLabel}<pre class="chat-code-block"><code>${escapedCode}</code></pre></div>`;
       codeBlocks.push(html);
-      return `\n%%CODEBLOCK_${codeBlocks.length - 1}%%\n`;
+      return `\n@@@CHATCODEBLOCK${codeBlocks.length - 1}@@@\n`;
     });
 
     // 3. Extract and protect inline code
@@ -267,7 +267,7 @@ export class Chatbot implements OnInit {
     raw = raw.replace(/`([^`\n]+)`/g, (_match, code) => {
       const html = `<code class="chat-inline-code">${this.escapeHtml(code)}</code>`;
       inlineCodes.push(html);
-      return `%%INLINECODE_${inlineCodes.length - 1}%%`;
+      return `@@@CHATINLINECODE${inlineCodes.length - 1}@@@`;
     });
 
     // 4. Parse block by block
@@ -284,16 +284,16 @@ export class Chatbot implements OnInit {
 
     const flushParagraph = () => {
       if (paragraphLines.length > 0) {
-        const text = paragraphLines.join('<br/>');
-        output.push(`<p>${this.formatInline(text)}</p>`);
+        const text = paragraphLines.map((l) => this.formatInline(l)).join('<br/>');
+        output.push(`<p>${text}</p>`);
         paragraphLines = [];
       }
     };
 
     const flushQuote = () => {
       if (inBlockquote && quoteLines.length > 0) {
-        const text = quoteLines.join('<br/>');
-        output.push(`<blockquote>${this.formatInline(text)}</blockquote>`);
+        const text = quoteLines.map((l) => this.formatInline(l)).join('<br/>');
+        output.push(`<blockquote>${text}</blockquote>`);
         quoteLines = [];
         inBlockquote = false;
       }
@@ -320,7 +320,7 @@ export class Chatbot implements OnInit {
       const trimmed = line.trim();
 
       // Check for codeblock placeholder
-      const codeblockMatch = trimmed.match(/^%%CODEBLOCK_(\d+)%%$/);
+      const codeblockMatch = trimmed.match(/^@@@CHATCODEBLOCK(\d+)@@@$/);
       if (codeblockMatch) {
         flushParagraph();
         flushQuote();
@@ -446,7 +446,7 @@ export class Chatbot implements OnInit {
     let finalHtml = output.join('');
 
     // 5. Restore inline code placeholders
-    finalHtml = finalHtml.replace(/%%INLINECODE_(\d+)%%/g, (_match, index) => {
+    finalHtml = finalHtml.replace(/@@@CHATINLINECODE(\d+)@@@/g, (_match, index) => {
       return inlineCodes[parseInt(index, 10)] || '';
     });
 
@@ -475,19 +475,19 @@ export class Chatbot implements OnInit {
     );
 
     // 3. Bold + Italic: ***text*** or ___text___
-    s = s.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    s = s.replace(/___(.*?)___/g, '<strong><em>$1</em></strong>');
+    s = s.replace(/\*\*\*([^\*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+    s = s.replace(/___([^_]+)___/g, '<strong><em>$1</em></strong>');
 
     // 4. Bold: **text** or __text__
-    s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    s = s.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/__([^_]+)__/g, '<strong>$1</strong>');
 
     // 5. Italic: *text* or _text_
     s = s.replace(/\*([^\*\n]+)\*/g, '<em>$1</em>');
-    s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    s = s.replace(/(^|\s)_([^_]+)_(?=\s|$)/g, '$1<em>$2</em>');
 
     // 6. Strikethrough: ~~text~~
-    s = s.replace(/~~(.*?)~~/g, '<del>$1</del>');
+    s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
 
     return s;
   }
