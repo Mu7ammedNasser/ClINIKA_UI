@@ -259,7 +259,7 @@ export class Chatbot implements OnInit {
         : '';
       const html = `<div class="chat-code-wrapper">${langLabel}<pre class="chat-code-block"><code>${escapedCode}</code></pre></div>`;
       codeBlocks.push(html);
-      return `\n%%CODEBLOCK_${codeBlocks.length - 1}%%\n`;
+      return `\n§§CODEBLOCK-${codeBlocks.length - 1}§§\n`;
     });
 
     // 3. Extract and protect inline code
@@ -267,7 +267,7 @@ export class Chatbot implements OnInit {
     raw = raw.replace(/`([^`\n]+)`/g, (_match, code) => {
       const html = `<code class="chat-inline-code">${this.escapeHtml(code)}</code>`;
       inlineCodes.push(html);
-      return `%%INLINECODE_${inlineCodes.length - 1}%%`;
+      return `§§INLINECODE-${inlineCodes.length - 1}§§`;
     });
 
     // 4. Parse block by block
@@ -320,7 +320,7 @@ export class Chatbot implements OnInit {
       const trimmed = line.trim();
 
       // Check for codeblock placeholder
-      const codeblockMatch = trimmed.match(/^%%CODEBLOCK_(\d+)%%$/);
+      const codeblockMatch = trimmed.match(/^§§CODEBLOCK-(\d+)§§$/);
       if (codeblockMatch) {
         flushParagraph();
         flushQuote();
@@ -446,7 +446,7 @@ export class Chatbot implements OnInit {
     let finalHtml = output.join('');
 
     // 5. Restore inline code placeholders
-    finalHtml = finalHtml.replace(/%%INLINECODE_(\d+)%%/g, (_match, index) => {
+    finalHtml = finalHtml.replace(/§§INLINECODE-(\d+)§§/g, (_match, index) => {
       return inlineCodes[parseInt(index, 10)] || '';
     });
 
