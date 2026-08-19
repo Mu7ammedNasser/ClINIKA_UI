@@ -8,7 +8,9 @@ import {
   PatientMedicalDataDto, 
   UpdateMedicalInfoRequest,
   PatientSearchDto,
-  PatientHistoryDto
+  PatientHistoryDto,
+  PatientSessionDto,
+  PatientSessionDetailsDto
 } from '../interfaces/patient.interfaces';
 
 @Injectable({
@@ -26,8 +28,16 @@ export class PatientService {
     return this.http.get<ApiResponse<PatientMedicalDataDto>>(`${this.apiUrl}/Patient/medical-data`);
   }
 
+  getSessions(): Observable<ApiResponse<PatientSessionDto[]>> {
+    return this.http.get<ApiResponse<PatientSessionDto[]>>(`${this.apiUrl}/Patient/sessions`);
+  }
+
+  getSessionDetails(sessionId: number): Observable<ApiResponse<PatientSessionDetailsDto>> {
+    return this.http.get<ApiResponse<PatientSessionDetailsDto>>(`${this.apiUrl}/Patient/sessions/${sessionId}`);
+  }
+
   updateMedicalInfo(data: UpdateMedicalInfoRequest): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/Patient/medical-info`, data);
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/Patient/medical-info`, data);
   }
 
   searchPatient(query: string): Observable<ApiResponse<PatientSearchDto>> {

@@ -1,0 +1,367 @@
+<div class="patient-sessions-page">
+  
+  <!-- Header Banner -->
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="navigateToDashboard()" title="Back to Dashboard">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Dashboard
+      </button>
+      <h1 class="page-title">My Clinical Sessions</h1>
+      <p class="page-subtitle">Complete chronological history of your doctor consultations, clinical notes, and session reports.</p>
+    </div>
+    
+    <div class="header-badge-count">
+      <span class="count-number">{{ sessions().length }}</span>
+      <span class="count-label">Total Sessions</span>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="filters-card">
+    <div class="search-input-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="text" 
+        placeholder="Search sessions by doctor name, diagnosis, or status..." 
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event)"
+        class="search-input" />
+      @if (searchQuery()) {
+        <button class="clear-btn" (click)="searchQuery.set('')">✕</button>
+      }
+    </div>
+
+    <div class="status-filter-group">
+      <button 
+        class="filter-pill" 
+        [class.active]="statusFilter() === 'all'" 
+        (click)="statusFilter.set('all')">
+        All ({{ sessions().length }})
+      </button>
+      <button 
+        class="filter-pill" 
+        [class.active]="statusFilter() === 'completed'" 
+        (click)="statusFilter.set('completed')">
+        Completed ({{ completedCount() }})
+      </button>
+      <button 
+        class="filter-pill" 
+        [class.active]="statusFilter() === 'active'" 
+        (click)="statusFilter.set('active')">
+        Active / In Progress ({{ activeCount() }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-container loading-state">
+      <div class="spinner-large"></div>
+      <h3>Loading Clinical Sessions...</h3>
+      <p>Retrieving your consultation history from the server.</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage()) {
+    <div class="state-container error-state">
+      <div class="error-icon-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h3>Failed to Load Sessions</h3>
+      <p>{{ errorMessage() }}</p>
+      <button class="btn-primary" (click)="loadSessions()">Try Again</button>
+    </div>
+  }
+
+  <!-- Sessions List -->
+  @else {
+    @if (filteredSessions().length > 0) {
+      <div class="sessions-grid">
+        @for (session of filteredSessions(); track session.sessionId) {
+          <div class="session-card">
+            <div class="session-card-top">
+              <div class="session-date-badge">
+                <span class="session-date-val">{{ session.visitDate | date:'mediumDate' }}</span>
+                <span class="session-time-val">{{ session.visitDate | date:'shortTime' }}</span>
+              </div>
+              <span class="status-pill status-{{ session.status.toLowerCase() }}">
+                {{ session.status }}
+              </span>
+            </div>
+
+            <div class="session-card-content">
+              <div class="doctor-row">
+                <div class="doctor-avatar-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="doctor-name">Dr. {{ session.doctorName }}</h4>
+                  @if (session.doctorSpecialty) {
+                    <span class="doctor-spec">{{ session.doctorSpecialty }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="diagnosis-highlight-box">
+                <span class="diagnosis-label">Final Diagnosis:</span>
+                <p class="diagnosis-text">
+                  {{ session.finalDiagnosis || 'Pending Doctor Finalization' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="session-card-footer">
+              <button class="btn-view-details" (click)="openSessionDetails(session.sessionId)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                View Full Consultation Details
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-section-box">
+        <span class="empty-icon">🩺</span>
+        <h4>No Sessions Found</h4>
+        <p>No clinical sessions match your search criteria.</p>
+        @if (searchQuery() || statusFilter() !== 'all') {
+          <button class="btn-reset-filter" (click)="searchQuery.set(''); statusFilter.set('all')">Reset Filters</button>
+        }
+      </div>
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MODAL: CLINICAL SESSION DETAILS                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeSessionDetails()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3 class="modal-title">Clinical Session Details</h3>
+            @if (selectedSessionDetails()) {
+              <span class="modal-session-id">Session #{{ selectedSessionDetails()?.sessionId }}</span>
+            }
+          </div>
+          <button class="modal-close-btn" (click)="closeSessionDetails()" aria-label="Close modal">✕</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          @if (isLoadingDetails()) {
+            <div class="modal-loading-state">
+              <div class="spinner-large"></div>
+              <p>Loading full consultation records and clinical data...</p>
+            </div>
+          } @else if (detailsError()) {
+            <div class="modal-error-state">
+              <p>{{ detailsError() }}</p>
+            </div>
+          } @else if (selectedSessionDetails(); as details) {
+            
+            <!-- Summary Meta Row -->
+            <div class="modal-meta-banner">
+              <div class="meta-item">
+                <span class="meta-label">Consulting Doctor</span>
+                <span class="meta-value font-bold text-primary">Dr. {{ details.doctorName }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Visit Date</span>
+                <span class="meta-value">{{ details.visitDate | date:'fullDate' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Session Status</span>
+                <span class="status-pill status-{{ details.status.toLowerCase() }}">{{ details.status }}</span>
+              </div>
+            </div>
+
+            <!-- Final Diagnosis -->
+            <div class="detail-block diagnosis-block">
+              <h4 class="block-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Final Clinical Diagnosis
+              </h4>
+              <p class="diagnosis-highlight">{{ details.finalDiagnosis || 'No final diagnosis recorded.' }}</p>
+            </div>
+
+            <!-- Doctor Notes & Follow-Up -->
+            @if (details.doctorNotes || details.followUpRecommendations) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  Doctor's Clinical Notes
+                </h4>
+                @if (details.doctorNotes) {
+                  <div class="notes-panel">
+                    <p>{{ details.doctorNotes }}</p>
+                  </div>
+                }
+                @if (details.followUpRecommendations) {
+                  <div class="followup-panel">
+                    <strong>Follow-up Recommendations:</strong>
+                    <p>{{ details.followUpRecommendations }}</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Prescribed Medications during this session -->
+            @if (details.prescribedMedications && details.prescribedMedications.length > 0) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                  Prescriptions Issued in This Session ({{ details.prescribedMedications.length }})
+                </h4>
+                <div class="modal-prescriptions-table-wrapper">
+                  <table class="modal-table">
+                    <thead>
+                      <tr>
+                        <th>Medication</th>
+                        <th>Dosage</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Instructions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of details.prescribedMedications; track p.id) {
+                        <tr>
+                          <td class="font-semibold text-primary">{{ p.drugName }}</td>
+                          <td><span class="table-badge">{{ p.dosage || 'N/A' }}</span></td>
+                          <td>{{ p.frequency || 'N/A' }}</td>
+                          <td>{{ p.duration || 'N/A' }}</td>
+                          <td class="text-gray-600 text-sm">{{ p.notes || '-' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+
+            <!-- Symptoms & History -->
+            @if (details.extractedSymptoms || details.mentionedMedications || details.mentionedHistory) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Reported Symptoms & Consultation History
+                </h4>
+                <div class="symptoms-grid">
+                  @if (details.extractedSymptoms) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Extracted Symptoms</span>
+                      <p>{{ details.extractedSymptoms }}</p>
+                    </div>
+                  }
+                  @if (details.mentionedMedications) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Mentioned Medications</span>
+                      <p>{{ details.mentionedMedications }}</p>
+                    </div>
+                  }
+                  @if (details.mentionedHistory) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Mentioned History</span>
+                      <p>{{ details.mentionedHistory }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- AI Clinical Assistant Report -->
+            @if (details.aiReport; as ai) {
+              <div class="detail-block ai-report-block">
+                <h4 class="block-title ai-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path><path d="M12 6v6l4 2"></path></svg>
+                  Clinika AI Clinical Insights
+                </h4>
+                
+                @if (ai.patientSummary) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">AI Patient Summary</span>
+                    <p class="insight-text">{{ ai.patientSummary }}</p>
+                  </div>
+                }
+
+                @if (ai.clinicalAlerts) {
+                  <div class="ai-alert-box">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                      <strong>Clinical Alert:</strong>
+                      <p>{{ ai.clinicalAlerts }}</p>
+                    </div>
+                  </div>
+                }
+
+                @if (ai.drugInteractions) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">Drug Interaction Analysis</span>
+                    <p class="insight-text">{{ ai.drugInteractions }}</p>
+                  </div>
+                }
+
+                @if (ai.suggestedInvestigations) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">Suggested Investigations / Lab Tests</span>
+                    <p class="insight-text">{{ ai.suggestedInvestigations }}</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Uploaded Documents -->
+            @if (details.uploadedDocuments && details.uploadedDocuments.length > 0) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  Attached Clinical Documents
+                </h4>
+                <div class="documents-list">
+                  @for (doc of details.uploadedDocuments; track doc.id) {
+                    <div class="document-item">
+                      <span class="doc-icon">📄</span>
+                      <div class="doc-meta">
+                        <span class="doc-name">{{ doc.documentType || 'Clinical Attachment' }}</span>
+                        <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'shortDate' }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button class="btn-primary" (click)="closeSessionDetails()">Close</button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

@@ -1,0 +1,788 @@
+<div class="patient-dashboard-container">
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-container loading-state">
+      <div class="spinner-large"></div>
+      <h3>Loading Medical Records...</h3>
+      <p>Fetching your health profile, active prescriptions, and clinical history.</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage()) {
+    <div class="state-container error-state">
+      <div class="error-icon-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h3>Unable to Retrieve Medical Records</h3>
+      <p>{{ errorMessage() }}</p>
+      <button class="btn-primary" (click)="loadMedicalData()">Try Again</button>
+    </div>
+  }
+
+  <!-- Main Dashboard Content -->
+  @else if (medicalData(); as data) {
+
+    <!-- Top Patient Hero Profile Card -->
+    <header class="patient-hero-card">
+      <div class="hero-main">
+        <div class="patient-avatar-box">
+          <span class="avatar-initials">{{ (data.fullName || 'P').charAt(0).toUpperCase() }}</span>
+        </div>
+
+        <div class="patient-info">
+          <div class="patient-name-row">
+            <h1 class="patient-title">{{ data.fullName }}</h1>
+          </div>
+
+          <div class="patient-meta-tags">
+            @if (patientAge() !== null) {
+              <span class="meta-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <strong>{{ patientAge() }}</strong> Years Old
+              </span>
+            }
+
+            @if (data.gender) {
+              <span class="meta-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ data.gender }}
+              </span>
+            }
+
+            @if (data.bloodType) {
+              <span class="meta-tag blood-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                </svg>
+                Blood Group: <strong>{{ data.bloodType }}</strong>
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Action: Edit Profile -->
+      <div class="hero-actions">
+        <button class="btn-edit-profile" (click)="navigateToProfile()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit Medical Info
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Stats Grid -->
+    <div class="stats-overview-grid">
+      <div class="stat-card" [class.stat-active]="activeSection() === 'medications'" (click)="setSection('medications'); setMedTab('active')">
+        <div class="stat-icon-wrapper bg-sky">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+            <path d="m8.5 8.5 7 7"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Active Medications</span>
+          <span class="stat-number">{{ data.activeMedications.length }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.stat-active]="activeSection() === 'conditions'" (click)="setSection('conditions')">
+        <div class="stat-icon-wrapper bg-rose">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Diagnosed Diseases</span>
+          <span class="stat-number">{{ data.diseases.length }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.stat-active]="activeSection() === 'conditions'" (click)="setSection('conditions')">
+        <div class="stat-icon-wrapper bg-amber">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Known Allergies</span>
+          <span class="stat-number">{{ data.allergies.length }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.stat-active]="activeSection() === 'sessions'" (click)="setSection('sessions')">
+        <div class="stat-icon-wrapper bg-emerald">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Clinical Sessions</span>
+          <span class="stat-number">{{ data.sessions.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Navigation Tabs (Only 3 Tabs) -->
+    <nav class="section-tabs-bar" role="tablist">
+      <button 
+        role="tab"
+        [attr.aria-selected]="activeSection() === 'medications'"
+        class="section-tab-btn" 
+        [class.active]="activeSection() === 'medications'"
+        (click)="setSection('medications')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+          <path d="m8.5 8.5 7 7"></path>
+        </svg>
+        <span>Medications</span>
+        <span class="tab-count-badge">{{ data.activeMedications.length + data.prescribedMedications.length }}</span>
+      </button>
+
+      <button 
+        role="tab"
+        [attr.aria-selected]="activeSection() === 'conditions'"
+        class="section-tab-btn" 
+        [class.active]="activeSection() === 'conditions'"
+        (click)="setSection('conditions')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        <span>Diseases & Allergies</span>
+        <span class="tab-count-badge">{{ data.diseases.length + data.allergies.length }}</span>
+      </button>
+
+      <button 
+        role="tab"
+        [attr.aria-selected]="activeSection() === 'sessions'"
+        class="section-tab-btn" 
+        [class.active]="activeSection() === 'sessions'"
+        (click)="setSection('sessions')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>Clinical Sessions</span>
+        <span class="tab-count-badge">{{ data.sessions.length }}</span>
+      </button>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 1: MEDICATIONS                                     -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'medications') {
+      <section class="dashboard-section medications-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <div class="section-icon bg-sky">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+                <path d="m8.5 8.5 7 7"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="section-heading">Patient Medications</h2>
+              <p class="section-subtext">Active continuous prescriptions and medications prescribed during clinical visits.</p>
+            </div>
+          </div>
+
+          <!-- Medication Sub-Tab Switcher -->
+          <div class="medication-switcher">
+            <button 
+              class="med-switch-btn" 
+              [class.active]="medTab() === 'active'" 
+              (click)="setMedTab('active')">
+              Active Medications ({{ data.activeMedications.length }})
+            </button>
+            <button 
+              class="med-switch-btn" 
+              [class.active]="medTab() === 'prescribed'" 
+              (click)="setMedTab('prescribed')">
+              Doctor Prescriptions ({{ data.prescribedMedications.length }})
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar for Meds -->
+        <div class="med-search-bar">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Search by drug name, dosage, or frequency..." 
+            [ngModel]="medSearchQuery()" 
+            (ngModelChange)="medSearchQuery.set($event)"
+            class="search-input" />
+          @if (medSearchQuery()) {
+            <button class="clear-search-btn" (click)="medSearchQuery.set('')" title="Clear search">✕</button>
+          }
+        </div>
+
+        <!-- Active Medications View -->
+        @if (medTab() === 'active') {
+          @if (filteredActiveMedications().length > 0) {
+            <div class="meds-grid">
+              @for (med of filteredActiveMedications(); track $index) {
+                <div class="medication-card">
+                  <div class="med-card-header">
+                    <div class="med-name-group">
+                      <div class="med-icon-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path>
+                          <path d="m8.5 8.5 7 7"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="med-name">{{ med.drugName }}</h3>
+                        <span class="med-type-label">Continuous / Daily</span>
+                      </div>
+                    </div>
+                    <span class="dosage-badge">{{ med.dosage }}</span>
+                  </div>
+
+                  <div class="med-card-body">
+                    <div class="med-detail-item">
+                      <span class="detail-label">Frequency & Schedule</span>
+                      <span class="detail-value font-semibold text-primary">{{ med.frequency }}</span>
+                    </div>
+
+                    <div class="med-dates-row">
+                      <div class="med-detail-item">
+                        <span class="detail-label">Started Date</span>
+                        <span class="detail-value">{{ med.startDate || 'Not specified' }}</span>
+                      </div>
+
+                      <div class="med-detail-item">
+                        <span class="detail-label">Take Until</span>
+                        @if (isLifelongMedication(med.endDate)) {
+                          <span class="badge-lifelong" title="This medication is taken long-term until reviewed or adjusted by your doctor">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path d="M12 6v6l4 2"></path>
+                            </svg>
+                            Long-Term
+                          </span>
+                        } @else {
+                          <span class="detail-value font-semibold text-ocean">{{ med.endDate }}</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-section-box">
+              <span class="empty-icon">💊</span>
+              <h4>No Active Medications Found</h4>
+              <p>No active medications match your query. You can add or modify medications in your Profile.</p>
+            </div>
+          }
+        }
+
+        <!-- Prescribed Medications View -->
+        @if (medTab() === 'prescribed') {
+          @if (filteredPrescribedMedications().length > 0) {
+            <div class="meds-grid">
+              @for (pres of filteredPrescribedMedications(); track $index) {
+                <div class="medication-card prescribed-card">
+                  <div class="med-card-header">
+                    <div class="med-name-group">
+                      <div class="med-icon-badge prescription-badge-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="med-name">{{ pres.drugName }}</h3>
+                        @if (pres.doctorName) {
+                          <span class="doctor-badge">Dr. {{ pres.doctorName }}</span>
+                        }
+                      </div>
+                    </div>
+                    <span class="dosage-badge">{{ pres.dosage }}</span>
+                  </div>
+
+                  <div class="med-card-body">
+                    <div class="med-detail-item">
+                      <span class="detail-label">Dosage & Frequency</span>
+                      <span class="detail-value font-semibold text-primary">{{ pres.frequency }}</span>
+                    </div>
+
+                    @if (pres.duration) {
+                      <div class="med-detail-item">
+                        <span class="detail-label">Prescribed Duration</span>
+                        <span class="detail-value font-semibold text-ocean">{{ pres.duration }}</span>
+                      </div>
+                    }
+
+                    @if (pres.notes) {
+                      <div class="med-detail-item notes-box">
+                        <span class="detail-label">Doctor's Instructions</span>
+                        <p class="notes-text">{{ pres.notes }}</p>
+                      </div>
+                    }
+
+                    @if (pres.sessionDate) {
+                      <div class="session-date-footer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Session Date: {{ pres.sessionDate }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-section-box">
+              <span class="empty-icon">📋</span>
+              <h4>No Prescribed Medications Recorded</h4>
+              <p>No prescriptions have been issued in clinical sessions yet.</p>
+            </div>
+          }
+        }
+      </section>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: DISEASES & ALLERGIES                           -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'conditions') {
+      <section class="dashboard-section conditions-section">
+        <div class="dual-sections-grid">
+          
+          <!-- Diagnosed Diseases Panel -->
+          <div class="condition-card-panel">
+            <div class="panel-header">
+              <div class="panel-icon-wrap bg-rose">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="panel-title">Diseases & Medical Conditions</h3>
+                <p class="panel-subtext">Documented diagnosed conditions ({{ data.diseases.length }})</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              @if (data.diseases.length > 0) {
+                <div class="conditions-list">
+                  @for (disease of data.diseases; track $index) {
+                    <div class="condition-item">
+                      <div class="condition-main">
+                        <span class="condition-name">{{ disease.diseaseName }}</span>
+                        @if (disease.diseaseCode && disease.diseaseCode !== 'CUSTOM') {
+                          <span class="code-badge">ICD-10: {{ disease.diseaseCode }}</span>
+                        }
+                      </div>
+                      <div class="condition-meta">
+                        <span class="meta-label">Diagnosed:</span>
+                        <span class="meta-val">{{ disease.diagnosedDate || 'N/A' }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-panel-state">
+                  <span>🩺</span>
+                  <p>No diagnosed diseases recorded on your chart.</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Known Allergies Panel -->
+          <div class="condition-card-panel">
+            <div class="panel-header">
+              <div class="panel-icon-wrap bg-amber">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="panel-title">Allergies & Sensitivities</h3>
+                <p class="panel-subtext">Reported food, drug, and environmental allergens ({{ data.allergies.length }})</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              @if (data.allergies.length > 0) {
+                <div class="conditions-list">
+                  @for (allergy of data.allergies; track $index) {
+                    <div class="condition-item">
+                      <div class="condition-main">
+                        <span class="allergen-icon">⚠️</span>
+                        <span class="condition-name">{{ allergy.allergenName }}</span>
+                      </div>
+                      <div class="condition-meta">
+                        <span class="severity-badge" [ngClass]="getSeverityClass(allergy.severity)">
+                          {{ allergy.severity || 'Unspecified' }} Severity
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-panel-state">
+                  <span>🌿</span>
+                  <p>No known allergies recorded on your chart.</p>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </section>
+    }
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3: CLINICAL SESSIONS                              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    @if (activeSection() === 'sessions') {
+      <section class="dashboard-section sessions-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <div class="section-icon bg-emerald">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 class="section-heading">Recent Clinical Sessions</h2>
+              <p class="section-subtext">Displaying your last {{ recentSessions().length }} consultations (out of {{ data.sessions.length }} total).</p>
+            </div>
+          </div>
+
+          @if (data.sessions.length > 0) {
+            <button class="btn-secondary-link" (click)="navigateToSessions()">
+              <span>View All Sessions ({{ data.sessions.length }})</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (recentSessions().length > 0) {
+          <div class="sessions-grid">
+            @for (session of recentSessions(); track session.sessionId) {
+              <div class="session-card">
+                <div class="session-card-top">
+                  <div class="session-date-badge">
+                    <span class="session-date-val">{{ session.visitDate | date:'mediumDate' }}</span>
+                    <span class="session-time-val">{{ session.visitDate | date:'shortTime' }}</span>
+                  </div>
+                  <span class="status-pill status-{{ session.status.toLowerCase() }}">
+                    {{ session.status }}
+                  </span>
+                </div>
+
+                <div class="session-card-content">
+                  <div class="doctor-row">
+                    <div class="doctor-avatar-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="doctor-name">Dr. {{ session.doctorName }}</h4>
+                      @if (session.doctorSpecialty) {
+                        <span class="doctor-spec">{{ session.doctorSpecialty }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="diagnosis-highlight-box">
+                    <span class="diagnosis-label">Final Diagnosis:</span>
+                    <p class="diagnosis-text">
+                      {{ session.finalDiagnosis || 'Pending Doctor Finalization' }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="session-card-footer">
+                  <button class="btn-view-details" (click)="openSessionDetails(session.sessionId)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    View Full Session Details
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (data.sessions.length > 3) {
+            <div class="view-all-footer-bar">
+              <span>Showing 3 of {{ data.sessions.length }} clinical sessions</span>
+              <button class="btn-primary-outline" (click)="navigateToSessions()">
+                Go to All Sessions Page
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="empty-section-box">
+            <span class="empty-icon">🩺</span>
+            <h4>No Clinical Sessions Recorded</h4>
+            <p>You do not have any clinical consultation sessions logged yet.</p>
+          </div>
+        }
+      </section>
+    }
+
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MODAL: CLINICAL SESSION DETAILS                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (isModalOpen()) {
+    <div class="modal-backdrop" (click)="closeSessionDetails()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3 class="modal-title">Clinical Session Details</h3>
+            @if (selectedSessionDetails()) {
+              <span class="modal-session-id">Session #{{ selectedSessionDetails()?.sessionId }}</span>
+            }
+          </div>
+          <button class="modal-close-btn" (click)="closeSessionDetails()" aria-label="Close modal">✕</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          @if (isLoadingDetails()) {
+            <div class="modal-loading-state">
+              <div class="spinner-large"></div>
+              <p>Loading full consultation records and clinical data...</p>
+            </div>
+          } @else if (detailsError()) {
+            <div class="modal-error-state">
+              <p>{{ detailsError() }}</p>
+            </div>
+          } @else if (selectedSessionDetails(); as details) {
+            
+            <!-- Summary Meta Row -->
+            <div class="modal-meta-banner">
+              <div class="meta-item">
+                <span class="meta-label">Consulting Doctor</span>
+                <span class="meta-value font-bold text-primary">Dr. {{ details.doctorName }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Visit Date</span>
+                <span class="meta-value">{{ details.visitDate | date:'fullDate' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Session Status</span>
+                <span class="status-pill status-{{ details.status.toLowerCase() }}">{{ details.status }}</span>
+              </div>
+            </div>
+
+            <!-- Final Diagnosis -->
+            <div class="detail-block diagnosis-block">
+              <h4 class="block-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Final Clinical Diagnosis
+              </h4>
+              <p class="diagnosis-highlight">{{ details.finalDiagnosis || 'No final diagnosis recorded.' }}</p>
+            </div>
+
+            <!-- Doctor Notes & Follow-Up -->
+            @if (details.doctorNotes || details.followUpRecommendations) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  Doctor's Clinical Notes
+                </h4>
+                @if (details.doctorNotes) {
+                  <div class="notes-panel">
+                    <p>{{ details.doctorNotes }}</p>
+                  </div>
+                }
+                @if (details.followUpRecommendations) {
+                  <div class="followup-panel">
+                    <strong>Follow-up Recommendations:</strong>
+                    <p>{{ details.followUpRecommendations }}</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Prescribed Medications during this session -->
+            @if (details.prescribedMedications && details.prescribedMedications.length > 0) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                  Prescriptions Issued in This Session ({{ details.prescribedMedications.length }})
+                </h4>
+                <div class="modal-prescriptions-table-wrapper">
+                  <table class="modal-table">
+                    <thead>
+                      <tr>
+                        <th>Medication</th>
+                        <th>Dosage</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Instructions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (p of details.prescribedMedications; track p.id) {
+                        <tr>
+                          <td class="font-semibold text-primary">{{ p.drugName }}</td>
+                          <td><span class="table-badge">{{ p.dosage || 'N/A' }}</span></td>
+                          <td>{{ p.frequency || 'N/A' }}</td>
+                          <td>{{ p.duration || 'N/A' }}</td>
+                          <td class="text-gray-600 text-sm">{{ p.notes || '-' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+
+            <!-- Symptoms & History -->
+            @if (details.extractedSymptoms || details.mentionedMedications || details.mentionedHistory) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Reported Symptoms & Consultation History
+                </h4>
+                <div class="symptoms-grid">
+                  @if (details.extractedSymptoms) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Extracted Symptoms</span>
+                      <p>{{ details.extractedSymptoms }}</p>
+                    </div>
+                  }
+                  @if (details.mentionedMedications) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Mentioned Medications</span>
+                      <p>{{ details.mentionedMedications }}</p>
+                    </div>
+                  }
+                  @if (details.mentionedHistory) {
+                    <div class="symptom-card">
+                      <span class="sublabel">Mentioned History</span>
+                      <p>{{ details.mentionedHistory }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- AI Clinical Assistant Report -->
+            @if (details.aiReport; as ai) {
+              <div class="detail-block ai-report-block">
+                <h4 class="block-title ai-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path><path d="M12 6v6l4 2"></path></svg>
+                  Clinika AI Clinical Insights
+                </h4>
+                
+                @if (ai.patientSummary) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">AI Patient Summary</span>
+                    <p class="insight-text">{{ ai.patientSummary }}</p>
+                  </div>
+                }
+
+                @if (ai.clinicalAlerts) {
+                  <div class="ai-alert-box">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                      <strong>Clinical Alert:</strong>
+                      <p>{{ ai.clinicalAlerts }}</p>
+                    </div>
+                  </div>
+                }
+
+                @if (ai.drugInteractions) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">Drug Interaction Analysis</span>
+                    <p class="insight-text">{{ ai.drugInteractions }}</p>
+                  </div>
+                }
+
+                @if (ai.suggestedInvestigations) {
+                  <div class="ai-insight-item">
+                    <span class="insight-label">Suggested Investigations / Lab Tests</span>
+                    <p class="insight-text">{{ ai.suggestedInvestigations }}</p>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Uploaded Documents -->
+            @if (details.uploadedDocuments && details.uploadedDocuments.length > 0) {
+              <div class="detail-block">
+                <h4 class="block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  Attached Clinical Documents
+                </h4>
+                <div class="documents-list">
+                  @for (doc of details.uploadedDocuments; track doc.id) {
+                    <div class="document-item">
+                      <span class="doc-icon">📄</span>
+                      <div class="doc-meta">
+                        <span class="doc-name">{{ doc.documentType || 'Clinical Attachment' }}</span>
+                        <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'shortDate' }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button class="btn-primary" (click)="closeSessionDetails()">Close</button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

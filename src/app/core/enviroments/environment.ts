@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://clinika.runasp.net/api',
+  apiUrl: 'http://clinika.runasp.net/api',
 };
