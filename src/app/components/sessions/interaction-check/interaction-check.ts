@@ -7,8 +7,10 @@ import { PatientService } from '../../../core/services/patient.service';
 import {
   DrugConflictItem,
   DrugInteractionData,
+  PrescribeMedicationRequest,
   PrescribedMedicationDto,
   SessionDiagnosisResultDto,
+  SessionDocumentDto,
 } from '../../../core/interfaces/session.interfaces';
 import {
   PatientHistoryDto,
@@ -41,14 +43,24 @@ export class InteractionCheck implements OnInit {
   activeMedications: MedicationDto[] = [];
   prescribedMedications: PrescribedMedicationDto[] = [];
 
-  // Loading States
+  // Visit Documents State
+  visitDocuments: SessionDocumentDto[] = [];
+
+  // Loading & Action States
   isLoadingData: boolean = false;
   isCheckingInteractions: boolean = false;
+  isFinalizing: boolean = false;
+  isFinalized: boolean = false;
   errorMessage: string = '';
 
   // Interaction Analysis Results
   interactionResult: DrugInteractionData | null = null;
   hasChecked: boolean = false;
+
+  // Edit Prescriptions State
+  isEditingPrescriptions: boolean = false;
+  isSavingPrescriptions: boolean = false;
+  editableMedications: PrescribeMedicationRequest[] = [];
 
   // Toast
   toastMessage: { type: 'success' | 'error' | 'info'; text: string } | null = null;
@@ -69,9 +81,11 @@ export class InteractionCheck implements OnInit {
     this.errorMessage = '';
     this.interactionResult = null;
     this.hasChecked = false;
+    this.isFinalized = false;
+    this.isEditingPrescriptions = false;
     this.cdr.detectChanges();
 
-    // 1. Fetch Session details to get Patient ID and Prescribed Meds
+    // 1. Fetch Session details to get Patient ID, Prescribed Meds, and Visit Documents
     this.sessionService.getSessionDiagnosis(sessionId).subscribe({
       next: (res: any) => {
         const data: SessionDiagnosisResultDto = res?.data ?? res?.Data ?? res;
@@ -80,6 +94,7 @@ export class InteractionCheck implements OnInit {
           this.patientName = data.patientName ?? (data as any).PatientName ?? 'Patient';
           this.patientGender = data.patientGender ?? (data as any).PatientGender ?? '';
           this.prescribedMedications = data.prescribedMedications ?? (data as any).PrescribedMedications ?? [];
+          this.visitDocuments = data.visitDocuments ?? (data as any).VisitDocuments ?? [];
 
           // 2. Fetch Patient History for Active Medications
           if (this.patientId) {
@@ -158,6 +173,8 @@ export class InteractionCheck implements OnInit {
     }
   }
 
+  // ─── AI Interaction Check ──────────────────────────────────────
+
   runInteractionCheck(): void {
     if (!this.sessionId) return;
 
@@ -170,8 +187,6 @@ export class InteractionCheck implements OnInit {
         this.isCheckingInteractions = false;
         this.hasChecked = true;
 
-        // Parse response from trigger-interaction-check
-        // Expected shape: { data: { status: "conflict", conflicts: [...] }, isSuccess: true }
         const rawData = res?.data ?? res?.Data ?? res;
         if (rawData) {
           const status = rawData.status ?? rawData.Status ?? 'safe';
@@ -211,7 +226,131 @@ export class InteractionCheck implements OnInit {
     });
   }
 
-  // Getters
+  // ─── Option 1: Save & Finish Treatment ────────────────────────
+
+  saveAndFinish(): void {
+    if (!this.sessionId) return;
+
+    this.isFinalizing = true;
+    this.cdr.detectChanges();
+
+    this.sessionService.finalizeTreatment(this.sessionId).subscribe({
+      next: (res: any) => {
+        this.isFinalizing = false;
+        this.isFinalized = true;
+        this.showToast(
+          'success',
+          'Treatment plan finalized! Prescriptions added to patient active medications.'
+        );
+
+        // Refresh patient active medications to reflect the newly saved treatments
+        if (this.patientId) {
+          this.loadPatientHistory(this.patientId);
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.isFinalizing = false;
+        console.error('Failed to finalize treatment:', err);
+        let msg = 'Failed to finalize treatment plan. Please try again.';
+        if (err.error?.message) {
+          msg = err.error.message;
+        } else if (err.error?.Message) {
+          msg = err.error.Message;
+        } else if (typeof err.error === 'string') {
+          msg = err.error;
+        }
+        this.showToast('error', msg);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ─── Option 2: Edit Prescriptions & Re-check ──────────────────
+
+  startEditingPrescriptions(): void {
+    this.editableMedications = this.prescribedMedications.map((m) => ({
+      drugName: m.drugName,
+      dosage: m.dosage || '',
+      frequency: m.frequency || '',
+      duration: m.duration || '',
+      notes: m.notes || '',
+    }));
+
+    if (this.editableMedications.length === 0) {
+      this.addPrescriptionRow();
+    }
+
+    this.isEditingPrescriptions = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelEditingPrescriptions(): void {
+    this.isEditingPrescriptions = false;
+    this.cdr.detectChanges();
+  }
+
+  addPrescriptionRow(): void {
+    this.editableMedications.push({
+      drugName: '',
+      dosage: '',
+      frequency: '',
+      duration: '',
+      notes: '',
+    });
+    this.cdr.detectChanges();
+  }
+
+  removePrescriptionRow(index: number): void {
+    this.editableMedications.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  saveAndRecheckInteractions(): void {
+    if (!this.sessionId) return;
+
+    const validMeds = this.editableMedications.filter(
+      (m) => m.drugName && m.drugName.trim().length > 0
+    );
+
+    if (validMeds.length === 0) {
+      this.showToast('error', 'Please provide at least one medication name.');
+      return;
+    }
+
+    this.isSavingPrescriptions = true;
+    this.cdr.detectChanges();
+
+    this.sessionService.updatePrescribedMedications(this.sessionId, validMeds).subscribe({
+      next: (res: any) => {
+        this.isSavingPrescriptions = false;
+        this.isEditingPrescriptions = false;
+        const saved: PrescribedMedicationDto[] = res?.data ?? res?.Data ?? [];
+        this.prescribedMedications = saved;
+        this.showToast('success', 'Prescriptions updated! Re-running interaction check...');
+
+        // Immediately trigger the AI conflict re-check with the new medications
+        this.runInteractionCheck();
+      },
+      error: (err: any) => {
+        this.isSavingPrescriptions = false;
+        console.error('Failed to update prescriptions:', err);
+        let msg = 'Failed to update prescriptions.';
+        if (err.error?.message) {
+          msg = err.error.message;
+        } else if (err.error?.Message) {
+          msg = err.error.Message;
+        } else if (typeof err.error === 'string') {
+          msg = err.error;
+        }
+        this.showToast('error', msg);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ─── Getters & Helpers ────────────────────────────────────────
+
   get hasConflicts(): boolean {
     if (!this.interactionResult) return false;
     const status = this.interactionResult.status?.toLowerCase();
@@ -232,6 +371,10 @@ export class InteractionCheck implements OnInit {
     return (score * 100).toFixed(1) + '%';
   }
 
+  isPdf(filePath?: string): boolean {
+    return !!filePath && filePath.toLowerCase().endsWith('.pdf');
+  }
+
   // Navigation
   goToDiagnosis(): void {
     if (this.sessionId) {
@@ -249,6 +392,10 @@ export class InteractionCheck implements OnInit {
     } else {
       this.router.navigate(['/doctor/sessions/reports']);
     }
+  }
+
+  startNewConsultation(): void {
+    this.router.navigate(['/doctor/sessions/create']);
   }
 
   printReport(): void {

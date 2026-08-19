@@ -24,16 +24,26 @@
 /* Buttons */
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)]
-         text-white rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50;
+         text-white rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer;
+}
+
+.btn-primary-finish {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700
+         text-white rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer;
 }
 
 .btn-secondary {
   @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200
-         text-gray-700 rounded-xl text-xs font-semibold transition-all shadow-xs;
+         text-gray-700 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer;
+}
+
+.btn-xs-action {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700
+         rounded-lg text-[11px] font-bold transition-colors cursor-pointer border border-purple-200;
 }
 
 .btn-icon {
-  @apply p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200 bg-white shadow-xs;
+  @apply p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200 bg-white shadow-xs cursor-pointer;
 }
 
 /* Lookup Card */
@@ -66,6 +76,10 @@
 
 .tag-disease {
   @apply bg-purple-50 text-purple-700 border-purple-200;
+}
+
+.status-badge {
+  @apply px-2.5 py-0.5 rounded-full;
 }
 
 /* Panels */
@@ -103,6 +117,54 @@
 
 .panel-empty {
   @apply p-8 text-center bg-gray-50/60 rounded-2xl border border-dashed border-gray-200 my-auto;
+}
+
+/* Visit Documents */
+.visit-docs-card {
+  @apply bg-white p-5 rounded-3xl border border-gray-100 shadow-xs;
+}
+
+.doc-item-card {
+  @apply p-3.5 bg-gray-50/80 hover:bg-gray-50 border border-gray-200/80 rounded-2xl transition-all;
+}
+
+.doc-icon-wrapper {
+  @apply w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0;
+}
+
+.doc-icon-pdf {
+  @apply bg-rose-50 text-rose-600;
+}
+
+.doc-type-pill {
+  @apply text-[10px] font-bold px-1.5 py-0.5 bg-white border border-gray-200 text-gray-600 rounded-md uppercase tracking-wider;
+}
+
+.doc-view-link {
+  @apply inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-ocean)] hover:underline mt-2;
+}
+
+/* Edit Prescriptions Card */
+.edit-prescriptions-card {
+  @apply bg-purple-50/40 p-5 rounded-3xl border border-purple-200 shadow-sm;
+}
+
+.prescription-edit-row {
+  @apply flex items-end gap-2 p-3 bg-white rounded-2xl border border-purple-100 shadow-xs;
+}
+
+.input-label {
+  @apply block text-[11px] font-bold text-gray-600 mb-1;
+}
+
+.form-control-sm {
+  @apply w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800
+         placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500
+         focus:bg-white transition-all;
+}
+
+.btn-delete-row {
+  @apply p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer self-center mt-4;
 }
 
 /* Trigger Card */
