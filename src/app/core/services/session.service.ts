@@ -1,9 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../enviroments/environment';
 import { ApiResponse } from '../interfaces/auth.interfaces';
-import { CreateSessionRequest } from '../interfaces/session.interfaces';
+import {
+  CreateSessionRequest,
+  PrescribeMedicationRequest,
+  PrescribedMedicationDto,
+  DoctorSessionReportDto,
+  SessionDiagnosisResultDto,
+} from '../interfaces/session.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
@@ -39,6 +45,52 @@ export class SessionService {
   }
 
   /**
+   * Prescribes one or more medications for a session.
+   * Accepts an array of medications to be saved in the PrescribedMedications table.
+   */
+  prescribeMedications(
+    sessionId: number,
+    medications: PrescribeMedicationRequest[]
+  ): Observable<ApiResponse<PrescribedMedicationDto[]>> {
+    return this.http.post<ApiResponse<PrescribedMedicationDto[]>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe`,
+      medications
+    );
+  }
+
+  /**
+   * Retrieves already prescribed medications for a session.
+   */
+  getPrescribedMedications(sessionId: number): Observable<ApiResponse<PrescribedMedicationDto[]>> {
+    return this.http.get<ApiResponse<PrescribedMedicationDto[]>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe`
+    );
+  }
+
+  /**
+   * Retrieves all session reports for the logged-in doctor, with optional search.
+   */
+  getDoctorReports(search?: string): Observable<ApiResponse<DoctorSessionReportDto[]>> {
+    let params = new HttpParams();
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    return this.http.get<ApiResponse<DoctorSessionReportDto[]>>(
+      `${this.apiUrl}/Sessions/doctor-reports`,
+      { params }
+    );
+  }
+
+  /**
+   * Retrieves the full diagnosis and clinical summary for a specific session.
+   */
+  getSessionDiagnosis(sessionId: number): Observable<ApiResponse<SessionDiagnosisResultDto>> {
+    return this.http.get<ApiResponse<SessionDiagnosisResultDto>>(
+      `${this.apiUrl}/Sessions/${sessionId}/diagnosis`
+    );
+  }
+
+  /**
    * Connects to the SSE stream to wait for diagnosis completion.
    * Returns an EventSource that emits 'diagnosis-complete' events.
    */
@@ -46,3 +98,5 @@ export class SessionService {
     return new EventSource(`${this.apiUrl}/Sessions/${sessionId}/diagnosis-stream`);
   }
 }
+
+

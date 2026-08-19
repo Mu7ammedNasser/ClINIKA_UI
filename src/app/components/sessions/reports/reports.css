@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+.reports-page {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+/* Page Header */
+.page-header {
+  @apply flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100;
+}
+
+.header-icon-bubble {
+  @apply w-12 h-12 rounded-2xl bg-blue-50 text-[var(--color-ocean)] flex items-center justify-center flex-shrink-0 shadow-xs;
+}
+
+.page-title {
+  @apply text-2xl sm:text-3xl font-bold text-[var(--color-primary)];
+}
+
+.page-subtitle {
+  @apply text-gray-500 text-sm mt-1;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)]
+         text-white rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200
+         text-gray-700 rounded-xl text-xs font-semibold transition-all shadow-xs;
+}
+
+.btn-refresh {
+  @apply p-2.5 rounded-xl text-gray-400 hover:text-[var(--color-ocean)] hover:bg-blue-50 transition-colors border border-gray-200 bg-white;
+}
+
+/* Stat Cards */
+.stat-card {
+  @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-xs flex items-center gap-4 transition-all hover:shadow-sm;
+}
+
+.stat-icon {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0;
+}
+
+.stat-label {
+  @apply text-xs font-semibold text-gray-500;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-gray-900 mt-0.5;
+}
+
+/* Filter Card */
+.filter-card {
+  @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-xs;
+}
+
+.search-input {
+  @apply w-full pl-10 pr-10 py-2.5 bg-gray-50/80 border border-gray-200 rounded-xl text-sm text-gray-800
+         placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-ocean)]/30 focus:border-[var(--color-ocean)]
+         focus:bg-white transition-all;
+}
+
+.search-clear-btn {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+}
+
+.filter-pill {
+  @apply px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all whitespace-nowrap;
+}
+
+.filter-pill-active {
+  @apply bg-white text-[var(--color-ocean)] shadow-xs font-bold;
+}
+
+/* Report Cards Grid */
+.report-card {
+  @apply bg-white p-5 rounded-2xl border border-gray-100 hover:border-blue-100 hover:shadow-md transition-all flex flex-col justify-between;
+}
+
+.session-id-pill {
+  @apply px-2.5 py-1 rounded-lg bg-blue-50 text-[var(--color-ocean)] text-xs font-bold border border-blue-100;
+}
+
+.ai-ready-badge {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[11px] font-bold border border-purple-100;
+}
+
+.status-badge {
+  @apply px-2.5 py-1 rounded-full text-xs font-semibold;
+}
+
+.status-completed {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+}
+
+.status-inprogress {
+  @apply bg-blue-50 text-blue-700 border border-blue-200;
+}
+
+.status-processing {
+  @apply bg-amber-50 text-amber-700 border border-amber-200;
+}
+
+.patient-avatar {
+  @apply w-11 h-11 rounded-full bg-gradient-to-tr from-[var(--color-ocean)] to-blue-400 text-white font-bold
+         text-sm flex items-center justify-center flex-shrink-0 shadow-xs;
+}
+
+.report-summary-box {
+  @apply p-3.5 rounded-xl bg-gray-50/70 border border-gray-100 text-xs min-h-[58px] flex items-center;
+}
+
+.card-footer-actions {
+  @apply pt-3 border-t border-gray-100;
+}
+
+.btn-view-report {
+  @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)]
+         text-white rounded-xl text-xs font-bold transition-all shadow-xs;
+}
+
+.btn-icon-action {
+  @apply p-2 rounded-xl border border-gray-200 bg-white text-gray-500 hover:text-purple-600 hover:bg-purple-50 transition-colors shadow-xs;
+}
+
+/* Skeleton & Empty States */
+.skeleton-card {
+  @apply bg-white p-5 rounded-2xl border border-gray-100 shadow-xs;
+}
+
+.empty-state-card {
+  @apply bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-xs;
+}
+
+.empty-icon-wrapper {
+  @apply w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4 border border-gray-100;
+}
+
+.error-banner {
+  @apply bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-sm flex items-center gap-3;
+}
+
+/* Modal */
+.modal-backdrop {
+  @apply fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 overflow-y-auto;
+}
+
+.modal-container {
+  @apply bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden my-auto;
+}
+
+.modal-header {
+  @apply flex items-center justify-between p-5 sm:p-6 border-b border-gray-100 bg-gray-50/50 flex-shrink-0;
+}
+
+.btn-icon-header {
+  @apply p-2 rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200 bg-white shadow-xs;
+}
+
+.btn-close-modal {
+  @apply p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors;
+}
+
+.modal-body {
+  @apply p-5 sm:p-6 overflow-y-auto flex-1;
+}
+
+.modal-footer {
+  @apply flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5 border-t border-gray-100 bg-gray-50/50 flex-shrink-0;
+}
+
+/* Tabs */
+.tabs-nav {
+  @apply flex gap-2 border-b border-gray-200 pb-2 overflow-x-auto;
+}
+
+.tab-btn {
+  @apply px-4 py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-gray-900 transition-all flex items-center gap-2 whitespace-nowrap;
+}
+
+.tab-btn-active {
+  @apply bg-blue-50 text-[var(--color-ocean)] shadow-xs;
+}
+
+/* Detail Box */
+.detail-box {
+  @apply bg-white p-4.5 rounded-2xl border border-gray-100 shadow-xs;
+}
+
+.detail-box-title {
+  @apply text-xs font-bold uppercase tracking-wider mb-1.5;
+}
+
+.spinner-large {
+  @apply w-10 h-10 border-3 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
+}
+
+/* Animations */
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.25s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
