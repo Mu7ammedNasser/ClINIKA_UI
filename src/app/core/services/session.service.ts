@@ -9,6 +9,7 @@ import {
   PrescribedMedicationDto,
   DoctorSessionReportDto,
   SessionDiagnosisResultDto,
+  DrugInteractionData,
 } from '../interfaces/session.interfaces';
 
 @Injectable({ providedIn: 'root' })
@@ -87,6 +88,16 @@ export class SessionService {
   getSessionDiagnosis(sessionId: number): Observable<ApiResponse<SessionDiagnosisResultDto>> {
     return this.http.get<ApiResponse<SessionDiagnosisResultDto>>(
       `${this.apiUrl}/Sessions/${sessionId}/diagnosis`
+    );
+  }
+
+  /**
+   * Triggers AI Drug-Drug Conflict Analysis between prescribed medications and active medications.
+   */
+  triggerInteractionCheck(sessionId: number): Observable<ApiResponse<DrugInteractionData>> {
+    return this.http.post<ApiResponse<DrugInteractionData>>(
+      `${this.apiUrl}/Sessions/${sessionId}/trigger-interaction-check`,
+      {}
     );
   }
 

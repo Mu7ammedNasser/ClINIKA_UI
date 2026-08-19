@@ -1,1 +1,408 @@
-<p>interaction-check works!</p>
+<div class="interaction-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <div class="flex items-center gap-3">
+        <div class="header-icon-bubble">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+            <path d="m8.5 8.5 7 7" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="page-title">Drug Interaction & Conflict Analysis</h1>
+          <p class="page-subtitle">
+            AI-driven safety verification between newly prescribed drugs and the patient's existing active medications.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button *ngIf="sessionId" (click)="goToDiagnosis()" class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        </svg>
+        Back to Session
+      </button>
+
+      <button *ngIf="sessionId" (click)="goToReports()" class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        View Report
+      </button>
+
+      <button (click)="printReport()" class="btn-icon" title="Print Analysis">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <polyline points="6 9 6 2 18 2 18 9" />
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect x="6" y="14" width="12" height="8" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Session Selector Lookup (If no sessionId in URL) -->
+  <div *ngIf="!sessionId" class="lookup-card mb-6 animate-slide-up">
+    <div class="max-w-xl mx-auto text-center">
+      <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[var(--color-ocean)] flex items-center justify-center mx-auto mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Select Consultation Session</h3>
+      <p class="text-xs text-gray-500 mb-4">
+        Enter the Clinical Session Number to evaluate drug-drug interactions.
+      </p>
+      <div class="flex items-center gap-2 max-w-sm mx-auto">
+        <input type="text" inputmode="numeric" [(ngModel)]="manualSessionInput" (keyup.enter)="onManualLookup()"
+          placeholder="e.g. 38" class="lookup-input" />
+        <button (click)="onManualLookup()" class="btn-primary">
+          Load Session
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient & Session Info Bar -->
+  <div *ngIf="sessionId" class="patient-bar mb-6 animate-slide-up">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="patient-badge">
+          #{{ sessionId }}
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-gray-900">{{ patientName || 'Patient' }}</h2>
+            <span *ngIf="patientGender" class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+              {{ patientGender }}
+            </span>
+          </div>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Patient ID: <strong class="text-gray-700">#{{ patientId || '—' }}</strong> • Consultation Session #{{ sessionId }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Chronic Diseases & Allergies Tags -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span *ngIf="patientHistory?.allergies?.length" class="tag-pill tag-allergy" title="Known Allergies">
+          ⚠️ {{ patientHistory?.allergies?.length }} Allerg{{ patientHistory?.allergies?.length !== 1 ? 'ies' : 'y' }}
+        </span>
+        <span *ngIf="patientHistory?.diseases?.length" class="tag-pill tag-disease" title="Chronic Conditions">
+          📋 {{ patientHistory?.diseases?.length }} Chronic Condition{{ patientHistory?.diseases?.length !== 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoadingData" class="p-12 text-center bg-white rounded-2xl border border-gray-100 shadow-xs mb-6">
+    <div class="spinner-large mx-auto mb-3"></div>
+    <p class="text-sm font-semibold text-gray-800">Loading Session & Patient Medications...</p>
+    <p class="text-xs text-gray-400 mt-1">Retrieving active patient history and prescribed treatments</p>
+  </div>
+
+  <!-- Error Banner -->
+  <div *ngIf="errorMessage && !isLoadingData" class="error-banner mb-6 animate-slide-up">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 flex-shrink-0">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ errorMessage }}</span>
+    <button *ngIf="sessionId" (click)="loadSessionData(sessionId)" class="ml-auto underline font-semibold text-xs">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Comparison Grid (Active Meds vs Prescribed Meds) -->
+  <div *ngIf="sessionId && !isLoadingData" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+    <!-- Panel 1: Patient's Existing Active Medications (GET /api/Patient/history/{id}) -->
+    <div class="med-panel active-meds-panel animate-slide-up">
+      <div class="panel-header">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-[var(--color-ocean)] flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="panel-title">Patient Active Medications</h3>
+            <p class="panel-subtitle">Ongoing regimens currently taken by the patient</p>
+          </div>
+        </div>
+        <span class="count-badge bg-blue-50 text-blue-700 border-blue-200">
+          {{ activeMedications.length }} Active
+        </span>
+      </div>
+
+      <!-- Medications Table / List -->
+      <div *ngIf="activeMedications.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="table-header-row">
+              <th class="py-2.5 px-3 rounded-l-lg">Drug Name</th>
+              <th class="py-2.5 px-3">Dosage</th>
+              <th class="py-2.5 px-3">Frequency</th>
+              <th class="py-2.5 px-3 rounded-r-lg">Started</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let med of activeMedications" class="hover:bg-blue-50/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-gray-900 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                {{ med.drugName }}
+              </td>
+              <td class="py-3 px-3 font-semibold text-blue-700">{{ med.dosage || '—' }}</td>
+              <td class="py-3 px-3 text-gray-600">{{ med.frequency || '—' }}</td>
+              <td class="py-3 px-3 text-gray-400 font-mono">{{ med.startDate || 'Active' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="activeMedications.length === 0" class="panel-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-300 mx-auto mb-2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="text-xs font-semibold text-gray-600">No active chronic medications on record</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">Patient has no ongoing prescriptions in medical history</p>
+      </div>
+    </div>
+
+    <!-- Panel 2: Newly Prescribed Medications (POST /api/Sessions/{sessionId}/prescribe) -->
+    <div class="med-panel prescribed-panel animate-slide-up">
+      <div class="panel-header">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+              <path d="m8.5 8.5 7 7" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="panel-title">Newly Prescribed Drugs</h3>
+            <p class="panel-subtitle">Medications prescribed during this visit</p>
+          </div>
+        </div>
+        <span class="count-badge bg-emerald-50 text-emerald-700 border-emerald-200">
+          {{ prescribedMedications.length }} Prescribed
+        </span>
+      </div>
+
+      <!-- Prescribed Medications Table / List -->
+      <div *ngIf="prescribedMedications.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="table-header-row">
+              <th class="py-2.5 px-3 rounded-l-lg">Drug Name</th>
+              <th class="py-2.5 px-3">Dosage</th>
+              <th class="py-2.5 px-3">Frequency</th>
+              <th class="py-2.5 px-3 rounded-r-lg">Duration / Notes</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let med of prescribedMedications" class="hover:bg-emerald-50/40 transition-colors">
+              <td class="py-3 px-3 font-bold text-gray-900 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                {{ med.drugName }}
+              </td>
+              <td class="py-3 px-3 font-semibold text-emerald-700">{{ med.dosage || '—' }}</td>
+              <td class="py-3 px-3 text-purple-700 font-semibold">{{ med.frequency || '—' }}</td>
+              <td class="py-3 px-3 text-gray-500 italic">
+                {{ med.duration ? med.duration : '' }} {{ med.notes ? '(' + med.notes + ')' : '' }}
+                <span *ngIf="!med.duration && !med.notes">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="prescribedMedications.length === 0" class="panel-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-300 mx-auto mb-2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="text-xs font-semibold text-gray-600">No medications prescribed for this session yet</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">Add prescriptions in the session diagnosis step first</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Action Trigger Card (/api/Sessions/{sessionId}/trigger-interaction-check) -->
+  <div *ngIf="sessionId && !isLoadingData" class="trigger-card mb-8 animate-slide-up">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-gray-900">AI Drug Interaction Flow</h3>
+          <p class="text-xs text-gray-500">
+            Cross-checks all prescribed drugs against active medications via LangFlow AI knowledge base.
+          </p>
+        </div>
+      </div>
+
+      <button (click)="runInteractionCheck()" [disabled]="isCheckingInteractions" class="btn-trigger">
+        <svg *ngIf="!isCheckingInteractions" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span *ngIf="isCheckingInteractions" class="spinner-small"></span>
+        <span>{{ isCheckingInteractions ? 'Analyzing Drug Conflicts...' : (hasChecked ? 'Re-run AI Analysis' : 'Run Interaction Check') }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <!-- AI INTERACTION ANALYSIS RESULTS SECTION                      -->
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <div *ngIf="hasChecked && interactionResult" class="results-section animate-slide-up">
+
+    <!-- Status Banner: Conflict Detected -->
+    <div *ngIf="hasConflicts" class="status-banner status-banner-conflict">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-rose-900">
+            {{ conflictsCount }} Drug-Drug Conflict{{ conflictsCount !== 1 ? 's' : '' }} Detected!
+          </h3>
+          <p class="text-xs text-rose-700 mt-0.5">
+            The AI engine identified potential adverse pharmacological interactions between the prescribed treatments and existing medications.
+          </p>
+        </div>
+      </div>
+      <span class="badge-status-conflict">
+        High Clinical Risk
+      </span>
+    </div>
+
+    <!-- Status Banner: No Conflict / Safe -->
+    <div *ngIf="isSafe" class="status-banner status-banner-safe">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-emerald-900">
+            No Significant Drug Interactions Detected
+          </h3>
+          <p class="text-xs text-emerald-700 mt-0.5">
+            AI analysis completed successfully. Newly prescribed medications show no documented adverse conflicts with current active regimens.
+          </p>
+        </div>
+      </div>
+      <span class="badge-status-safe">
+        Safe Combination
+      </span>
+    </div>
+
+    <!-- Conflicts List Cards -->
+    <div *ngIf="hasConflicts" class="space-y-4 mt-6">
+      <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">
+        Detailed Pharmacological Conflicts ({{ conflictsCount }})
+      </h4>
+
+      <div *ngFor="let conflict of interactionResult.conflicts; let idx = index" class="conflict-card animate-slide-up">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-gray-100 mb-3">
+          <!-- Drug Pair Title -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="drug-tag current-drug-tag">
+              <strong class="text-gray-500 font-normal">Active:</strong> {{ conflict.currentDrug }}
+            </span>
+            <span class="conflict-bolt">⚡</span>
+            <span class="drug-tag new-drug-tag">
+              <strong class="text-gray-500 font-normal">Prescribed:</strong> {{ conflict.newDrug }}
+            </span>
+          </div>
+
+          <!-- Similarity / Confidence Badge -->
+          <div class="flex items-center gap-2">
+            <span *ngIf="conflict.source" class="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+              Source: {{ conflict.source }}
+            </span>
+            <span class="score-badge" title="AI Vector Similarity Confidence">
+              {{ formatScore(conflict.similarityScore) }} Risk Match
+            </span>
+          </div>
+        </div>
+
+        <!-- Mechanism & Clinical Details -->
+        <div class="details-box">
+          <div class="flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p class="text-xs text-gray-800 leading-relaxed font-medium">
+              {{ conflict.details }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doctor Note Footer -->
+    <div class="safety-note mt-6">
+      <div class="flex items-center gap-2 text-xs text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>
+          <strong>Clinical Advisory:</strong> AI interaction results are decision-support insights. Always apply independent clinical judgment before finalizing prescriptions.
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" class="toast-popup animate-slide-up"
+    [class.toast-success]="toastMessage.type === 'success'"
+    [class.toast-error]="toastMessage.type === 'error'">
+    <span>{{ toastMessage.text }}</span>
+  </div>
+</div>

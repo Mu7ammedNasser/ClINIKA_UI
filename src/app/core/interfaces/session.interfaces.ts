@@ -58,4 +58,19 @@ export interface SessionDiagnosisResultDto {
   generatedAt?: string;
   prescribedMedications: PrescribedMedicationDto[];
 }
+
+export interface DrugConflictItem {
+  source?: string;
+  details: string;
+  newDrug: string;
+  conflict: boolean;
+  currentDrug: string;
+  similarityScore?: number;
+}
+
+export interface DrugInteractionData {
+  status: string;
+  conflicts: DrugConflictItem[];
+}
+
 

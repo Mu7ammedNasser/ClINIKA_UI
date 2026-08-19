@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+.interaction-page {
+  @apply p-6 max-w-7xl mx-auto;
+}
+
+/* Page Header */
+.page-header {
+  @apply flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-5 border-b border-gray-100;
+}
+
+.header-icon-bubble {
+  @apply w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 shadow-xs;
+}
+
+.page-title {
+  @apply text-2xl sm:text-3xl font-bold text-[var(--color-primary)];
+}
+
+.page-subtitle {
+  @apply text-gray-500 text-sm mt-1;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)]
+         text-white rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-50;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200
+         text-gray-700 rounded-xl text-xs font-semibold transition-all shadow-xs;
+}
+
+.btn-icon {
+  @apply p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors border border-gray-200 bg-white shadow-xs;
+}
+
+/* Lookup Card */
+.lookup-card {
+  @apply bg-white p-8 rounded-3xl border border-gray-100 shadow-xs;
+}
+
+.lookup-input {
+  @apply flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800
+         placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-ocean)]/30 focus:border-[var(--color-ocean)]
+         focus:bg-white transition-all;
+}
+
+/* Patient Bar */
+.patient-bar {
+  @apply bg-white p-4.5 rounded-2xl border border-gray-100 shadow-xs;
+}
+
+.patient-badge {
+  @apply w-11 h-11 rounded-xl bg-blue-50 text-[var(--color-ocean)] font-bold text-sm flex items-center justify-center border border-blue-100 flex-shrink-0;
+}
+
+.tag-pill {
+  @apply px-3 py-1 rounded-full text-xs font-bold border;
+}
+
+.tag-allergy {
+  @apply bg-amber-50 text-amber-700 border-amber-200;
+}
+
+.tag-disease {
+  @apply bg-purple-50 text-purple-700 border-purple-200;
+}
+
+/* Panels */
+.med-panel {
+  @apply bg-white p-5 rounded-3xl border border-gray-100 shadow-xs flex flex-col justify-between;
+}
+
+.active-meds-panel {
+  @apply border-l-4 border-l-blue-500;
+}
+
+.prescribed-panel {
+  @apply border-l-4 border-l-emerald-500;
+}
+
+.panel-header {
+  @apply flex items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100;
+}
+
+.panel-title {
+  @apply text-sm font-bold text-gray-900;
+}
+
+.panel-subtitle {
+  @apply text-xs text-gray-400 mt-0.5;
+}
+
+.count-badge {
+  @apply px-2.5 py-0.5 rounded-full text-xs font-bold border;
+}
+
+.table-header-row {
+  @apply border-b border-gray-200 bg-gray-50/80 text-gray-600 font-bold uppercase tracking-wider text-[11px];
+}
+
+.panel-empty {
+  @apply p-8 text-center bg-gray-50/60 rounded-2xl border border-dashed border-gray-200 my-auto;
+}
+
+/* Trigger Card */
+.trigger-card {
+  @apply bg-gradient-to-r from-purple-50 via-white to-blue-50 p-5 rounded-3xl border border-purple-100 shadow-xs;
+}
+
+.btn-trigger {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700
+         text-white rounded-2xl text-xs font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer;
+}
+
+/* Status Banners */
+.status-banner {
+  @apply p-5 rounded-3xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs;
+}
+
+.status-banner-conflict {
+  @apply bg-rose-50/90 border-rose-200;
+}
+
+.status-banner-safe {
+  @apply bg-emerald-50/90 border-emerald-200;
+}
+
+.badge-status-conflict {
+  @apply px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold uppercase tracking-wider self-start sm:self-auto shadow-xs;
+}
+
+.badge-status-safe {
+  @apply px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider self-start sm:self-auto shadow-xs;
+}
+
+/* Conflict Card */
+.conflict-card {
+  @apply bg-white p-5 rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition-all;
+}
+
+.drug-tag {
+  @apply px-3 py-1.5 rounded-xl text-xs font-bold border;
+}
+
+.current-drug-tag {
+  @apply bg-blue-50 text-blue-900 border-blue-200;
+}
+
+.new-drug-tag {
+  @apply bg-emerald-50 text-emerald-900 border-emerald-200;
+}
+
+.conflict-bolt {
+  @apply text-base text-amber-500 font-bold px-1;
+}
+
+.score-badge {
+  @apply px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200;
+}
+
+.details-box {
+  @apply p-4 rounded-2xl bg-rose-50/40 border border-rose-100;
+}
+
+.safety-note {
+  @apply p-4 rounded-2xl bg-gray-50 border border-gray-100;
+}
+
+/* Skeletons & Spinners */
+.spinner-small {
+  @apply w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin;
+}
+
+.spinner-large {
+  @apply w-10 h-10 border-3 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
+}
+
+.error-banner {
+  @apply bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-sm flex items-center gap-3;
+}
+
+/* Toasts */
+.toast-popup {
+  @apply fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl text-xs font-bold shadow-2xl transition-all border;
+}
+
+.toast-success {
+  @apply bg-emerald-600 text-white border-emerald-500;
+}
+
+.toast-error {
+  @apply bg-rose-600 text-white border-rose-500;
+}
+
+/* Animations */
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
