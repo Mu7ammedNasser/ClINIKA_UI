@@ -39,6 +39,14 @@ export interface DoctorSessionReportDto {
   prescribedMedicationsCount: number;
 }
 
+export interface SessionDocumentDto {
+  id: number;
+  documentType: string;
+  filePath: string;
+  extractedText?: string;
+  uploadedAt: string;
+}
+
 export interface SessionDiagnosisResultDto {
   sessionId: number;
   patientId: number;
@@ -57,6 +65,7 @@ export interface SessionDiagnosisResultDto {
   finalDiagnosis?: string;
   generatedAt?: string;
   prescribedMedications: PrescribedMedicationDto[];
+  visitDocuments?: SessionDocumentDto[];
 }
 
 export interface DrugConflictItem {

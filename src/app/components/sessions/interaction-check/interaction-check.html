@@ -13,7 +13,7 @@
         <div>
           <h1 class="page-title">Drug Interaction & Conflict Analysis</h1>
           <p class="page-subtitle">
-            AI-driven safety verification between newly prescribed drugs and the patient's existing active medications.
+            AI safety verification between newly prescribed drugs and the patient's existing active medications.
           </p>
         </div>
       </div>
@@ -35,7 +35,7 @@
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
         </svg>
-        View Report
+        Reports
       </button>
 
       <button (click)="printReport()" class="btn-icon" title="Print Analysis">
@@ -86,6 +86,9 @@
             <span *ngIf="patientGender" class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
               {{ patientGender }}
             </span>
+            <span *ngIf="isFinalized" class="status-badge bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+              ✓ Treatment Finalized
+            </span>
           </div>
           <p class="text-xs text-gray-500 mt-0.5">
             Patient ID: <strong class="text-gray-700">#{{ patientId || '—' }}</strong> • Consultation Session #{{ sessionId }}
@@ -109,7 +112,7 @@
   <div *ngIf="isLoadingData" class="p-12 text-center bg-white rounded-2xl border border-gray-100 shadow-xs mb-6">
     <div class="spinner-large mx-auto mb-3"></div>
     <p class="text-sm font-semibold text-gray-800">Loading Session & Patient Medications...</p>
-    <p class="text-xs text-gray-400 mt-1">Retrieving active patient history and prescribed treatments</p>
+    <p class="text-xs text-gray-400 mt-1">Retrieving active patient history, prescribed treatments, and visit documents</p>
   </div>
 
   <!-- Error Banner -->
@@ -203,9 +206,20 @@
             <p class="panel-subtitle">Medications prescribed during this visit</p>
           </div>
         </div>
-        <span class="count-badge bg-emerald-50 text-emerald-700 border-emerald-200">
-          {{ prescribedMedications.length }} Prescribed
-        </span>
+
+        <div class="flex items-center gap-2">
+          <button (click)="startEditingPrescriptions()" class="btn-xs-action" title="Edit Prescriptions">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+            Edit
+          </button>
+          <span class="count-badge bg-emerald-50 text-emerald-700 border-emerald-200">
+            {{ prescribedMedications.length }} Prescribed
+          </span>
+        </div>
       </div>
 
       <!-- Prescribed Medications Table / List -->
@@ -245,14 +259,157 @@
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
         <p class="text-xs font-semibold text-gray-600">No medications prescribed for this session yet</p>
-        <p class="text-[11px] text-gray-400 mt-0.5">Add prescriptions in the session diagnosis step first</p>
+        <button (click)="startEditingPrescriptions()" class="btn-secondary mt-2">
+          + Add Prescriptions
+        </button>
       </div>
     </div>
 
   </div>
 
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <!-- VISIT DOCUMENTS SECTION (Uploaded Labs, Radiology, PDFs)     -->
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <div *ngIf="sessionId && !isLoadingData && visitDocuments.length > 0" class="visit-docs-card mb-6 animate-slide-up">
+    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-100">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-gray-900">Visit Documents (Uploaded Files)</h3>
+          <p class="text-xs text-gray-500">Laboratory analyses, diagnostic reports, and medical images attached to this consultation</p>
+        </div>
+      </div>
+      <span class="count-badge bg-indigo-50 text-indigo-700 border-indigo-200">
+        {{ visitDocuments.length }} Attached
+      </span>
+    </div>
+
+    <!-- Document Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <div *ngFor="let doc of visitDocuments" class="doc-item-card">
+        <div class="flex items-start gap-3">
+          <div class="doc-icon-wrapper" [class.doc-icon-pdf]="isPdf(doc.filePath)">
+            <svg *ngIf="isPdf(doc.filePath)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <svg *ngIf="!isPdf(doc.filePath)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-gray-900 truncate">
+                {{ doc.documentType || 'Clinical Document' }}
+              </span>
+              <span class="doc-type-pill">{{ isPdf(doc.filePath) ? 'PDF' : 'Image' }}</span>
+            </div>
+
+            <p *ngIf="doc.extractedText" class="text-[11px] text-gray-500 line-clamp-1 mt-0.5" title="{{ doc.extractedText }}">
+              {{ doc.extractedText }}
+            </p>
+
+            <a [href]="doc.filePath" target="_blank" class="doc-view-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              View Document
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <!-- INLINE PRESCRIPTION EDITOR (Option 2: Edit Prescriptions)    -->
+  <!-- ═════════════════════════════════════════════════════════════ -->
+  <div *ngIf="isEditingPrescriptions" class="edit-prescriptions-card mb-6 animate-slide-up">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-200">
+      <div>
+        <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+          </svg>
+          Modify Prescribed Medications
+        </h3>
+        <p class="text-xs text-gray-500">Adjust medications to resolve drug conflicts, then re-check interactions.</p>
+      </div>
+
+      <button (click)="cancelEditingPrescriptions()" class="text-gray-400 hover:text-gray-600 text-xs font-semibold">
+        Cancel
+      </button>
+    </div>
+
+    <!-- Rows -->
+    <div class="space-y-3 mb-4">
+      <div *ngFor="let row of editableMedications; let i = index" class="prescription-edit-row">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 flex-1">
+          <div class="sm:col-span-4">
+            <label class="input-label">Drug Name *</label>
+            <input type="text" [(ngModel)]="row.drugName" placeholder="e.g. Amoxicillin" class="form-control-sm" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="input-label">Dosage</label>
+            <input type="text" [(ngModel)]="row.dosage" placeholder="e.g. 500mg" class="form-control-sm" />
+          </div>
+          <div class="sm:col-span-3">
+            <label class="input-label">Frequency</label>
+            <input type="text" [(ngModel)]="row.frequency" placeholder="e.g. 3x daily" class="form-control-sm" />
+          </div>
+          <div class="sm:col-span-3">
+            <label class="input-label">Duration / Notes</label>
+            <input type="text" [(ngModel)]="row.duration" placeholder="e.g. 7 days" class="form-control-sm" />
+          </div>
+        </div>
+
+        <button (click)="removePrescriptionRow(i)" class="btn-delete-row" title="Remove medication">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+            <path d="M3 6h18"/>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons for Editor -->
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
+      <button (click)="addPrescriptionRow()" class="btn-secondary text-xs">
+        + Add Another Medication
+      </button>
+
+      <div class="flex items-center gap-2">
+        <button (click)="cancelEditingPrescriptions()" class="btn-secondary text-xs">
+          Cancel
+        </button>
+        <button (click)="saveAndRecheckInteractions()" [disabled]="isSavingPrescriptions" class="btn-primary text-xs">
+          <span *ngIf="isSavingPrescriptions" class="spinner-small"></span>
+          <span>{{ isSavingPrescriptions ? 'Saving & Re-checking...' : 'Save & Re-run Conflict Check' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Action Trigger Card (/api/Sessions/{sessionId}/trigger-interaction-check) -->
-  <div *ngIf="sessionId && !isLoadingData" class="trigger-card mb-8 animate-slide-up">
+  <div *ngIf="sessionId && !isLoadingData && !isEditingPrescriptions" class="trigger-card mb-8 animate-slide-up">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
@@ -285,7 +442,7 @@
   <!-- ═════════════════════════════════════════════════════════════ -->
   <!-- AI INTERACTION ANALYSIS RESULTS SECTION                      -->
   <!-- ═════════════════════════════════════════════════════════════ -->
-  <div *ngIf="hasChecked && interactionResult" class="results-section animate-slide-up">
+  <div *ngIf="hasChecked && interactionResult" class="results-section mb-8 animate-slide-up">
 
     <!-- Status Banner: Conflict Detected -->
     <div *ngIf="hasConflicts" class="status-banner status-banner-conflict">
@@ -378,6 +535,52 @@
               {{ conflict.details }}
             </p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Doctor Decision Options Bar -->
+    <div class="post-conflict-actions-bar mt-8 p-6 bg-white rounded-3xl border border-gray-200 shadow-sm animate-slide-up">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 class="text-base font-bold text-gray-900">Doctor Clinical Decision</h4>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Choose to finalize and commit these treatments to active medications, or modify prescriptions to resolve conflicts.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Option 2: Edit Prescriptions & Re-check -->
+          <button (click)="startEditingPrescriptions()" class="btn-secondary flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+            Edit Prescriptions & Re-check
+          </button>
+
+          <!-- Option 1: Save & Finish (Saves to Active Medications) -->
+          <button (click)="saveAndFinish()" [disabled]="isFinalizing || isFinalized" class="btn-primary-finish flex items-center gap-2">
+            <span *ngIf="isFinalizing" class="spinner-small"></span>
+            <svg *ngIf="!isFinalizing" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>{{ isFinalizing ? 'Saving to Active Meds...' : (isFinalized ? 'Saved & Finalized ✓' : 'Save & Finish Treatment') }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Finalized Success Note -->
+      <div *ngIf="isFinalized" class="mt-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-emerald-900 font-medium">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          <span>Prescriptions have been saved to the patient's Active Medications table. Consultation is now complete!</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="goToReports()" class="underline font-bold text-emerald-800">View in Reports</button>
+          <button (click)="startNewConsultation()" class="btn-secondary text-xs">Start Next Session</button>
         </div>
       </div>
     </div>

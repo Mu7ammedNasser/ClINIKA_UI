@@ -60,6 +60,19 @@ export class SessionService {
   }
 
   /**
+   * Updates/replaces prescribed medications for a session.
+   */
+  updatePrescribedMedications(
+    sessionId: number,
+    medications: PrescribeMedicationRequest[]
+  ): Observable<ApiResponse<PrescribedMedicationDto[]>> {
+    return this.http.put<ApiResponse<PrescribedMedicationDto[]>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe`,
+      medications
+    );
+  }
+
+  /**
    * Retrieves already prescribed medications for a session.
    */
   getPrescribedMedications(sessionId: number): Observable<ApiResponse<PrescribedMedicationDto[]>> {
@@ -97,6 +110,17 @@ export class SessionService {
   triggerInteractionCheck(sessionId: number): Observable<ApiResponse<DrugInteractionData>> {
     return this.http.post<ApiResponse<DrugInteractionData>>(
       `${this.apiUrl}/Sessions/${sessionId}/trigger-interaction-check`,
+      {}
+    );
+  }
+
+  /**
+   * Finalizes the clinical session, persisting prescribed medications into the patient's ActiveMedications table
+   * and updating the session status to Completed.
+   */
+  finalizeTreatment(sessionId: number): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(
+      `${this.apiUrl}/Sessions/${sessionId}/finalize-treatment`,
       {}
     );
   }

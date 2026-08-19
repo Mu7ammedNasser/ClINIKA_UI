@@ -38,7 +38,7 @@ export class Reports implements OnInit {
   selectedReport: SessionDiagnosisResultDto | null = null;
   isLoadingDetail = false;
   detailError = '';
-  activeDetailTab: 'overview' | 'transcript' | 'medications' | 'investigations' = 'overview';
+  activeDetailTab: 'overview' | 'transcript' | 'medications' | 'investigations' | 'documents' = 'overview';
 
   ngOnInit(): void {
     this.loadReports();
@@ -154,6 +154,7 @@ export class Reports implements OnInit {
             finalDiagnosis: data.finalDiagnosis ?? data.FinalDiagnosis ?? '',
             generatedAt: data.generatedAt ?? data.GeneratedAt ?? null,
             prescribedMedications: data.prescribedMedications ?? data.PrescribedMedications ?? [],
+            visitDocuments: data.visitDocuments ?? data.VisitDocuments ?? [],
           };
           this.detailError = '';
         } else {
@@ -187,7 +188,7 @@ export class Reports implements OnInit {
     this.cdr.detectChanges();
   }
 
-  setDetailTab(tab: 'overview' | 'transcript' | 'medications' | 'investigations'): void {
+  setDetailTab(tab: 'overview' | 'transcript' | 'medications' | 'investigations' | 'documents'): void {
     this.activeDetailTab = tab;
     this.cdr.detectChanges();
   }
