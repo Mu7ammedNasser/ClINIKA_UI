@@ -5,6 +5,7 @@ import { environment } from '../enviroments/environment';
 import { ApiResponse } from '../interfaces/auth.interfaces';
 import { 
   PatientProfileDto, 
+  PatientPersonalInfoDto,
   PatientMedicalDataDto, 
   UpdateMedicalInfoRequest,
   PatientSearchDto,
@@ -22,6 +23,10 @@ export class PatientService {
 
   getProfile(): Observable<ApiResponse<PatientProfileDto>> {
     return this.http.get<ApiResponse<PatientProfileDto>>(`${this.apiUrl}/Patient/profile`);
+  }
+
+  updatePersonalInfo(data: { firstName: string; lastName: string; phoneNumber: string }): Observable<ApiResponse<PatientPersonalInfoDto>> {
+    return this.http.put<ApiResponse<PatientPersonalInfoDto>>(`${this.apiUrl}/Patient/personal-info`, data);
   }
 
   getMedicalData(): Observable<ApiResponse<PatientMedicalDataDto>> {

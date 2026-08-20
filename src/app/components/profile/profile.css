@@ -33,9 +33,11 @@
 .toast-notification {
   @apply fixed top-6 right-6 p-4 rounded-xl shadow-lg flex items-center gap-3 z-50 transition-all duration-300;
 }
+
 .toast-success {
   @apply bg-emerald-50 text-[var(--color-success)] border border-emerald-200;
 }
+
 .toast-error {
   @apply bg-red-50 text-[var(--color-danger)] border border-red-200;
 }
@@ -64,7 +66,11 @@
 
 /* Info Grid (Read-only) */
 .info-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.info-item {
+  @apply min-w-0 flex flex-col;
 }
 
 .info-item label {
@@ -72,7 +78,9 @@
 }
 
 .info-item p {
-  @apply text-[var(--color-primary)] font-medium bg-[var(--color-ice)]/30 px-4 py-2.5 rounded-lg border border-[var(--color-ice)];
+  @apply text-[var(--color-primary)] font-medium bg-[var(--color-ice)]/30 px-4 py-2.5 rounded-lg border border-[var(--color-ice)] break-words;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .info-item p.empty-val {
@@ -116,11 +124,13 @@
   @apply text-sm font-semibold text-[var(--color-primary)] flex items-center;
 }
 
-.form-input, .form-select {
+.form-input,
+.form-select {
   @apply w-full px-4 py-2.5 rounded-lg border border-[var(--color-sky)] bg-white text-[var(--color-primary)] outline-none transition-all focus:ring-2 focus:ring-[var(--color-ocean)]/30 focus:border-[var(--color-ocean)] disabled:bg-[var(--color-ice)]/30 disabled:text-[var(--color-ocean)]/70 disabled:border-[var(--color-ice)];
 }
 
-.form-input.input-error, .form-select.input-error {
+.form-input.input-error,
+.form-select.input-error {
   @apply border-rose-400 bg-rose-50/20 focus:ring-rose-200 focus:border-rose-500;
 }
 
@@ -151,7 +161,7 @@
 }
 
 .btn-remove {
-  @apply absolute top-3 right-3 p-2.5 text-[var(--color-ocean)] hover:text-[var(--color-danger)] hover:bg-red-50 rounded-lg transition-colors; 
+  @apply absolute top-3 right-3 p-2.5 text-[var(--color-ocean)] hover:text-[var(--color-danger)] hover:bg-red-50 rounded-lg transition-colors;
 }
 
 /* Toggles */
@@ -175,11 +185,11 @@
   @apply absolute inset-0 bg-slate-300 rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300 before:shadow-sm;
 }
 
-.toggle-switch input:checked + .slider {
+.toggle-switch input:checked+.slider {
   @apply bg-[var(--color-ocean)];
 }
 
-.toggle-switch input:checked + .slider:before {
+.toggle-switch input:checked+.slider:before {
   @apply transform translate-x-4;
 }
 
@@ -200,6 +210,7 @@
 .form-actions {
   @apply flex justify-end pt-4 bg-transparent pb-4 z-10;
 }
+
 .sticky-bottom {
   @apply sticky bottom-0;
 }
@@ -216,13 +227,25 @@
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalScaleUp {
-  from { transform: scale(0.95) translateY(10px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
+  from {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-icon-circle {

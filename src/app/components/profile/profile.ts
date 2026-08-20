@@ -25,9 +25,12 @@ export class Profile implements OnInit {
   readonly maxDate = new Date().toISOString().split('T')[0];
 
   profileForm!: FormGroup;
+  personalInfoForm!: FormGroup;
   
   isLoading = signal(true);
   isSubmitting = signal(false);
+  isEditingPersonalInfo = signal(false);
+  isSubmittingPersonalInfo = signal(false);
   
   systemDiseases = signal<DiseaseDto[]>([]);
   systemAllergies = signal<AllergyDto[]>([]);
@@ -65,6 +68,13 @@ export class Profile implements OnInit {
   }
 
   private initForm() {
+    this.personalInfoForm = this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      email: [{ value: '', disabled: true }],
+      phone: ['', [Validators.required, Validators.pattern('^(010|011|012|015)[0-9]{8}$')]]
+    });
+
     this.profileForm = this.fb.group({
       gender: ['', Validators.required],
       bloodType: ['', Validators.required],
@@ -73,6 +83,90 @@ export class Profile implements OnInit {
       medications: this.fb.array([]),
       diseases: this.fb.array([]),
       allergies: this.fb.array([])
+    });
+  }
+
+  enableEditPersonalInfo() {
+    const profile = this.patientProfile();
+    if (profile) {
+      this.personalInfoForm.patchValue({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: profile.email || '',
+        phone: profile.phone || ''
+      });
+    }
+    this.isEditingPersonalInfo.set(true);
+  }
+
+  cancelEditPersonalInfo() {
+    const profile = this.patientProfile();
+    if (profile) {
+      this.personalInfoForm.patchValue({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: profile.email || '',
+        phone: profile.phone || ''
+      });
+    }
+    this.isEditingPersonalInfo.set(false);
+  }
+
+  savePersonalInfo() {
+    if (this.personalInfoForm.invalid) {
+      this.personalInfoForm.markAllAsTouched();
+      this.showToast('error', 'Please correct the highlighted fields in Personal Information.');
+      return;
+    }
+
+    this.isSubmittingPersonalInfo.set(true);
+    const formVal = this.personalInfoForm.getRawValue();
+    const payload = {
+      firstName: formVal.firstName.trim(),
+      lastName: formVal.lastName.trim(),
+      phoneNumber: formVal.phone.trim()
+    };
+
+    this.patientService.updatePersonalInfo(payload).subscribe({
+      next: (res) => {
+        this.isSubmittingPersonalInfo.set(false);
+        if (res.isSuccess && res.data) {
+          const updated = res.data;
+          this.patientProfile.update(current => {
+            if (!current) return null;
+            return {
+              ...current,
+              firstName: updated.firstName,
+              lastName: updated.lastName,
+              email: updated.email,
+              phone: updated.phoneNumber
+            };
+          });
+          this.isEditingPersonalInfo.set(false);
+          this.showToast('success', 'Personal information updated successfully!');
+        } else {
+          this.showToast('error', res.message || 'Failed to update personal information.');
+        }
+      },
+      error: (err) => {
+        this.isSubmittingPersonalInfo.set(false);
+        let errorMsg = 'An error occurred while updating personal information.';
+        if (err.error?.errors) {
+          if (typeof err.error.errors === 'object') {
+            const errorEntries = Object.values(err.error.errors).flat();
+            if (errorEntries.length > 0) {
+              errorMsg = errorEntries.join('; ');
+            }
+          } else if (typeof err.error.errors === 'string') {
+            errorMsg = err.error.errors;
+          }
+        } else if (err.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+        this.showToast('error', errorMsg);
+      }
     });
   }
 
@@ -213,6 +307,12 @@ export class Profile implements OnInit {
 
         if (res.profile.isSuccess && res.profile.data) {
           this.patientProfile.set(res.profile.data);
+          this.personalInfoForm.patchValue({
+            firstName: res.profile.data.firstName || '',
+            lastName: res.profile.data.lastName || '',
+            email: res.profile.data.email || '',
+            phone: res.profile.data.phone || ''
+          });
           this.profileForm.patchValue({
             gender: res.profile.data.gender || '',
             bloodType: res.profile.data.bloodType || '',
