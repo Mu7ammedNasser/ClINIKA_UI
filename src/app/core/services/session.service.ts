@@ -82,6 +82,15 @@ export class SessionService {
   }
 
   /**
+   * Deletes a specific prescribed medication from a clinical session.
+   */
+  deletePrescribedMedication(sessionId: number, medicationId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(
+      `${this.apiUrl}/Sessions/${sessionId}/prescribe/${medicationId}`
+    );
+  }
+
+  /**
    * Retrieves all session reports for the logged-in doctor, with optional search.
    */
   getDoctorReports(search?: string): Observable<ApiResponse<DoctorSessionReportDto[]>> {

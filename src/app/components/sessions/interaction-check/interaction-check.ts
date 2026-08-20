@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SessionService } from '../../../core/services/session.service';
 import { PatientService } from '../../../core/services/patient.service';
 import {
@@ -30,6 +31,7 @@ export class InteractionCheck implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly sanitizer = inject(DomSanitizer);
 
   // Session & Patient State
   sessionId: number | null = null;
@@ -68,14 +70,15 @@ export class InteractionCheck implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       const id = params['sessionId'] ? +params['sessionId'] : null;
+      const pId = params['patientId'] ? +params['patientId'] : null;
       if (id && !isNaN(id)) {
         this.sessionId = id;
-        this.loadSessionData(id);
+        this.loadSessionData(id, pId);
       }
     });
   }
 
-  loadSessionData(sessionId: number): void {
+  loadSessionData(sessionId: number, queryPatientId?: number | null): void {
     this.sessionId = sessionId;
     this.isLoadingData = true;
     this.errorMessage = '';
@@ -85,63 +88,71 @@ export class InteractionCheck implements OnInit {
     this.isEditingPrescriptions = false;
     this.cdr.detectChanges();
 
-    // 1. Fetch Session details to get Patient ID, Prescribed Meds, and Visit Documents
-    this.sessionService.getSessionDiagnosis(sessionId).subscribe({
-      next: (res: any) => {
-        const dataObj = res?.data ?? res?.Data ?? res;
-        const body = dataObj?.body ?? dataObj?.Body ?? dataObj;
-        const data: SessionDiagnosisResultDto = {
-          ...body,
-          sessionId: dataObj.sessionId ?? dataObj.SessionId ?? body.sessionId ?? body.SessionId ?? sessionId,
-          patientId: dataObj.patientId ?? dataObj.PatientId ?? body.patientId ?? body.PatientId ?? 0,
-          patientName: dataObj.patientName ?? dataObj.PatientName ?? body.patientName ?? body.PatientName ?? '',
-          patientGender: dataObj.patientGender ?? dataObj.PatientGender ?? body.patientGender ?? body.PatientGender ?? '',
-          prescribedMedications: dataObj.prescribedMedications ?? dataObj.PrescribedMedications ?? body.prescribedMedications ?? body.PrescribedMedications ?? [],
-          visitDocuments: dataObj.visitDocuments ?? dataObj.VisitDocuments ?? body.visitDocuments ?? body.VisitDocuments ?? [],
-        };
-        if (data && (data.sessionId || data.patientId || data.prescribedMedications.length > 0)) {
-          this.patientId = data.patientId;
-          this.patientName = data.patientName || 'Patient';
-          this.patientGender = data.patientGender || '';
-          this.prescribedMedications = data.prescribedMedications || [];
-          this.visitDocuments = data.visitDocuments || [];
-
-          // 2. Fetch Patient History for Active Medications
-          if (this.patientId) {
-            this.loadPatientHistory(this.patientId);
-          } else {
-            this.isLoadingData = false;
-            this.cdr.detectChanges();
-          }
-        } else {
-          // Fallback: try loading prescribed medications directly
-          this.loadPrescribedOnly(sessionId);
-        }
-      },
-      error: (err) => {
-        console.warn('Could not load session diagnosis details, trying direct prescribed endpoint:', err);
-        this.loadPrescribedOnly(sessionId);
-      },
-    });
-  }
-
-  private loadPrescribedOnly(sessionId: number): void {
+    // 1. Fetch Prescriptions for this Session via GET /api/Sessions/{sessionId}/prescribe
     this.sessionService.getPrescribedMedications(sessionId).subscribe({
       next: (res: any) => {
-        this.prescribedMedications = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
-        this.isLoadingData = false;
+        const meds: PrescribedMedicationDto[] = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
+        this.prescribedMedications = meds;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.isLoadingData = false;
-        console.error('Failed to load session info:', err);
-        this.errorMessage = `Session #${sessionId} was not found or has no medications recorded.`;
-        this.cdr.detectChanges();
+        console.error('Failed to load prescribed medications:', err);
       },
     });
+
+    // 2. Resolve Patient ID and fetch Patient History via GET /api/Patient/history/{id}
+    if (queryPatientId && queryPatientId > 0) {
+      this.patientId = queryPatientId;
+      this.loadPatientHistory(queryPatientId);
+    } else {
+      // Lookup doctor reports to retrieve patient metadata associated with this session
+      this.sessionService.getDoctorReports(sessionId.toString()).subscribe({
+        next: (res: any) => {
+          const reports = res?.data ?? res?.Data ?? [];
+          const sessionReport = reports.find((r: any) => r.sessionId === sessionId || r.SessionId === sessionId);
+          if (sessionReport) {
+            this.patientId = sessionReport.patientId ?? sessionReport.PatientId;
+            this.patientName = sessionReport.patientName ?? sessionReport.PatientName ?? '';
+            this.patientGender = sessionReport.patientGender ?? sessionReport.PatientGender ?? '';
+            if (this.patientId) {
+              this.loadPatientHistory(this.patientId);
+              return;
+            }
+          }
+          // If not found in query search, fallback to all doctor reports
+          this.sessionService.getDoctorReports().subscribe({
+            next: (allRes: any) => {
+              const allReports = allRes?.data ?? allRes?.Data ?? [];
+              const found = allReports.find((r: any) => r.sessionId === sessionId || r.SessionId === sessionId);
+              if (found) {
+                this.patientId = found.patientId ?? found.PatientId;
+                this.patientName = found.patientName ?? found.PatientName ?? '';
+                this.patientGender = found.patientGender ?? found.PatientGender ?? '';
+                if (this.patientId) {
+                  this.loadPatientHistory(this.patientId);
+                  return;
+                }
+              }
+              this.isLoadingData = false;
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.isLoadingData = false;
+              this.cdr.detectChanges();
+            },
+          });
+        },
+        error: (err) => {
+          console.error('Failed to resolve patient for session:', err);
+          this.isLoadingData = false;
+          this.cdr.detectChanges();
+        },
+      });
+    }
   }
 
-  private loadPatientHistory(patientId: number): void {
+  loadPatientHistory(patientId: number): void {
+    // GET /api/Patient/history/{id}
     this.patientService.getPatientHistory(patientId).subscribe({
       next: (res: any) => {
         this.isLoadingData = false;
@@ -201,10 +212,12 @@ export class InteractionCheck implements OnInit {
         if (rawData) {
           const status = rawData.status ?? rawData.Status ?? 'safe';
           const conflicts: DrugConflictItem[] = rawData.conflicts ?? rawData.Conflicts ?? [];
+          const visitDocument: string = rawData.visitDocument ?? rawData.VisitDocument ?? '';
 
           this.interactionResult = {
             status,
             conflicts,
+            visitDocument,
           };
 
           if (this.hasConflicts) {
@@ -280,6 +293,7 @@ export class InteractionCheck implements OnInit {
 
   startEditingPrescriptions(): void {
     this.editableMedications = this.prescribedMedications.map((m) => ({
+      id: m.id,
       drugName: m.drugName,
       dosage: m.dosage || '',
       frequency: m.frequency || '',
@@ -314,6 +328,28 @@ export class InteractionCheck implements OnInit {
   removePrescriptionRow(index: number): void {
     this.editableMedications.splice(index, 1);
     this.cdr.detectChanges();
+  }
+
+  deleteSinglePrescription(medicationId?: number): void {
+    if (!this.sessionId || !medicationId) return;
+
+    this.sessionService.deletePrescribedMedication(this.sessionId, medicationId).subscribe({
+      next: () => {
+        this.showToast('info', 'Medication removed successfully.');
+        if (this.sessionId) {
+          this.sessionService.getPrescribedMedications(this.sessionId).subscribe({
+            next: (res: any) => {
+              this.prescribedMedications = res?.data ?? res?.Data ?? [];
+              this.cdr.detectChanges();
+            },
+          });
+        }
+      },
+      error: (err: any) => {
+        console.error('Failed to delete medication:', err);
+        this.showToast('error', 'Failed to remove medication.');
+      },
+    });
   }
 
   saveAndRecheckInteractions(): void {
@@ -364,7 +400,10 @@ export class InteractionCheck implements OnInit {
   get hasConflicts(): boolean {
     if (!this.interactionResult) return false;
     const status = this.interactionResult.status?.toLowerCase();
-    return status === 'conflict' || (this.interactionResult.conflicts && this.interactionResult.conflicts.length > 0);
+    if (status === 'no_conflict' || status === 'safe' || status === 'noconflict') {
+      return false;
+    }
+    return status === 'conflict' || (!!this.interactionResult.conflicts && this.interactionResult.conflicts.length > 0);
   }
 
   get conflictsCount(): number {
@@ -383,6 +422,75 @@ export class InteractionCheck implements OnInit {
 
   isPdf(filePath?: string): boolean {
     return !!filePath && filePath.toLowerCase().endsWith('.pdf');
+  }
+
+  copyVisitNote(): void {
+    const doc = this.interactionResult?.visitDocument;
+    if (!doc) return;
+    navigator.clipboard.writeText(doc).then(() => {
+      this.showToast('success', 'Clinical visit note copied to clipboard!');
+    }).catch(() => {
+      this.showToast('error', 'Failed to copy to clipboard.');
+    });
+  }
+
+  renderMarkdown(content?: string): SafeHtml {
+    if (!content) return '';
+
+    // 1. Normalize line breaks and Unicode non-breaking spaces (e.g. \u202F, \u00A0)
+    let raw = content
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/[\u202F\u00A0]/g, ' ');
+
+    // 2. Escape HTML
+    raw = this.escapeHtml(raw);
+
+    // 3. Horizontal rules
+    raw = raw.replace(/^---$/gm, '<hr class="visit-note-divider" />');
+
+    // 4. Highlight specific Clinical Titles and Section headers
+    raw = raw.replace(
+      /\*\*(Clinical Visit Note)\*\*/gi,
+      '<div class="visit-note-title">$1</div>'
+    );
+
+    raw = raw.replace(
+      /\*\*(Subjective|Objective|Assessment & Differential Diagnosis|Plan \/ Next Steps|Current Medications):\*\*/gi,
+      '<div class="clinical-section-header"><span class="section-indicator"></span><span class="section-title-text">$1</span></div>'
+    );
+
+    // 5. Bold & Italic markdown formatting
+    raw = raw.replace(/\*\*\*(.*?)\*\*\*/g, '<strong class="font-bold text-gray-900"><em class="text-indigo-900">$1</em></strong>');
+    raw = raw.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+    raw = raw.replace(/\*(.*?)\*/g, '<em class="italic text-gray-600">$1</em>');
+
+    // 6. Numbered list items (e.g. 1. Primary headache...)
+    raw = raw.replace(
+      /^(\d+)\.\s+(.*)$/gm,
+      '<div class="clinical-numbered-item"><span class="item-number">$1</span><div class="item-text">$2</div></div>'
+    );
+
+    // 7. Bullet list items (e.g. - Panadol...)
+    raw = raw.replace(
+      /^-\s+(.*)$/gm,
+      '<div class="clinical-bullet-item"><span class="bullet-dot"></span><div class="item-text">$1</div></div>'
+    );
+
+    // 8. Format multi-line spacing
+    raw = raw.replace(/\n\n/g, '<div class="h-2.5"></div>');
+    raw = raw.replace(/\n/g, '<br/>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(raw);
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   // Navigation

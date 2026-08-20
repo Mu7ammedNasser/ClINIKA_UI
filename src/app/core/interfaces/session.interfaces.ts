@@ -87,7 +87,8 @@ export interface DrugConflictItem {
 
 export interface DrugInteractionData {
   status: string;
-  conflicts: DrugConflictItem[];
+  conflicts?: DrugConflictItem[];
+  visitDocument?: string;
 }
 
 
