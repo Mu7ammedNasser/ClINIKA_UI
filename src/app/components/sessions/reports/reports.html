@@ -299,12 +299,31 @@
 
         <!-- Tabs Navigation -->
         <div class="tabs-nav mb-5">
-          <button (click)="setDetailTab('overview')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'overview'">
+          <button (click)="setDetailTab('top-diagnoses')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'top-diagnoses'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
-            Clinical Overview
+            Top 5 Differential Diagnoses
+          </button>
+          <button (click)="setDetailTab('clinical-findings')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'clinical-findings'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Clinical Findings
+          </button>
+          <button (click)="setDetailTab('investigations')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'investigations'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/>
+              <path d="M8.5 2h7"/>
+              <path d="M14.5 16h-5"/>
+            </svg>
+            Recommended Investigations
           </button>
           <button (click)="setDetailTab('transcript')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'transcript'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -322,15 +341,6 @@
             </svg>
             Prescriptions ({{ selectedReport.prescribedMedications.length }})
           </button>
-          <button (click)="setDetailTab('investigations')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'investigations'">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            Investigations & Safety
-          </button>
           <button (click)="setDetailTab('documents')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'documents'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
@@ -341,38 +351,147 @@
           </button>
         </div>
 
-        <!-- TAB 1: Clinical Overview -->
-        <div *ngIf="activeDetailTab === 'overview'" class="space-y-4 animate-slide-up">
+        <!-- TAB 1: Top 5 Differential Diagnoses -->
+        <div *ngIf="activeDetailTab === 'top-diagnoses'" class="space-y-5 animate-slide-up">
           
-          <!-- Possible Diagnoses Box -->
-          <div *ngIf="selectedReport.possibleDiagnoses" class="detail-box bg-blue-50/60 border-blue-100">
-            <h4 class="detail-box-title text-blue-900 flex items-center gap-2">
+          <!-- Top 5 Differential Diagnoses List -->
+          <div class="detail-box bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-white border-blue-100/90 shadow-xs">
+            <div class="flex items-center justify-between mb-3.5">
+              <h4 class="detail-box-title text-blue-950 flex items-center gap-2.5 text-sm font-bold">
+                <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                </div>
+                Top 5 Differential Diagnoses
+              </h4>
+              <span class="text-xs font-bold text-blue-700 bg-blue-100/80 px-2.5 py-0.5 rounded-full border border-blue-200">
+                AI Prioritized Ranking
+              </span>
+            </div>
+
+            <!-- List of Ranked Diagnoses -->
+            <div *ngIf="asArray(selectedReport.top5DifferentialDiagnoses).length > 0" class="space-y-2.5">
+              <div *ngFor="let diag of asArray(selectedReport.top5DifferentialDiagnoses); let i = index"
+                class="diff-diagnosis-card" [class.diff-primary-card]="i === 0">
+                <div class="diff-rank-badge" [class.diff-primary-badge]="i === 0">
+                  {{ i + 1 }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="diff-diagnosis-name" [class.text-blue-950]="i === 0">{{ diag }}</span>
+                    <span *ngIf="i === 0" class="primary-suspect-pill">
+                      Primary Suspect
+                    </span>
+                  </div>
+                </div>
+                <div class="text-[11px] font-semibold text-gray-400">
+                  Rank #{{ i + 1 }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Fallback if no array list was provided -->
+            <div *ngIf="asArray(selectedReport.top5DifferentialDiagnoses).length === 0 && selectedReport.possibleDiagnosis" class="p-3 bg-white rounded-xl border border-blue-100 text-sm text-gray-800">
+              {{ selectedReport.possibleDiagnosis }}
+            </div>
+
+            <div *ngIf="asArray(selectedReport.top5DifferentialDiagnoses).length === 0 && !selectedReport.possibleDiagnosis" class="text-center py-6 text-gray-400 text-sm">
+              Differential diagnoses data not yet available for this session.
+            </div>
+          </div>
+
+          <!-- Possible Diagnosis / Clinical Impression -->
+          <div *ngIf="selectedReport.possibleDiagnosis || selectedReport.possibleDiagnoses" class="detail-box bg-white border-gray-200">
+            <h4 class="detail-box-title text-gray-900 flex items-center gap-2 text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-blue-600">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[var(--color-ocean)]">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
-              AI Differential Diagnoses
+              Clinical Diagnostic Impression & Rationale
             </h4>
-            <p class="text-sm text-gray-800 leading-relaxed font-medium mt-1">
-              {{ selectedReport.possibleDiagnoses }}
+            <p class="text-sm text-gray-700 leading-relaxed mt-2 whitespace-pre-line font-normal">
+              {{ selectedReport.possibleDiagnosis || selectedReport.possibleDiagnoses }}
             </p>
           </div>
 
-          <!-- Patient Summary Box -->
-          <div *ngIf="selectedReport.patientSummary" class="detail-box">
+          <!-- Immediate Management Box -->
+          <div *ngIf="selectedReport.immediateManagement" class="detail-box bg-emerald-50/60 border-emerald-200 shadow-xs">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <h4 class="detail-box-title text-emerald-950 font-bold text-sm">Immediate Management & Action Plan</h4>
+            </div>
+            <p class="text-sm text-emerald-900 leading-relaxed mt-1 font-medium whitespace-pre-line">
+              {{ selectedReport.immediateManagement }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: Clinical Findings -->
+        <div *ngIf="activeDetailTab === 'clinical-findings'" class="space-y-4 animate-slide-up">
+          
+          <!-- Chief Complaint -->
+          <div *ngIf="selectedReport.chiefComplaint" class="detail-box bg-indigo-50/50 border-indigo-100">
+            <h4 class="detail-box-title text-indigo-950 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Chief Complaint
+            </h4>
+            <p class="text-sm text-indigo-950 leading-relaxed font-medium mt-1 whitespace-pre-line">
+              "{{ selectedReport.chiefComplaint }}"
+            </p>
+          </div>
+
+          <!-- History of Present Illness -->
+          <div *ngIf="selectedReport.historyOfPresentIllness" class="detail-box">
             <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[var(--color-ocean)]">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
               </svg>
-              Clinical Patient Summary
+              History of Present Illness (HPI)
             </h4>
             <p class="text-sm text-gray-700 leading-relaxed mt-1 whitespace-pre-line">
-              {{ selectedReport.patientSummary }}
+              {{ selectedReport.historyOfPresentIllness }}
             </p>
           </div>
 
-          <!-- Final Diagnosis (if recorded by doctor) -->
+          <!-- Complete Findings From All Medical Images -->
+          <div *ngIf="selectedReport.completeMedicalImageFindings" class="detail-box bg-slate-50 border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="detail-box-title text-slate-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                Complete Findings From All Medical Images
+              </h4>
+              <span *ngIf="selectedReport.imagesReceived" class="text-xs font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">
+                {{ selectedReport.imagesReceived }} Image(s) Processed
+              </span>
+            </div>
+            <div class="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-800 leading-relaxed font-mono whitespace-pre-line max-h-80 overflow-y-auto">
+              {{ selectedReport.completeMedicalImageFindings }}
+            </div>
+          </div>
+
+          <!-- Final Recorded Diagnosis (if recorded by doctor) -->
           <div *ngIf="selectedReport.finalDiagnosis" class="detail-box bg-emerald-50/60 border-emerald-100">
             <h4 class="detail-box-title text-emerald-900 flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -404,7 +523,84 @@
 
         </div>
 
-        <!-- TAB 2: Speech Transcript -->
+        <!-- TAB 3: Recommended Investigations -->
+        <div *ngIf="activeDetailTab === 'investigations'" class="space-y-4 animate-slide-up">
+          
+          <!-- Investigations List -->
+          <div class="detail-box bg-purple-50/50 border-purple-100">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="detail-box-title text-purple-950 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
+                  <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/>
+                  <path d="M8.5 2h7"/>
+                  <path d="M14.5 16h-5"/>
+                </svg>
+                Recommended Laboratory Tests & Scans
+              </h4>
+              <span class="text-xs font-bold text-purple-700 bg-purple-100/80 px-2.5 py-0.5 rounded-full border border-purple-200">
+                {{ asArray(selectedReport.recommendedInvestigationsList).length || (selectedReport.suggestedInvestigations ? 1 : 0) }} Tests
+              </span>
+            </div>
+
+            <!-- List Format -->
+            <div *ngIf="asArray(selectedReport.recommendedInvestigationsList).length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div *ngFor="let item of asArray(selectedReport.recommendedInvestigationsList); let i = index"
+                class="investigation-item-card">
+                <div class="investigation-item-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="text-xs font-semibold text-gray-800 leading-snug">{{ item }}</span>
+              </div>
+            </div>
+
+            <!-- Text Fallback -->
+            <div *ngIf="asArray(selectedReport.recommendedInvestigationsList).length === 0 && selectedReport.suggestedInvestigations" class="p-3 bg-white rounded-xl border border-purple-100 text-sm text-purple-950 whitespace-pre-line">
+              {{ selectedReport.suggestedInvestigations }}
+            </div>
+
+            <div *ngIf="asArray(selectedReport.recommendedInvestigationsList).length === 0 && !selectedReport.suggestedInvestigations" class="text-center py-6 text-gray-400 text-sm">
+              No specific laboratory investigations recommended.
+            </div>
+          </div>
+
+          <!-- Contraindications -->
+          <div *ngIf="selectedReport.contraindications" class="detail-box bg-amber-50/60 border-amber-100">
+            <h4 class="detail-box-title text-amber-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-amber-600">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+              Contraindications & Patient Warnings
+            </h4>
+            <p class="text-sm text-amber-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.contraindications }}
+            </p>
+          </div>
+
+          <!-- Drug Interactions -->
+          <div *ngIf="selectedReport.drugInteractions" class="detail-box bg-rose-50/60 border-rose-100">
+            <h4 class="detail-box-title text-rose-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-rose-600">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Drug Interactions Identified
+            </h4>
+            <p class="text-sm text-rose-950 mt-1 whitespace-pre-line">
+              {{ selectedReport.drugInteractions }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- TAB 4: Speech Transcript -->
         <div *ngIf="activeDetailTab === 'transcript'" class="space-y-4 animate-slide-up">
           <div class="detail-box">
             <div class="flex items-center justify-between mb-2">
@@ -431,7 +627,7 @@
           </div>
         </div>
 
-        <!-- TAB 3: Prescribed Medications -->
+        <!-- TAB 5: Prescribed Medications -->
         <div *ngIf="activeDetailTab === 'medications'" class="space-y-4 animate-slide-up">
           
           <!-- Prescriptions Table -->
@@ -477,75 +673,9 @@
             </div>
           </div>
 
-          <!-- Drug Interactions -->
-          <div *ngIf="selectedReport.drugInteractions" class="detail-box bg-rose-50/60 border-rose-100">
-            <h4 class="detail-box-title text-rose-900 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-rose-600">
-                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              Drug Interactions Identified
-            </h4>
-            <p class="text-sm text-rose-950 mt-1 whitespace-pre-line">
-              {{ selectedReport.drugInteractions }}
-            </p>
-          </div>
-
         </div>
 
-        <!-- TAB 4: Investigations & Safety -->
-        <div *ngIf="activeDetailTab === 'investigations'" class="space-y-4 animate-slide-up">
-          
-          <!-- Extracted Symptoms -->
-          <div *ngIf="selectedReport.extractedSymptoms" class="detail-box">
-            <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-              </svg>
-              Extracted Symptoms & Clinical Findings
-            </h4>
-            <p class="text-sm text-gray-800 mt-1 whitespace-pre-line">
-              {{ selectedReport.extractedSymptoms }}
-            </p>
-          </div>
-
-          <!-- Suggested Investigations -->
-          <div *ngIf="selectedReport.suggestedInvestigations" class="detail-box bg-purple-50/60 border-purple-100">
-            <h4 class="detail-box-title text-purple-900 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-purple-600">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-              </svg>
-              Suggested Laboratory Tests & Diagnostic Scans
-            </h4>
-            <p class="text-sm text-purple-950 mt-1 whitespace-pre-line">
-              {{ selectedReport.suggestedInvestigations }}
-            </p>
-          </div>
-
-          <!-- Contraindications -->
-          <div *ngIf="selectedReport.contraindications" class="detail-box bg-amber-50/60 border-amber-100">
-            <h4 class="detail-box-title text-amber-900 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-amber-600">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-              </svg>
-              Contraindications & Patient Warnings
-            </h4>
-            <p class="text-sm text-amber-950 mt-1 whitespace-pre-line">
-              {{ selectedReport.contraindications }}
-            </p>
-          </div>
-
-        </div>
-
-        <!-- TAB 5: Visit Documents -->
+        <!-- TAB 6: Visit Documents -->
         <div *ngIf="activeDetailTab === 'documents'" class="space-y-4 animate-slide-up">
           <div *ngIf="selectedReport.visitDocuments && selectedReport.visitDocuments.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div *ngFor="let doc of selectedReport.visitDocuments" class="p-4 bg-gray-50 rounded-2xl border border-gray-200">

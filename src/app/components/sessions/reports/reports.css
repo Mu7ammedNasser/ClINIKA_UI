@@ -195,6 +195,40 @@
   @apply text-xs font-bold uppercase tracking-wider mb-1.5;
 }
 
+/* Differential Diagnoses Styling */
+.diff-diagnosis-card {
+  @apply flex items-center justify-between gap-3 p-3 bg-white/90 border border-blue-100 rounded-xl transition-all hover:bg-white hover:shadow-xs;
+}
+
+.diff-primary-card {
+  @apply bg-blue-50/70 border-blue-200/80 shadow-xs ring-1 ring-blue-400/20;
+}
+
+.diff-rank-badge {
+  @apply w-7 h-7 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs flex items-center justify-center flex-shrink-0;
+}
+
+.diff-primary-badge {
+  @apply bg-gradient-to-tr from-[var(--color-ocean)] to-blue-500 text-white shadow-xs font-black;
+}
+
+.diff-diagnosis-name {
+  @apply font-bold text-sm text-gray-900;
+}
+
+.primary-suspect-pill {
+  @apply px-2 py-0.5 rounded-md bg-blue-100 text-[var(--color-ocean)] text-[10px] font-extrabold uppercase tracking-wide border border-blue-200;
+}
+
+/* Investigation Items Grid Cards */
+.investigation-item-card {
+  @apply flex items-start gap-2.5 p-3 bg-white rounded-xl border border-purple-100 shadow-xs transition-all hover:border-purple-200 hover:shadow-sm;
+}
+
+.investigation-item-icon {
+  @apply w-5 h-5 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0 mt-0.5;
+}
+
 .spinner-large {
   @apply w-10 h-10 border-3 border-gray-200 border-t-[var(--color-ocean)] rounded-full animate-spin;
 }

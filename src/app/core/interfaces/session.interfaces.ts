@@ -58,6 +58,14 @@ export interface SessionDiagnosisResultDto {
   extractedSymptoms?: string;
   patientSummary?: string;
   possibleDiagnoses?: string;
+  possibleDiagnosis?: string;
+  top5DifferentialDiagnoses?: string[] | string;
+  chiefComplaint?: string;
+  historyOfPresentIllness?: string;
+  completeMedicalImageFindings?: string;
+  recommendedInvestigationsList?: string[];
+  immediateManagement?: string;
+  imagesReceived?: number;
   drugInteractions?: string;
   contraindications?: string;
   suggestedInvestigations?: string;

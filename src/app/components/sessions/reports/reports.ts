@@ -38,7 +38,7 @@ export class Reports implements OnInit {
   selectedReport: SessionDiagnosisResultDto | null = null;
   isLoadingDetail = false;
   detailError = '';
-  activeDetailTab: 'overview' | 'transcript' | 'medications' | 'investigations' | 'documents' = 'overview';
+  activeDetailTab: 'top-diagnoses' | 'clinical-findings' | 'investigations' | 'transcript' | 'medications' | 'documents' = 'top-diagnoses';
 
   ngOnInit(): void {
     this.loadReports();
@@ -124,7 +124,7 @@ export class Reports implements OnInit {
     this.selectedReport = null;
     this.isLoadingDetail = true;
     this.detailError = '';
-    this.activeDetailTab = 'overview';
+    this.activeDetailTab = 'top-diagnoses';
     this.cdr.detectChanges();
 
     this.sessionService.getSessionDiagnosis(sessionId).subscribe({
@@ -133,28 +133,137 @@ export class Reports implements OnInit {
         console.log('[Reports] Diagnosis response for session', sessionId, res);
 
         const isSuccess = res?.isSuccess ?? res?.IsSuccess ?? true;
-        const data = res?.data ?? res?.Data ?? res;
+        const rootData = res?.data ?? res?.Data ?? res;
+        const body = rootData?.body ?? rootData?.Body ?? rootData;
 
-        if (data && typeof data === 'object') {
+        if (body && typeof body === 'object') {
+          // Parse internal analysis JSON if present for deep fallback, but NEVER expose raw analysis string to UI
+          let parsedAnalysis: any = null;
+          if (body.analysis && typeof body.analysis === 'string') {
+            try {
+              parsedAnalysis = JSON.parse(body.analysis);
+            } catch (e) {
+              console.warn('[Reports] Analysis JSON parse warning:', e);
+            }
+          } else if (body.analysis && typeof body.analysis === 'object') {
+            parsedAnalysis = body.analysis;
+          }
+
+          // 1. Top 5 Differential Diagnoses
+          let top5 =
+            body['Top 5 Differential Diagnoses'] ??
+            body.top5DifferentialDiagnoses ??
+            body.topDifferentialDiagnoses ??
+            body['top_5_differential_diagnoses'] ??
+            parsedAnalysis?.['Top 5 Differential Diagnoses'] ??
+            parsedAnalysis?.top5DifferentialDiagnoses ??
+            [];
+          if (typeof top5 === 'string') {
+            top5 = top5
+              .split(/\r?\n/)
+              .map((s: string) => s.replace(/^\d+[\.\-\)]\s*/, '').trim())
+              .filter(Boolean);
+          } else if (!Array.isArray(top5)) {
+            top5 = [];
+          }
+
+          // 2. Recommended Investigations
+          let investigations =
+            body['Recommended Investigations'] ??
+            body.recommendedInvestigations ??
+            body.recommendedInvestigationsList ??
+            parsedAnalysis?.['Recommended Investigations'] ??
+            parsedAnalysis?.recommendedInvestigations ??
+            [];
+          if (typeof investigations === 'string') {
+            investigations = investigations
+              .split(/\r?\n/)
+              .map((s: string) => s.replace(/^\d+[\.\-\)]\s*/, '').trim())
+              .filter(Boolean);
+          } else if (!Array.isArray(investigations)) {
+            investigations = [];
+          }
+
+          // 3. Chief Complaint
+          const chiefComplaint =
+            body['Chief Complaint'] ??
+            body.chiefComplaint ??
+            parsedAnalysis?.['Chief Complaint'] ??
+            rootData?.extractedSymptoms ??
+            '';
+
+          // 4. History of Present Illness
+          const historyOfPresentIllness =
+            body['History of Present Illness'] ??
+            body.historyOfPresentIllness ??
+            parsedAnalysis?.['History of Present Illness'] ??
+            rootData?.patientSummary ??
+            '';
+
+          // 5. Complete Findings From All Medical Images
+          const completeMedicalImageFindings =
+            body['Complete Findings From All Medical Images'] ??
+            body.completeMedicalImageFindings ??
+            parsedAnalysis?.['Complete Findings From All Medical Images'] ??
+            '';
+
+          // 6. Possible Diagnosis
+          const possibleDiagnosis =
+            body['Possible Diagnosis'] ??
+            body.possibleDiagnosis ??
+            body.possibleDiagnoses ??
+            rootData?.possibleDiagnoses ??
+            parsedAnalysis?.['Possible Diagnosis'] ??
+            '';
+
+          // 7. Immediate Management
+          const immediateManagement =
+            body['Immediate Management'] ??
+            body.immediateManagement ??
+            parsedAnalysis?.['Immediate Management'] ??
+            '';
+
+          // 8. Images Received
+          const imagesReceived =
+            body.images_received ??
+            body.imagesReceived ??
+            parsedAnalysis?.images_received ??
+            0;
+
+          // 9. Audio Transcript
+          const audioTranscript =
+            body.transcript ??
+            body.audioTranscript ??
+            rootData?.audioTranscript ??
+            '';
+
           this.selectedReport = {
-            sessionId: data.sessionId ?? data.SessionId ?? sessionId,
-            patientId: data.patientId ?? data.PatientId ?? 0,
-            patientName: data.patientName ?? data.PatientName ?? ('Patient of Session #' + sessionId),
-            patientGender: data.patientGender ?? data.PatientGender ?? '',
-            visitDate: data.visitDate ?? data.VisitDate ?? data.generatedAt ?? data.GeneratedAt ?? new Date().toISOString(),
-            status: data.status ?? data.Status ?? 'Completed',
-            audioTranscript: data.audioTranscript ?? data.AudioTranscript ?? '',
-            extractedSymptoms: data.extractedSymptoms ?? data.ExtractedSymptoms ?? '',
-            patientSummary: data.patientSummary ?? data.PatientSummary ?? '',
-            possibleDiagnoses: data.possibleDiagnoses ?? data.PossibleDiagnoses ?? '',
-            drugInteractions: data.drugInteractions ?? data.DrugInteractions ?? '',
-            contraindications: data.contraindications ?? data.Contraindications ?? '',
-            suggestedInvestigations: data.suggestedInvestigations ?? data.SuggestedInvestigations ?? '',
-            clinicalAlerts: data.clinicalAlerts ?? data.ClinicalAlerts ?? '',
-            finalDiagnosis: data.finalDiagnosis ?? data.FinalDiagnosis ?? '',
-            generatedAt: data.generatedAt ?? data.GeneratedAt ?? null,
-            prescribedMedications: data.prescribedMedications ?? data.PrescribedMedications ?? [],
-            visitDocuments: data.visitDocuments ?? data.VisitDocuments ?? [],
+            sessionId: rootData.sessionId ?? rootData.SessionId ?? sessionId,
+            patientId: rootData.patientId ?? rootData.PatientId ?? 0,
+            patientName: rootData.patientName ?? rootData.PatientName ?? ('Patient of Session #' + sessionId),
+            patientGender: rootData.patientGender ?? rootData.PatientGender ?? '',
+            visitDate: rootData.visitDate ?? rootData.VisitDate ?? rootData.generatedAt ?? rootData.GeneratedAt ?? new Date().toISOString(),
+            status: rootData.status ?? rootData.Status ?? 'Completed',
+            audioTranscript,
+            extractedSymptoms: chiefComplaint || (rootData.extractedSymptoms ?? ''),
+            patientSummary: historyOfPresentIllness || (rootData.patientSummary ?? ''),
+            possibleDiagnoses: possibleDiagnosis,
+            possibleDiagnosis,
+            top5DifferentialDiagnoses: top5,
+            chiefComplaint,
+            historyOfPresentIllness,
+            completeMedicalImageFindings,
+            recommendedInvestigationsList: investigations,
+            immediateManagement,
+            imagesReceived,
+            drugInteractions: rootData.drugInteractions ?? rootData.DrugInteractions ?? '',
+            contraindications: rootData.contraindications ?? rootData.Contraindications ?? '',
+            suggestedInvestigations: investigations.length > 0 ? investigations.join(', ') : (rootData.suggestedInvestigations ?? rootData.SuggestedInvestigations ?? ''),
+            clinicalAlerts: rootData.clinicalAlerts ?? rootData.ClinicalAlerts ?? '',
+            finalDiagnosis: rootData.finalDiagnosis ?? rootData.FinalDiagnosis ?? '',
+            generatedAt: rootData.generatedAt ?? rootData.GeneratedAt ?? null,
+            prescribedMedications: rootData.prescribedMedications ?? rootData.PrescribedMedications ?? body.prescribedMedications ?? [],
+            visitDocuments: rootData.visitDocuments ?? rootData.VisitDocuments ?? body.visitDocuments ?? [],
           };
           this.detailError = '';
         } else {
@@ -188,9 +297,21 @@ export class Reports implements OnInit {
     this.cdr.detectChanges();
   }
 
-  setDetailTab(tab: 'overview' | 'transcript' | 'medications' | 'investigations' | 'documents'): void {
+  setDetailTab(tab: 'top-diagnoses' | 'clinical-findings' | 'investigations' | 'transcript' | 'medications' | 'documents'): void {
     this.activeDetailTab = tab;
     this.cdr.detectChanges();
+  }
+
+  asArray(val: any): string[] {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map((v) => String(v).trim()).filter(Boolean);
+    if (typeof val === 'string') {
+      return val
+        .split(/\r?\n/)
+        .map((s) => s.replace(/^\d+[\.\-\)]\s*/, '').trim())
+        .filter(Boolean);
+    }
+    return [];
   }
 
   // ─── Helpers & Navigation ───────────────────────────────────

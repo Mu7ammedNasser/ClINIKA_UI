@@ -88,13 +88,23 @@ export class InteractionCheck implements OnInit {
     // 1. Fetch Session details to get Patient ID, Prescribed Meds, and Visit Documents
     this.sessionService.getSessionDiagnosis(sessionId).subscribe({
       next: (res: any) => {
-        const data: SessionDiagnosisResultDto = res?.data ?? res?.Data ?? res;
-        if (data && (data.sessionId || (data as any).SessionId)) {
-          this.patientId = data.patientId ?? (data as any).PatientId;
-          this.patientName = data.patientName ?? (data as any).PatientName ?? 'Patient';
-          this.patientGender = data.patientGender ?? (data as any).PatientGender ?? '';
-          this.prescribedMedications = data.prescribedMedications ?? (data as any).PrescribedMedications ?? [];
-          this.visitDocuments = data.visitDocuments ?? (data as any).VisitDocuments ?? [];
+        const dataObj = res?.data ?? res?.Data ?? res;
+        const body = dataObj?.body ?? dataObj?.Body ?? dataObj;
+        const data: SessionDiagnosisResultDto = {
+          ...body,
+          sessionId: dataObj.sessionId ?? dataObj.SessionId ?? body.sessionId ?? body.SessionId ?? sessionId,
+          patientId: dataObj.patientId ?? dataObj.PatientId ?? body.patientId ?? body.PatientId ?? 0,
+          patientName: dataObj.patientName ?? dataObj.PatientName ?? body.patientName ?? body.PatientName ?? '',
+          patientGender: dataObj.patientGender ?? dataObj.PatientGender ?? body.patientGender ?? body.PatientGender ?? '',
+          prescribedMedications: dataObj.prescribedMedications ?? dataObj.PrescribedMedications ?? body.prescribedMedications ?? body.PrescribedMedications ?? [],
+          visitDocuments: dataObj.visitDocuments ?? dataObj.VisitDocuments ?? body.visitDocuments ?? body.VisitDocuments ?? [],
+        };
+        if (data && (data.sessionId || data.patientId || data.prescribedMedications.length > 0)) {
+          this.patientId = data.patientId;
+          this.patientName = data.patientName || 'Patient';
+          this.patientGender = data.patientGender || '';
+          this.prescribedMedications = data.prescribedMedications || [];
+          this.visitDocuments = data.visitDocuments || [];
 
           // 2. Fetch Patient History for Active Medications
           if (this.patientId) {
