@@ -2,20 +2,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
-import { InteractionCheck } from './interaction-check';
+import { PatientDashboard } from './patient-dashboard';
 
-describe('InteractionCheck', () => {
-  let component: InteractionCheck;
-  let fixture: ComponentFixture<InteractionCheck>;
+describe('PatientDashboard', () => {
+  let component: PatientDashboard;
+  let fixture: ComponentFixture<PatientDashboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InteractionCheck],
+      imports: [PatientDashboard],
       providers: [provideHttpClient(), provideRouter([])],
-    })
-    .compileComponents();
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(InteractionCheck);
+    fixture = TestBed.createComponent(PatientDashboard);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

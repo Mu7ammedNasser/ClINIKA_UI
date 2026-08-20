@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 .profile-page {
-  @apply p-8 max-w-5xl mx-auto min-h-screen bg-transparent;
+  @apply p-6 md:p-8 pb-16 max-w-6xl mx-auto min-h-screen bg-transparent;
 }
 
 .page-header {
-  @apply mb-8 flex justify-between items-end;
+  @apply mb-8 flex justify-between items-end flex-wrap gap-4;
 }
 
 .page-title {
-  @apply text-3xl font-bold text-[var(--color-primary)] tracking-tight;
+  @apply text-3xl font-extrabold text-[var(--color-primary)] tracking-tight;
 }
 
 .page-subtitle {
-  @apply text-[var(--color-ocean)] opacity-80 mt-1;
+  @apply text-[var(--color-ocean)] opacity-90 mt-1 text-sm md:text-base;
 }
 
 /* Loading state */
@@ -22,7 +22,7 @@
 }
 
 .spinner {
-  @apply w-8 h-8 border-4 border-[var(--color-sky)] border-t-[var(--color-primary)] rounded-full animate-spin;
+  @apply w-10 h-10 border-4 border-[var(--color-sky)] border-t-[var(--color-primary)] rounded-full animate-spin;
 }
 
 .spinner-small {
@@ -47,11 +47,11 @@
 
 /* Cards */
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-[var(--color-ice)] p-6;
+  @apply bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8 transition-shadow hover:shadow-md;
 }
 
 .card-title {
-  @apply text-lg font-semibold text-[var(--color-primary)] mb-6;
+  @apply text-xl font-bold text-[var(--color-primary)] mb-6 tracking-tight;
 }
 
 .card-header {
@@ -73,6 +73,22 @@
 
 .info-item p {
   @apply text-[var(--color-primary)] font-medium bg-[var(--color-ice)]/30 px-4 py-2.5 rounded-lg border border-[var(--color-ice)];
+}
+
+.info-item p.empty-val {
+  @apply text-slate-400 italic font-normal bg-slate-50 border-slate-200;
+}
+
+.section-desc {
+  @apply text-xs text-slate-500 mt-0.5;
+}
+
+.req-star {
+  @apply text-rose-500 font-bold ml-0.5;
+}
+
+.field-error-msg {
+  @apply text-xs text-rose-500 font-medium mt-1 flex items-center gap-1;
 }
 
 /* Form Structure */
@@ -97,11 +113,15 @@
 }
 
 .form-label {
-  @apply text-sm font-medium text-[var(--color-primary)];
+  @apply text-sm font-semibold text-[var(--color-primary)] flex items-center;
 }
 
 .form-input, .form-select {
   @apply w-full px-4 py-2.5 rounded-lg border border-[var(--color-sky)] bg-white text-[var(--color-primary)] outline-none transition-all focus:ring-2 focus:ring-[var(--color-ocean)]/30 focus:border-[var(--color-ocean)] disabled:bg-[var(--color-ice)]/30 disabled:text-[var(--color-ocean)]/70 disabled:border-[var(--color-ice)];
+}
+
+.form-input.input-error, .form-select.input-error {
+  @apply border-rose-400 bg-rose-50/20 focus:ring-rose-200 focus:border-rose-500;
 }
 
 /* Arrays */
@@ -152,7 +172,7 @@
 }
 
 .slider {
-  @apply absolute inset-0 bg-[var(--color-sky)] rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300 before:shadow-sm;
+  @apply absolute inset-0 bg-slate-300 rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-4 before:w-4 before:left-1 before:bottom-1 before:bg-white before:rounded-full before:transition-all before:duration-300 before:shadow-sm;
 }
 
 .toggle-switch input:checked + .slider {
@@ -167,10 +187,80 @@
   @apply text-[var(--color-ocean)] text-sm italic py-4 text-center border-2 border-dashed border-[var(--color-sky)] rounded-lg;
 }
 
+/* Prescribed by Doctor Tag */
+.session-prescribed-tag {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 mb-3 rounded-lg text-xs font-semibold text-teal-800 bg-teal-50 border border-teal-200 w-fit;
+}
+
+.session-prescribed-tag svg {
+  @apply w-3.5 h-3.5 text-teal-600;
+}
+
 /* Sticky Footer */
 .form-actions {
   @apply flex justify-end pt-4 bg-transparent pb-4 z-10;
 }
 .sticky-bottom {
   @apply sticky bottom-0;
+}
+
+/* Confirmation Modal */
+.modal-backdrop {
+  @apply fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.modal-card {
+  @apply bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col items-center text-center border border-slate-200;
+  animation: modalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.95) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-icon-circle {
+  @apply w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-4;
+}
+
+.modal-icon-circle svg {
+  @apply w-7 h-7;
+}
+
+.modal-heading {
+  @apply text-xl font-bold text-[var(--color-primary)] mb-2;
+}
+
+.modal-text {
+  @apply text-sm text-slate-700 mb-1 leading-relaxed;
+}
+
+.highlight-doctor {
+  @apply font-bold text-teal-700;
+}
+
+.highlight-session {
+  @apply font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200;
+}
+
+.modal-subtext {
+  @apply text-xs text-slate-500 mb-6;
+}
+
+.modal-actions {
+  @apply flex items-center justify-center gap-3 w-full;
+}
+
+.btn-cancel {
+  @apply flex-1 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-colors;
+}
+
+.btn-danger-confirm {
+  @apply flex-1 py-2.5 px-4 rounded-xl bg-rose-600 text-white font-semibold text-sm hover:bg-rose-700 transition-colors shadow-sm;
 }

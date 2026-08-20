@@ -127,7 +127,16 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./components/dashboard/dashboard').then((m) => m.Dashboard),
+          import(
+            './components/patients/patient-dashboard/patient-dashboard'
+          ).then((m) => m.PatientDashboard),
+      },
+      {
+        path: 'sessions',
+        loadComponent: () =>
+          import(
+            './components/patients/patient-sessions/patient-sessions'
+          ).then((m) => m.PatientSessions),
       },
       {
         path: 'chat',

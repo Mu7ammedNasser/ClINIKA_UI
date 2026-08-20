@@ -19,6 +19,19 @@ export interface MedicationDto {
   frequency: string;
   startDate?: string;
   endDate?: string;
+  sourceSessionId?: number | null;
+  prescribedByDoctor?: string | null;
+  sourceSessionDate?: string | null;
+}
+
+export interface PrescribedMedicationObject {
+  drugName: string;
+  dosage: string;
+  frequency: string;
+  duration?: string;
+  notes?: string;
+  doctorName?: string;
+  sessionDate?: string;
 }
 
 export interface PatientDiseaseDto {
@@ -36,9 +49,58 @@ export interface PatientSessionDto {
   sessionId: number;
   visitDate: string;
   doctorName: string;
-  doctorSpecialty: string;
+  doctorSpecialty?: string;
   status: string;
   finalDiagnosis: string;
+}
+
+export interface SessionAiReportDto {
+  id: number;
+  patientSummary?: string;
+  possibleDiagnoses?: string;
+  drugInteractions?: string;
+  contraindications?: string;
+  suggestedInvestigations?: string;
+  clinicalAlerts?: string;
+  generatedAt: string;
+}
+
+export interface PrescribedMedicationDto {
+  id: number;
+  drugName: string;
+  dosage?: string;
+  frequency?: string;
+  duration?: string;
+  notes?: string;
+}
+
+export interface UploadedDocumentDto {
+  id: number;
+  documentType: string;
+  filePath: string;
+  extractedText?: string;
+  uploadedAt: string;
+}
+
+export interface PatientSessionDetailsDto {
+  sessionId: number;
+  patientId: number;
+  patientName: string;
+  doctorId: number;
+  doctorName: string;
+  visitDate: string;
+  status: string;
+  finalizedAt?: string;
+  audioTranscript?: string;
+  extractedSymptoms?: string;
+  mentionedMedications?: string;
+  mentionedHistory?: string;
+  finalDiagnosis?: string;
+  doctorNotes?: string;
+  followUpRecommendations?: string;
+  aiReport?: SessionAiReportDto | null;
+  prescribedMedications: PrescribedMedicationDto[];
+  uploadedDocuments: UploadedDocumentDto[];
 }
 
 export interface PatientMedicalDataDto {
@@ -48,6 +110,7 @@ export interface PatientMedicalDataDto {
   gender: string | null;
   bloodType: string | null;
   activeMedications: MedicationDto[];
+  prescribedMedications: PrescribedMedicationObject[];
   diseases: PatientDiseaseDto[];
   allergies: PatientAllergyDto[];
   sessions: PatientSessionDto[];
