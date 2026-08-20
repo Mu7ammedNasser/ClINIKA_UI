@@ -8,419 +8,529 @@
 
   <!-- Toast Notification -->
   @if (toastMessage()) {
-    <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'" [class.toast-error]="toastMessage()?.type === 'error'">
-      <span>{{ toastMessage()?.text }}</span>
-    </div>
+  <div class="toast-notification" [class.toast-success]="toastMessage()?.type === 'success'"
+    [class.toast-error]="toastMessage()?.type === 'error'">
+    <span>{{ toastMessage()?.text }}</span>
+  </div>
   }
 
   @if (isLoading()) {
-    <div class="loading-container">
-      <span class="spinner"></span>
-      <p>Loading profile...</p>
-    </div>
+  <div class="loading-container">
+    <span class="spinner"></span>
+    <p>Loading profile...</p>
+  </div>
   } @else {
-    
-    <div class="profile-container">
-      
-      <!-- Read-Only Personal Information Card -->
+
+  <div class="profile-container">
+
+      <!-- Personal Information Card -->
       <div class="card info-card">
-        <h2 class="card-title">Personal Information (Account Data)</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>First Name</label>
-            <p [class.empty-val]="!patientProfile()?.firstName">{{ patientProfile()?.firstName || 'Not provided' }}</p>
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Personal Information (Account Data)</h2>
+            <p class="section-desc">Manage your core account identity and contact details.</p>
           </div>
-          <div class="info-item">
-            <label>Last Name</label>
-            <p [class.empty-val]="!patientProfile()?.lastName">{{ patientProfile()?.lastName || 'Not provided' }}</p>
-          </div>
-          <div class="info-item">
-            <label>Email Address</label>
-            <p [class.empty-val]="!patientProfile()?.email">{{ patientProfile()?.email || 'Not provided' }}</p>
-          </div>
-          <div class="info-item">
-            <label>Phone Number</label>
-            <p [class.empty-val]="!patientProfile()?.phone">{{ patientProfile()?.phone || 'Not provided' }}</p>
+          <div class="flex items-center gap-2">
+            @if (!isEditingPersonalInfo()) {
+              <button 
+                type="button" 
+                class="btn-secondary btn-sm flex items-center gap-1.5" 
+                (click)="enableEditPersonalInfo()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Edit</span>
+              </button>
+            } @else {
+              <button 
+                type="button" 
+                class="btn-secondary btn-sm" 
+                [disabled]="isSubmittingPersonalInfo()"
+                (click)="cancelEditPersonalInfo()">
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                class="btn-primary btn-sm flex items-center gap-1.5" 
+                [disabled]="isSubmittingPersonalInfo()"
+                (click)="savePersonalInfo()">
+                @if (isSubmittingPersonalInfo()) {
+                  <span class="spinner-small"></span>
+                  <span>Saving...</span>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Save</span>
+                }
+              </button>
+            }
           </div>
         </div>
-      </div>
 
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form-container" novalidate>
-
-        <!-- Demographic Info (Editable) -->
-        <div class="card form-card">
-          <h2 class="card-title">Demographic Information</h2>
-          <div class="form-grid">
-            
-            <!-- Gender -->
-            <div class="form-group">
-              <label class="form-label">
-                Gender <span class="req-star">*</span>
-              </label>
-              <select formControlName="gender" class="form-select" [class.input-error]="profileForm.get('gender')?.touched && profileForm.get('gender')?.invalid">
-                <option value="" disabled>Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              @if (profileForm.get('gender')?.touched && profileForm.get('gender')?.hasError('required')) {
-                <span class="field-error-msg">Gender is required.</span>
-              }
+        @if (!isEditingPersonalInfo()) {
+          <div class="info-grid">
+            <div class="info-item">
+              <label>First Name</label>
+              <p [class.empty-val]="!patientProfile()?.firstName">{{ patientProfile()?.firstName || 'Not provided' }}</p>
             </div>
-
-            <!-- Blood Type -->
-            <div class="form-group">
-              <label class="form-label">
-                Blood Type <span class="req-star">*</span>
-              </label>
-              <select formControlName="bloodType" class="form-select" [class.input-error]="profileForm.get('bloodType')?.touched && profileForm.get('bloodType')?.invalid">
-                <option value="" disabled>Select Blood Type</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-              </select>
-              @if (profileForm.get('bloodType')?.touched && profileForm.get('bloodType')?.hasError('required')) {
-                <span class="field-error-msg">Blood type is required.</span>
-              }
+            <div class="info-item">
+              <label>Last Name</label>
+              <p [class.empty-val]="!patientProfile()?.lastName">{{ patientProfile()?.lastName || 'Not provided' }}</p>
             </div>
-
-            <!-- National ID -->
+            <div class="info-item">
+              <label>Email Address</label>
+              <p [class.empty-val]="!patientProfile()?.email">{{ patientProfile()?.email || 'Not provided' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Phone Number</label>
+              <p [class.empty-val]="!patientProfile()?.phone">{{ patientProfile()?.phone || 'Not provided' }}</p>
+            </div>
+          </div>
+        } @else {
+          <form [formGroup]="personalInfoForm" class="info-grid" (ngSubmit)="savePersonalInfo()">
+            <!-- First Name -->
             <div class="form-group">
               <label class="form-label">
-                National ID <span class="req-star">*</span>
+                First Name <span class="req-star">*</span>
               </label>
               <input 
                 type="text" 
-                formControlName="nationalId" 
+                formControlName="firstName" 
                 class="form-input" 
-                [class.input-error]="profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.invalid"
-                placeholder="14-digit National ID" 
-                maxlength="14">
-              @if (profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.hasError('required')) {
-                <span class="field-error-msg">National ID is required.</span>
-              } @else if (profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.hasError('pattern')) {
-                <span class="field-error-msg">National ID must be exactly 14 digits.</span>
+                [class.input-error]="personalInfoForm.get('firstName')?.touched && personalInfoForm.get('firstName')?.invalid"
+                placeholder="Enter first name"
+                maxlength="50">
+              @if (personalInfoForm.get('firstName')?.touched) {
+                @if (personalInfoForm.get('firstName')?.hasError('required')) {
+                  <span class="field-error-msg">First name is required.</span>
+                } @else if (personalInfoForm.get('firstName')?.hasError('minlength')) {
+                  <span class="field-error-msg">First name must be at least 2 characters.</span>
+                }
               }
             </div>
 
-            <!-- Date of Birth -->
+            <!-- Last Name -->
             <div class="form-group">
               <label class="form-label">
-                Date of Birth <span class="req-star">*</span>
+                Last Name <span class="req-star">*</span>
               </label>
               <input 
-                type="date" 
-                formControlName="dateOfBirth" 
-                [max]="maxDate"
-                class="form-input"
-                [class.input-error]="profileForm.get('dateOfBirth')?.touched && profileForm.get('dateOfBirth')?.invalid">
-              @if (profileForm.get('dateOfBirth')?.touched) {
-                @if (profileForm.get('dateOfBirth')?.hasError('required')) {
-                  <span class="field-error-msg">Date of birth is required.</span>
-                } @else if (profileForm.get('dateOfBirth')?.hasError('futureDate')) {
-                  <span class="field-error-msg">Date of birth cannot be in the future.</span>
-                } @else if (profileForm.get('dateOfBirth')?.hasError('invalidDate')) {
-                  <span class="field-error-msg">Please enter a valid date after 1900.</span>
+                type="text" 
+                formControlName="lastName" 
+                class="form-input" 
+                [class.input-error]="personalInfoForm.get('lastName')?.touched && personalInfoForm.get('lastName')?.invalid"
+                placeholder="Enter last name"
+                maxlength="50">
+              @if (personalInfoForm.get('lastName')?.touched) {
+                @if (personalInfoForm.get('lastName')?.hasError('required')) {
+                  <span class="field-error-msg">Last name is required.</span>
+                } @else if (personalInfoForm.get('lastName')?.hasError('minlength')) {
+                  <span class="field-error-msg">Last name must be at least 2 characters.</span>
                 }
               }
             </div>
 
-          </div>
-        </div>
-
-        <!-- Medications -->
-        <div class="card form-card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Active Medications</h2>
-              <p class="section-desc">Current daily medications you are regularly taking.</p>
+            <!-- Email Address (Disabled) -->
+            <div class="form-group">
+              <label class="form-label">
+                Email Address <span class="text-xs text-slate-400 font-normal ml-1">(Read-only)</span>
+              </label>
+              <input 
+                type="email" 
+                [value]="patientProfile()?.email || 'Not provided'"
+                class="form-input disabled:bg-slate-100 disabled:text-slate-500 disabled:border-slate-200 disabled:cursor-not-allowed" 
+                disabled
+                readonly
+                title="Email address cannot be changed">
             </div>
-            <button type="button" class="btn-secondary btn-sm" (click)="addMedication()">+ Add Medication</button>
-          </div>
-          
-          <div formArrayName="medications" class="array-container">
-            @for (med of medications.controls; track $index) {
-              <div [formGroupName]="$index" class="array-item">
-                
-                @if (med.get('prescribedByDoctor')?.value || med.get('sourceSessionId')?.value) {
-                  <div class="session-prescribed-tag">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <span>
-                      Prescribed in Session #{{ med.get('sourceSessionId')?.value }} 
-                      @if (med.get('prescribedByDoctor')?.value) {
-                        by Dr. {{ med.get('prescribedByDoctor')?.value }}
-                      }
-                    </span>
-                  </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label class="form-label">
+                Phone Number <span class="req-star">*</span>
+              </label>
+              <input 
+                type="tel" 
+                formControlName="phone" 
+                class="form-input" 
+                [class.input-error]="personalInfoForm.get('phone')?.touched && personalInfoForm.get('phone')?.invalid"
+                placeholder="e.g. 01012345678"
+                maxlength="15">
+              @if (personalInfoForm.get('phone')?.touched) {
+                @if (personalInfoForm.get('phone')?.hasError('required')) {
+                  <span class="field-error-msg">Phone number is required.</span>
+                } @else if (personalInfoForm.get('phone')?.hasError('pattern')) {
+                  <span class="field-error-msg">Please enter a valid Egyptian mobile number (e.g. 01012345678).</span>
                 }
-
-                <div class="form-grid-3">
-                  
-                  <div class="form-group">
-                    <label class="form-label">Drug Name <span class="req-star">*</span></label>
-                    <input 
-                      type="text" 
-                      formControlName="drugName" 
-                      class="form-input" 
-                      [class.input-error]="med.get('drugName')?.touched && med.get('drugName')?.invalid"
-                      placeholder="e.g. Metformin">
-                    @if (med.get('drugName')?.touched && med.get('drugName')?.hasError('required')) {
-                      <span class="field-error-msg">Drug name is required.</span>
-                    }
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Dosage <span class="req-star">*</span></label>
-                    <input 
-                      type="text" 
-                      formControlName="dosage" 
-                      class="form-input" 
-                      [class.input-error]="med.get('dosage')?.touched && med.get('dosage')?.invalid"
-                      placeholder="e.g. 500 mg">
-                    @if (med.get('dosage')?.touched && med.get('dosage')?.hasError('required')) {
-                      <span class="field-error-msg">Dosage is required.</span>
-                    }
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Frequency <span class="req-star">*</span></label>
-                    <input 
-                      type="text" 
-                      formControlName="frequency" 
-                      class="form-input" 
-                      [class.input-error]="med.get('frequency')?.touched && med.get('frequency')?.invalid"
-                      placeholder="e.g. Twice daily">
-                    @if (med.get('frequency')?.touched && med.get('frequency')?.hasError('required')) {
-                      <span class="field-error-msg">Frequency is required.</span>
-                    }
-                  </div>
-
-                </div>
-                <button type="button" class="btn-remove" (click)="removeMedication($index)" aria-label="Remove medication" title="Remove medication">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
-            }
-            @if (medications.controls.length === 0) {
-              <p class="empty-text">No active medications recorded. Click "+ Add Medication" to add one.</p>
-            }
-          </div>
-        </div>
-
-        <!-- Diseases -->
-        <div class="card form-card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Chronic Diseases & Medical History</h2>
-              <p class="section-desc">Documented diagnosed conditions and medical background.</p>
+              }
             </div>
-            <button type="button" class="btn-secondary btn-sm" (click)="addDisease()">+ Add Disease</button>
-          </div>
-          
-          <div formArrayName="diseases" class="array-container">
-            @for (disease of diseases.controls; track $index) {
-              <div [formGroupName]="$index" class="array-item">
-                <div class="custom-toggle">
-                  <label class="toggle-switch">
-                    <input type="checkbox" formControlName="isCustom" (change)="onDiseaseCustomToggle($index)">
-                    <span class="slider"></span>
-                  </label>
-                  <span class="toggle-label">Custom Disease (Not in list)</span>
-                </div>
+          </form>
+        }
+      </div>
 
-                <div class="form-grid-2">
-                  <div class="form-group">
-                    <label class="form-label">
-                      Disease Name <span class="req-star">*</span>
-                    </label>
-                    @if (disease.get('isCustom')?.value) {
-                      <input 
-                        type="text" 
-                        formControlName="rawDiseaseName" 
-                        class="form-input" 
-                        [class.input-error]="disease.get('rawDiseaseName')?.touched && disease.get('rawDiseaseName')?.invalid"
-                        placeholder="Enter custom disease name">
-                      @if (disease.get('rawDiseaseName')?.touched && disease.get('rawDiseaseName')?.hasError('required')) {
-                        <span class="field-error-msg">Disease name is required.</span>
-                      }
-                    } @else {
-                      <select 
-                        formControlName="diseaseId" 
-                        class="form-select"
-                        [class.input-error]="disease.get('diseaseId')?.touched && disease.get('diseaseId')?.invalid">
-                        <option [ngValue]="null" disabled>Select a disease...</option>
-                        @for (sd of systemDiseases(); track sd.id) {
-                          <option [value]="sd.id">{{ sd.diseaseName }}</option>
-                        }
-                      </select>
-                      @if (disease.get('diseaseId')?.touched && disease.get('diseaseId')?.hasError('required')) {
-                        <span class="field-error-msg">Please select a disease from the list.</span>
-                      }
-                    }
-                  </div>
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form-container" novalidate>
 
-                  <div class="form-group">
-                    <label class="form-label">
-                      Diagnosed Date <span class="req-star">*</span>
-                    </label>
-                    <input 
-                      type="date" 
-                      formControlName="diagnosedDate" 
-                      class="form-input"
-                      [class.input-error]="disease.get('diagnosedDate')?.touched && disease.get('diagnosedDate')?.invalid">
-                    @if (disease.get('diagnosedDate')?.touched && disease.get('diagnosedDate')?.hasError('required')) {
-                      <span class="field-error-msg">Diagnosed date is required.</span>
-                    }
-                  </div>
-                </div>
-                
-                <button type="button" class="btn-remove" (click)="removeDisease($index)" aria-label="Remove disease" title="Remove disease">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
-            }
-            @if (diseases.controls.length === 0) {
-              <p class="empty-text">No diseases recorded. Click "+ Add Disease" to add one.</p>
+      <!-- Demographic Info (Editable) -->
+      <div class="card form-card">
+        <h2 class="card-title">Demographic Information</h2>
+        <div class="form-grid">
+
+          <!-- Gender -->
+          <div class="form-group">
+            <label class="form-label">
+              Gender <span class="req-star">*</span>
+            </label>
+            <select formControlName="gender" class="form-select"
+              [class.input-error]="profileForm.get('gender')?.touched && profileForm.get('gender')?.invalid">
+              <option value="" disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+            @if (profileForm.get('gender')?.touched && profileForm.get('gender')?.hasError('required')) {
+            <span class="field-error-msg">Gender is required.</span>
             }
           </div>
+
+          <!-- Blood Type -->
+          <div class="form-group">
+            <label class="form-label">
+              Blood Type <span class="req-star">*</span>
+            </label>
+            <select formControlName="bloodType" class="form-select"
+              [class.input-error]="profileForm.get('bloodType')?.touched && profileForm.get('bloodType')?.invalid">
+              <option value="" disabled>Select Blood Type</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+            @if (profileForm.get('bloodType')?.touched && profileForm.get('bloodType')?.hasError('required')) {
+            <span class="field-error-msg">Blood type is required.</span>
+            }
+          </div>
+
+          <!-- National ID -->
+          <div class="form-group">
+            <label class="form-label">
+              National ID <span class="req-star">*</span>
+            </label>
+            <input type="text" formControlName="nationalId" class="form-input"
+              [class.input-error]="profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.invalid"
+              placeholder="14-digit National ID" maxlength="14">
+            @if (profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.hasError('required')) {
+            <span class="field-error-msg">National ID is required.</span>
+            } @else if (profileForm.get('nationalId')?.touched && profileForm.get('nationalId')?.hasError('pattern')) {
+            <span class="field-error-msg">National ID must be exactly 14 digits.</span>
+            }
+          </div>
+
+          <!-- Date of Birth -->
+          <div class="form-group">
+            <label class="form-label">
+              Date of Birth <span class="req-star">*</span>
+            </label>
+            <input type="date" formControlName="dateOfBirth" [max]="maxDate" class="form-input"
+              [class.input-error]="profileForm.get('dateOfBirth')?.touched && profileForm.get('dateOfBirth')?.invalid">
+            @if (profileForm.get('dateOfBirth')?.touched) {
+            @if (profileForm.get('dateOfBirth')?.hasError('required')) {
+            <span class="field-error-msg">Date of birth is required.</span>
+            } @else if (profileForm.get('dateOfBirth')?.hasError('futureDate')) {
+            <span class="field-error-msg">Date of birth cannot be in the future.</span>
+            } @else if (profileForm.get('dateOfBirth')?.hasError('invalidDate')) {
+            <span class="field-error-msg">Please enter a valid date after 1900.</span>
+            }
+            }
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Medications -->
+      <div class="card form-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Active Medications</h2>
+            <p class="section-desc">Current daily medications you are regularly taking.</p>
+          </div>
+          <button type="button" class="btn-secondary btn-sm" (click)="addMedication()">+ Add Medication</button>
         </div>
 
-        <!-- Allergies -->
-        <div class="card form-card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Allergies & Sensitivities</h2>
-              <p class="section-desc">Known allergies to drugs, food, or environment.</p>
+        <div formArrayName="medications" class="array-container">
+          @for (med of medications.controls; track $index) {
+          <div [formGroupName]="$index" class="array-item">
+
+            @if (med.get('prescribedByDoctor')?.value || med.get('sourceSessionId')?.value) {
+            <div class="session-prescribed-tag">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>
+                Prescribed in Session #{{ med.get('sourceSessionId')?.value }}
+                @if (med.get('prescribedByDoctor')?.value) {
+                by Dr. {{ med.get('prescribedByDoctor')?.value }}
+                }
+              </span>
             </div>
-            <button type="button" class="btn-secondary btn-sm" (click)="addAllergy()">+ Add Allergy</button>
-          </div>
-          
-          <div formArrayName="allergies" class="array-container">
-            @for (allergy of allergies.controls; track $index) {
-              <div [formGroupName]="$index" class="array-item">
-                <div class="custom-toggle">
-                  <label class="toggle-switch">
-                    <input type="checkbox" formControlName="isCustom" (change)="onAllergyCustomToggle($index)">
-                    <span class="slider"></span>
-                  </label>
-                  <span class="toggle-label">Custom Allergy (Not in list)</span>
-                </div>
+            }
 
-                <div class="form-grid-2">
-                  <div class="form-group">
-                    <label class="form-label">
-                      Allergen Name <span class="req-star">*</span>
-                    </label>
-                    @if (allergy.get('isCustom')?.value) {
-                      <input 
-                        type="text" 
-                        formControlName="rawAllergenName" 
-                        class="form-input" 
-                        [class.input-error]="allergy.get('rawAllergenName')?.touched && allergy.get('rawAllergenName')?.invalid"
-                        placeholder="Enter custom allergy name">
-                      @if (allergy.get('rawAllergenName')?.touched && allergy.get('rawAllergenName')?.hasError('required')) {
-                        <span class="field-error-msg">Allergen name is required.</span>
-                      }
-                    } @else {
-                      <select 
-                        formControlName="allergyId" 
-                        class="form-select"
-                        [class.input-error]="allergy.get('allergyId')?.touched && allergy.get('allergyId')?.invalid">
-                        <option [ngValue]="null" disabled>Select an allergy...</option>
-                        @for (sa of systemAllergies(); track sa.id) {
-                          <option [value]="sa.id">{{ sa.allergenName }}</option>
-                        }
-                      </select>
-                      @if (allergy.get('allergyId')?.touched && allergy.get('allergyId')?.hasError('required')) {
-                        <span class="field-error-msg">Please select an allergy from the list.</span>
-                      }
-                    }
-                  </div>
+            <div class="form-grid-3">
 
-                  <div class="form-group">
-                    <label class="form-label">
-                      Severity <span class="req-star">*</span>
-                    </label>
-                    <select 
-                      formControlName="severity" 
-                      class="form-select"
-                      [class.input-error]="allergy.get('severity')?.touched && allergy.get('severity')?.invalid">
-                      <option value="Mild">Mild</option>
-                      <option value="Moderate">Moderate</option>
-                      <option value="Severe">Severe</option>
-                    </select>
-                    @if (allergy.get('severity')?.touched && allergy.get('severity')?.hasError('required')) {
-                      <span class="field-error-msg">Severity is required.</span>
-                    }
-                  </div>
-                </div>
-                
-                <button type="button" class="btn-remove" (click)="removeAllergy($index)" aria-label="Remove allergy" title="Remove allergy">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
+              <div class="form-group">
+                <label class="form-label">Drug Name <span class="req-star">*</span></label>
+                <input type="text" formControlName="drugName" class="form-input"
+                  [class.input-error]="med.get('drugName')?.touched && med.get('drugName')?.invalid"
+                  placeholder="e.g. Metformin">
+                @if (med.get('drugName')?.touched && med.get('drugName')?.hasError('required')) {
+                <span class="field-error-msg">Drug name is required.</span>
+                }
               </div>
-            }
-            @if (allergies.controls.length === 0) {
-              <p class="empty-text">No allergies recorded. Click "+ Add Allergy" to add one.</p>
-            }
+
+              <div class="form-group">
+                <label class="form-label">Dosage <span class="req-star">*</span></label>
+                <input type="text" formControlName="dosage" class="form-input"
+                  [class.input-error]="med.get('dosage')?.touched && med.get('dosage')?.invalid"
+                  placeholder="e.g. 500 mg">
+                @if (med.get('dosage')?.touched && med.get('dosage')?.hasError('required')) {
+                <span class="field-error-msg">Dosage is required.</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Frequency <span class="req-star">*</span></label>
+                <input type="text" formControlName="frequency" class="form-input"
+                  [class.input-error]="med.get('frequency')?.touched && med.get('frequency')?.invalid"
+                  placeholder="e.g. Twice daily">
+                @if (med.get('frequency')?.touched && med.get('frequency')?.hasError('required')) {
+                <span class="field-error-msg">Frequency is required.</span>
+                }
+              </div>
+
+            </div>
+            <button type="button" class="btn-remove" (click)="removeMedication($index)" aria-label="Remove medication"
+              title="Remove medication">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
           </div>
+          }
+          @if (medications.controls.length === 0) {
+          <p class="empty-text">No active medications recorded. Click "+ Add Medication" to add one.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Diseases -->
+      <div class="card form-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Chronic Diseases & Medical History</h2>
+            <p class="section-desc">Documented diagnosed conditions and medical background.</p>
+          </div>
+          <button type="button" class="btn-secondary btn-sm" (click)="addDisease()">+ Add Disease</button>
         </div>
 
-        <div class="form-actions sticky-bottom">
-          <button type="submit" class="btn-primary btn-lg" [disabled]="isSubmitting()">
-            @if (isSubmitting()) {
-              <span class="spinner-small"></span> Saving...
-            } @else {
-              Save Profile Updates
-            }
-          </button>
+        <div formArrayName="diseases" class="array-container">
+          @for (disease of diseases.controls; track $index) {
+          <div [formGroupName]="$index" class="array-item">
+            <div class="custom-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" formControlName="isCustom" (change)="onDiseaseCustomToggle($index)">
+                <span class="slider"></span>
+              </label>
+              <span class="toggle-label">Custom Disease (Not in list)</span>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">
+                  Disease Name <span class="req-star">*</span>
+                </label>
+                @if (disease.get('isCustom')?.value) {
+                <input type="text" formControlName="rawDiseaseName" class="form-input"
+                  [class.input-error]="disease.get('rawDiseaseName')?.touched && disease.get('rawDiseaseName')?.invalid"
+                  placeholder="Enter custom disease name">
+                @if (disease.get('rawDiseaseName')?.touched && disease.get('rawDiseaseName')?.hasError('required')) {
+                <span class="field-error-msg">Disease name is required.</span>
+                }
+                } @else {
+                <select formControlName="diseaseId" class="form-select"
+                  [class.input-error]="disease.get('diseaseId')?.touched && disease.get('diseaseId')?.invalid">
+                  <option [ngValue]="null" disabled>Select a disease...</option>
+                  @for (sd of systemDiseases(); track sd.id) {
+                  <option [value]="sd.id">{{ sd.diseaseName }}</option>
+                  }
+                </select>
+                @if (disease.get('diseaseId')?.touched && disease.get('diseaseId')?.hasError('required')) {
+                <span class="field-error-msg">Please select a disease from the list.</span>
+                }
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  Diagnosed Date <span class="req-star">*</span>
+                </label>
+                <input type="date" formControlName="diagnosedDate" class="form-input"
+                  [class.input-error]="disease.get('diagnosedDate')?.touched && disease.get('diagnosedDate')?.invalid">
+                @if (disease.get('diagnosedDate')?.touched && disease.get('diagnosedDate')?.hasError('required')) {
+                <span class="field-error-msg">Diagnosed date is required.</span>
+                }
+              </div>
+            </div>
+
+            <button type="button" class="btn-remove" (click)="removeDisease($index)" aria-label="Remove disease"
+              title="Remove disease">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          }
+          @if (diseases.controls.length === 0) {
+          <p class="empty-text">No diseases recorded. Click "+ Add Disease" to add one.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Allergies -->
+      <div class="card form-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Allergies & Sensitivities</h2>
+            <p class="section-desc">Known allergies to drugs, food, or environment.</p>
+          </div>
+          <button type="button" class="btn-secondary btn-sm" (click)="addAllergy()">+ Add Allergy</button>
         </div>
 
-      </form>
-    </div>
+        <div formArrayName="allergies" class="array-container">
+          @for (allergy of allergies.controls; track $index) {
+          <div [formGroupName]="$index" class="array-item">
+            <div class="custom-toggle">
+              <label class="toggle-switch">
+                <input type="checkbox" formControlName="isCustom" (change)="onAllergyCustomToggle($index)">
+                <span class="slider"></span>
+              </label>
+              <span class="toggle-label">Custom Allergy (Not in list)</span>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">
+                  Allergen Name <span class="req-star">*</span>
+                </label>
+                @if (allergy.get('isCustom')?.value) {
+                <input type="text" formControlName="rawAllergenName" class="form-input"
+                  [class.input-error]="allergy.get('rawAllergenName')?.touched && allergy.get('rawAllergenName')?.invalid"
+                  placeholder="Enter custom allergy name">
+                @if (allergy.get('rawAllergenName')?.touched && allergy.get('rawAllergenName')?.hasError('required')) {
+                <span class="field-error-msg">Allergen name is required.</span>
+                }
+                } @else {
+                <select formControlName="allergyId" class="form-select"
+                  [class.input-error]="allergy.get('allergyId')?.touched && allergy.get('allergyId')?.invalid">
+                  <option [ngValue]="null" disabled>Select an allergy...</option>
+                  @for (sa of systemAllergies(); track sa.id) {
+                  <option [value]="sa.id">{{ sa.allergenName }}</option>
+                  }
+                </select>
+                @if (allergy.get('allergyId')?.touched && allergy.get('allergyId')?.hasError('required')) {
+                <span class="field-error-msg">Please select an allergy from the list.</span>
+                }
+                }
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  Severity <span class="req-star">*</span>
+                </label>
+                <select formControlName="severity" class="form-select"
+                  [class.input-error]="allergy.get('severity')?.touched && allergy.get('severity')?.invalid">
+                  <option value="Mild">Mild</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Severe">Severe</option>
+                </select>
+                @if (allergy.get('severity')?.touched && allergy.get('severity')?.hasError('required')) {
+                <span class="field-error-msg">Severity is required.</span>
+                }
+              </div>
+            </div>
+
+            <button type="button" class="btn-remove" (click)="removeAllergy($index)" aria-label="Remove allergy"
+              title="Remove allergy">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          }
+          @if (allergies.controls.length === 0) {
+          <p class="empty-text">No allergies recorded. Click "+ Add Allergy" to add one.</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions sticky-bottom">
+        <button type="submit" class="btn-primary btn-lg" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+          <span class="spinner-small"></span> Saving...
+          } @else {
+          Save Profile Updates
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
   }
 
   <!-- Confirm Delete Prescribed Medication Modal -->
   @if (confirmDeleteModal(); as modal) {
-    <div class="modal-backdrop" (click)="cancelRemoveMedication()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-icon-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-        </div>
+  <div class="modal-backdrop" (click)="cancelRemoveMedication()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
 
-        <h3 class="modal-heading">Confirm Medication Removal</h3>
-        
-        <p class="modal-text">
-          <strong>"{{ modal.drugName }}"</strong> was prescribed 
-          @if (modal.doctorName) {
-            by <span class="highlight-doctor">Dr. {{ modal.doctorName }}</span>
-          }
-          @if (modal.sourceSessionId) {
-            in <span class="highlight-session">Clinical Session #{{ modal.sourceSessionId }}</span>
-          }.
-        </p>
+      <h3 class="modal-heading">Confirm Medication Removal</h3>
 
-        <p class="modal-subtext">
-          Are you sure you want to stop and remove this doctor-prescribed medication from your active list?
-        </p>
+      <p class="modal-text">
+        <strong>"{{ modal.drugName }}"</strong> was prescribed
+        @if (modal.doctorName) {
+        by <span class="highlight-doctor">Dr. {{ modal.doctorName }}</span>
+        }
+        @if (modal.sourceSessionId) {
+        in <span class="highlight-session">Clinical Session #{{ modal.sourceSessionId }}</span>
+        }.
+      </p>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" (click)="cancelRemoveMedication()">Keep Medication</button>
-          <button type="button" class="btn-danger-confirm" (click)="confirmRemoveMedication()">Yes, Remove Medication</button>
-        </div>
+      <p class="modal-subtext">
+        Are you sure you want to stop and remove this doctor-prescribed medication from your active list?
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cancelRemoveMedication()">Keep Medication</button>
+        <button type="button" class="btn-danger-confirm" (click)="confirmRemoveMedication()">Yes, Remove
+          Medication</button>
       </div>
     </div>
+  </div>
   }
 
 </div>

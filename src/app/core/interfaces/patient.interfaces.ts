@@ -13,6 +13,13 @@ export interface PatientProfileDto {
   isProfileCompleted: boolean;
 }
 
+export interface PatientPersonalInfoDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}
+
 export interface MedicationDto {
   drugName: string;
   dosage: string;
