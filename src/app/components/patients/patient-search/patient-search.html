@@ -14,7 +14,8 @@
           [(ngModel)]="searchTerm" 
           (keyup.enter)="search()"
           class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-colors" 
-          placeholder="Search by Name or National ID..."
+          placeholder="Search by National ID..."
+          inputmode="numeric"
         >
       </div>
       <button 
@@ -51,7 +52,7 @@
       <div class="flex items-center gap-2">
         <a 
           [routerLink]="['/doctor/sessions/create']" 
-          [queryParams]="{ search: patient.fullName }"
+          [queryParams]="{ search: patient.nationalId || patient.id }"
           class="bg-[var(--color-ocean)] hover:bg-[var(--color-ocean-hover)] text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-1.5 shadow-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

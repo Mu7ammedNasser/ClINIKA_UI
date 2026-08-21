@@ -22,24 +22,25 @@ export class PatientSearch {
   isLoading = false;
 
   search() {
-    if (!this.searchTerm.trim()) return;
+    const term = this.searchTerm.trim();
+    if (!term) return;
     this.isLoading = true;
     this.error = '';
     this.patient = null;
     this.cdr.detectChanges();
 
-    this.patientService.searchPatient(this.searchTerm).subscribe({
+    this.patientService.searchPatient(term).subscribe({
       next: (res) => {
         if (res.isSuccess && res.data) {
           this.patient = res.data;
         } else {
-          this.error = 'Patient not found.';
+          this.error = res.message || 'No patient found with this National ID.';
         }
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.error = 'Patient not found or an error occurred.';
+      error: (err) => {
+        this.error = err.error?.message || 'No patient found with this National ID.';
         this.isLoading = false;
         this.cdr.detectChanges();
       }

@@ -46,7 +46,11 @@ export class CreateSession implements OnInit {
   }
 
   searchPatient(): void {
-    if (!this.searchTerm.trim()) return;
+    const term = this.searchTerm.trim();
+    if (!term) {
+      this.searchError = 'Please enter a patient National ID.';
+      return;
+    }
 
     this.isSearching = true;
     this.searchError = '';
@@ -56,18 +60,18 @@ export class CreateSession implements OnInit {
     this.sessionError = '';
     this.cdr.detectChanges();
 
-    this.patientService.searchPatient(this.searchTerm).subscribe({
+    this.patientService.searchPatient(term).subscribe({
       next: (res) => {
         if (res.isSuccess && res.data) {
           this.patient = res.data;
         } else {
-          this.searchError = res.message || 'Patient not found.';
+          this.searchError = res.message || 'No patient found with this National ID.';
         }
         this.isSearching = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.searchError = err.error?.message || 'Patient not found or an error occurred.';
+        this.searchError = err.error?.message || 'No patient found with this National ID.';
         this.isSearching = false;
         this.cdr.detectChanges();
       },
