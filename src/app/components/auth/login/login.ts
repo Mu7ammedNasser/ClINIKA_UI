@@ -20,7 +20,7 @@ export class Login {
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required]],
   });
 
   togglePassword(): void {
@@ -40,14 +40,18 @@ export class Login {
       next: (response) => {
         this.isLoading.set(false);
         if (!response.isSuccess) {
-          this.errorMessage.set(response.message || 'Login failed. Please try again.');
+          this.errorMessage.set(response.message || 'Invalid email or password.');
         }
         // On success, AuthService.login() handles navigation via navigateByRole()
       },
       error: (err) => {
         this.isLoading.set(false);
         const message =
-          err.error?.message || 'Unable to connect. Please check your connection and try again.';
+          err.error?.message ||
+          err.error?.Message ||
+          (err.status === 400 || err.status === 401
+            ? 'Invalid email or password.'
+            : 'Unable to connect. Please check your connection and try again.');
         this.errorMessage.set(message);
       },
     });

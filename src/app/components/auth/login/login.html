@@ -157,8 +157,6 @@
             <span class="field-error">
               @if (loginForm.get('password')?.errors?.['required']) {
                 Password is required
-              } @else if (loginForm.get('password')?.errors?.['minlength']) {
-                Password must be at least 6 characters
               }
             </span>
           }
