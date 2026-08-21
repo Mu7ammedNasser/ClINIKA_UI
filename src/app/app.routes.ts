@@ -105,11 +105,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/profile/profile').then((m) => m.Profile),
       },
-      {
-        path: 'settings',
-        loadComponent: () =>
-          import('./components/settings/settings').then((m) => m.Settings),
-      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -147,11 +142,6 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () =>
           import('./components/profile/profile').then((m) => m.Profile),
-      },
-      {
-        path: 'settings',
-        loadComponent: () =>
-          import('./components/settings/settings').then((m) => m.Settings),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
@@ -201,11 +191,6 @@ export const routes: Routes = [
           import('./components/admin/allergy-management/allergy-management').then(
             (m) => m.AllergyManagement
           ),
-      },
-      {
-        path: 'settings',
-        loadComponent: () =>
-          import('./components/settings/settings').then((m) => m.Settings),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
