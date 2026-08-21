@@ -23,7 +23,16 @@ export class PatientSearch {
 
   search() {
     const term = this.searchTerm.trim();
-    if (!term) return;
+    if (!term) {
+      this.error = 'Please enter a patient National ID.';
+      return;
+    }
+
+    if (!/^\d+$/.test(term) || term.length < 10 || term.length > 20) {
+      this.error = 'Please enter a valid National ID.';
+      return;
+    }
+
     this.isLoading = true;
     this.error = '';
     this.patient = null;
@@ -40,7 +49,11 @@ export class PatientSearch {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = err.error?.message || 'No patient found with this National ID.';
+        this.error =
+          err.error?.message ||
+          (err.status === 404
+            ? 'No patient found with this National ID.'
+            : 'Please enter a valid National ID.');
         this.isLoading = false;
         this.cdr.detectChanges();
       }

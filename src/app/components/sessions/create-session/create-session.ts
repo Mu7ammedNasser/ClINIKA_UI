@@ -52,6 +52,11 @@ export class CreateSession implements OnInit {
       return;
     }
 
+    if (!/^\d+$/.test(term) || term.length < 10 || term.length > 20) {
+      this.searchError = 'Please enter a valid National ID.';
+      return;
+    }
+
     this.isSearching = true;
     this.searchError = '';
     this.patient = null;
@@ -71,7 +76,11 @@ export class CreateSession implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.searchError = err.error?.message || 'No patient found with this National ID.';
+        this.searchError =
+          err.error?.message ||
+          (err.status === 404
+            ? 'No patient found with this National ID.'
+            : 'Please enter a valid National ID.');
         this.isSearching = false;
         this.cdr.detectChanges();
       },
