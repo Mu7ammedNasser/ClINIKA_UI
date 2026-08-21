@@ -73,7 +73,7 @@
           Load Session
         </button>
       </div>
-      <p *ngIf="recentSessions?.length" class="text-[11px] text-gray-400 mt-3">
+      <p *ngIf="recentSessions.length" class="text-[11px] text-gray-400 mt-3">
         Recent sessions:
         <button *ngFor="let s of recentSessions" (click)="onManualLookup(s.id)" class="recent-session-chip">
           #{{ s.id }} — {{ s.patientName }}
@@ -122,7 +122,10 @@
 
     <!-- Expanded allergy list -->
     <div *ngIf="showAllergyDetails && patientHistory?.allergies?.length" class="allergy-detail-panel mt-3">
-      <span *ngFor="let a of patientHistory.allergies" class="allergy-chip">{{ a }}</span>
+      <span *ngFor="let a of patientHistory?.allergies" class="allergy-chip">
+        {{ a.allergenName || a }}
+        <span *ngIf="a.severity" class="text-[10px] opacity-75">({{ a.severity }})</span>
+      </span>
     </div>
   </div>
 

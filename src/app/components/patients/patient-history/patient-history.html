@@ -70,7 +70,7 @@
           </h2>
         </div>
         <div class="p-6 flex-1 overflow-y-auto max-h-[400px]">
-          <div *ngIf="!history.diseases?.length" class="text-gray-500 text-center py-8">
+          <div *ngIf="!history.diseases.length" class="text-gray-500 text-center py-8">
             No diseases recorded.
           </div>
           <div class="space-y-4">
@@ -97,7 +97,7 @@
           </h2>
         </div>
         <div class="p-6 flex-1 overflow-y-auto max-h-[400px]">
-          <div *ngIf="!history.allergies?.length" class="text-gray-500 text-center py-8">
+          <div *ngIf="!history.allergies.length" class="text-gray-500 text-center py-8">
             No known allergies.
           </div>
           <div class="space-y-4">
@@ -124,11 +124,11 @@
           </h2>
         </div>
         <div class="p-0">
-          <div *ngIf="!history.activeMedications?.length" class="text-gray-500 text-center py-8">
+          <div *ngIf="!history.activeMedications.length" class="text-gray-500 text-center py-8">
             No active medications.
           </div>
           
-          <div *ngIf="history.activeMedications?.length" class="overflow-x-auto">
+          <div *ngIf="history.activeMedications.length" class="overflow-x-auto">
             <table class="w-full text-sm text-left">
               <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                 <tr>

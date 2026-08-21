@@ -83,6 +83,7 @@ export interface DrugConflictItem {
   conflict: boolean;
   currentDrug: string;
   similarityScore?: number;
+  severity?: string;
 }
 
 export interface DrugInteractionData {

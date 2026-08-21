@@ -36,6 +36,9 @@ export class InteractionCheck implements OnInit {
   // Session & Patient State
   sessionId: number | null = null;
   manualSessionInput: string = '';
+  lookupError: string = '';
+  recentSessions: { id: number; patientName: string }[] = [];
+  showAllergyDetails: boolean = false;
   patientId: number | null = null;
   patientName: string = '';
   patientGender: string = '';
@@ -53,6 +56,7 @@ export class InteractionCheck implements OnInit {
   isCheckingInteractions: boolean = false;
   isFinalizing: boolean = false;
   isFinalized: boolean = false;
+  conflictAcknowledged: boolean = false;
   errorMessage: string = '';
 
   // Interaction Analysis Results
@@ -62,6 +66,7 @@ export class InteractionCheck implements OnInit {
   // Edit Prescriptions State
   isEditingPrescriptions: boolean = false;
   isSavingPrescriptions: boolean = false;
+  attemptedSave: boolean = false;
   editableMedications: PrescribeMedicationRequest[] = [];
 
   // Toast
@@ -74,8 +79,29 @@ export class InteractionCheck implements OnInit {
       if (id && !isNaN(id)) {
         this.sessionId = id;
         this.loadSessionData(id, pId);
+      } else {
+        this.loadRecentSessions();
       }
     });
+  }
+
+  loadRecentSessions(): void {
+    this.sessionService.getDoctorReports().subscribe({
+      next: (res: any) => {
+        const reports = res?.data ?? res?.Data ?? [];
+        this.recentSessions = reports.slice(0, 5).map((r: any) => ({
+          id: r.sessionId ?? r.SessionId,
+          patientName: r.patientName ?? r.PatientName ?? 'Patient',
+        }));
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  toggleAllergyDetails(): void {
+    this.showAllergyDetails = !this.showAllergyDetails;
+    this.cdr.detectChanges();
   }
 
   loadSessionData(sessionId: number, queryPatientId?: number | null): void {
@@ -85,6 +111,7 @@ export class InteractionCheck implements OnInit {
     this.interactionResult = null;
     this.hasChecked = false;
     this.isFinalized = false;
+    this.conflictAcknowledged = false;
     this.isEditingPrescriptions = false;
     this.cdr.detectChanges();
 
@@ -177,13 +204,15 @@ export class InteractionCheck implements OnInit {
     });
   }
 
-  onManualLookup(): void {
-    if (this.manualSessionInput === null || this.manualSessionInput === undefined || this.manualSessionInput === '') {
+  onManualLookup(overrideId?: number): void {
+    const raw = overrideId !== undefined ? overrideId : this.manualSessionInput;
+    if (raw === null || raw === undefined || raw === '') {
+      this.lookupError = 'Please enter a session ID.';
       return;
     }
-    const raw = String(this.manualSessionInput).trim();
-    const id = Number(raw);
+    const id = Number(String(raw).trim());
     if (!isNaN(id) && id > 0) {
+      this.lookupError = '';
       this.sessionId = id;
       this.router.navigate([], {
         relativeTo: this.route,
@@ -191,6 +220,8 @@ export class InteractionCheck implements OnInit {
         queryParamsHandling: 'merge',
       });
       this.loadSessionData(id);
+    } else {
+      this.lookupError = 'Invalid session ID.';
     }
   }
 
@@ -292,6 +323,7 @@ export class InteractionCheck implements OnInit {
   // ─── Option 2: Edit Prescriptions & Re-check ──────────────────
 
   startEditingPrescriptions(): void {
+    this.attemptedSave = false;
     this.editableMedications = this.prescribedMedications.map((m) => ({
       id: m.id,
       drugName: m.drugName,
@@ -311,6 +343,7 @@ export class InteractionCheck implements OnInit {
 
   cancelEditingPrescriptions(): void {
     this.isEditingPrescriptions = false;
+    this.attemptedSave = false;
     this.cdr.detectChanges();
   }
 
@@ -328,6 +361,21 @@ export class InteractionCheck implements OnInit {
   removePrescriptionRow(index: number): void {
     this.editableMedications.splice(index, 1);
     this.cdr.detectChanges();
+  }
+
+  confirmDeletePrescription(med: PrescribedMedicationDto): void {
+    if (!med || !med.id) return;
+    if (confirm(`Are you sure you want to remove "${med.drugName}"?`)) {
+      this.deleteSinglePrescription(med.id);
+    }
+  }
+
+  isDuplicateOfActive(drugName?: string): boolean {
+    if (!drugName || !this.activeMedications || this.activeMedications.length === 0) return false;
+    const target = drugName.trim().toLowerCase();
+    return this.activeMedications.some(
+      (m) => m.drugName && m.drugName.trim().toLowerCase() === target
+    );
   }
 
   deleteSinglePrescription(medicationId?: number): void {
@@ -352,6 +400,24 @@ export class InteractionCheck implements OnInit {
     });
   }
 
+  onSaveAndRecheckClicked(): void {
+    this.attemptedSave = true;
+    const invalid = this.editableMedications.some((m) => !m.drugName || !m.drugName.trim());
+    if (invalid) {
+      this.showToast('error', 'Please fill in all required medication names.');
+      return;
+    }
+    this.saveAndRecheckInteractions();
+  }
+
+  onFinalizeClicked(): void {
+    if (this.hasConflicts && !this.conflictAcknowledged) {
+      this.showToast('error', 'Please acknowledge the flagged drug conflicts before finalizing.');
+      return;
+    }
+    this.saveAndFinish();
+  }
+
   saveAndRecheckInteractions(): void {
     if (!this.sessionId) return;
 
@@ -371,6 +437,7 @@ export class InteractionCheck implements OnInit {
       next: (res: any) => {
         this.isSavingPrescriptions = false;
         this.isEditingPrescriptions = false;
+        this.attemptedSave = false;
         const saved: PrescribedMedicationDto[] = res?.data ?? res?.Data ?? [];
         this.prescribedMedications = saved;
         this.showToast('success', 'Prescriptions updated! Re-running interaction check...');
@@ -408,6 +475,25 @@ export class InteractionCheck implements OnInit {
 
   get conflictsCount(): number {
     return this.interactionResult?.conflicts?.length ?? 0;
+  }
+
+  get highestSeverityLabel(): string {
+    if (!this.interactionResult?.conflicts || this.interactionResult.conflicts.length === 0) {
+      return '';
+    }
+    const severities = this.interactionResult.conflicts
+      .map((c) => (c.severity || '').toLowerCase())
+      .filter(Boolean);
+    if (severities.includes('high') || severities.includes('severe') || severities.includes('major')) {
+      return 'High Severity Conflict';
+    }
+    if (severities.includes('moderate') || severities.includes('medium')) {
+      return 'Moderate Conflict';
+    }
+    if (severities.includes('minor') || severities.includes('low')) {
+      return 'Minor Conflict';
+    }
+    return 'Requires Clinical Review';
   }
 
   get isSafe(): boolean {
@@ -527,4 +613,10 @@ export class InteractionCheck implements OnInit {
       this.cdr.detectChanges();
     }, 6000);
   }
+
+  dismissToast(): void {
+    this.toastMessage = null;
+    this.cdr.detectChanges();
+  }
 }
+
