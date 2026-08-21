@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -10,18 +10,30 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      if (params['emailConfirmed'] === 'true') {
+        this.successMessage.set('Email confirmed successfully! Please sign in to your account.');
+      } else if (params['emailConfirmed'] === 'false') {
+        this.errorMessage.set(params['error'] || 'Email confirmation failed. The link may be expired or invalid.');
+      }
+    });
+  }
 
   togglePassword(): void {
     this.showPassword.update((v) => !v);

@@ -1,0 +1,337 @@
+<div class="landing-container">
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-content">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
+            <path d="M12 8v8" />
+            <path d="M8 12h8" />
+          </svg>
+        </div>
+        <span class="brand-title">CLINIKA</span>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#home" (click)="$event.preventDefault(); scrollToSection('home')" class="nav-item">Home</a>
+        <a href="#about" (click)="$event.preventDefault(); scrollToSection('about')" class="nav-item">About Us</a>
+        <a href="#features" (click)="$event.preventDefault(); scrollToSection('features')" class="nav-item">Features</a>
+        <a href="#security" (click)="$event.preventDefault(); scrollToSection('security')" class="nav-item">Security</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a routerLink="/login" class="btn-signin">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span>Sign In</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME (HERO) SECTION -->
+  <section id="home" class="hero-section">
+    <div class="hero-bg-glow"></div>
+    <div class="hero-bg-grid"></div>
+
+    <div class="hero-wrapper">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Next-Generation Healthcare Intelligence Platform</span>
+      </div>
+
+      <h1 class="hero-title">
+        Empowering Precision Medicine & <span class="gradient-text">Clinical AI Intelligence</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        CliniKa seamlessly unites intelligent differential diagnostics, real-time drug interaction safety analysis, and personalized patient management into one unified, trusted clinical copilot.
+      </p>
+
+      <!-- DUAL ACTION CTA CARDS -->
+      <div class="cta-cards-container">
+        <!-- Doctor CTA Card -->
+        <div class="cta-card doctor-card">
+          <div class="card-glass-glow"></div>
+          <div class="card-header">
+            <div class="card-icon-box doctor-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+                <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+                <circle cx="20" cy="10" r="2" />
+              </svg>
+            </div>
+            <span class="card-tag doctor-tag">Medical Professionals</span>
+          </div>
+
+          <h2 class="card-title">Continue as Doctor</h2>
+          <p class="card-desc">
+            Submit your credentials, leverage AI diagnostic copilots, evaluate medication conflicts, and streamline patient consultation workflows.
+          </p>
+
+          <ul class="card-features">
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>AI-assisted differential diagnosis & lab recommendations</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Instant multi-drug interaction & allergy safety engine</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Full patient longitudinal history & report generator</span>
+            </li>
+          </ul>
+
+          <a routerLink="/register-doctor" class="btn-cta btn-doctor">
+            <span>Continue as Doctor</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Patient CTA Card -->
+        <div class="cta-card patient-card">
+          <div class="card-glass-glow"></div>
+          <div class="card-header">
+            <div class="card-icon-box patient-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+            </div>
+            <span class="card-tag patient-tag">Patients & Individuals</span>
+          </div>
+
+          <h2 class="card-title">Continue as Patient</h2>
+          <p class="card-desc">
+            Access your health records, view doctor consultation findings, receive prescription alerts, and chat with your dedicated AI medical copilot.
+          </p>
+
+          <ul class="card-features">
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Personal medical timeline, allergies & chronic disease log</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Transparent access to clinical reports & prescriptions</span>
+            </li>
+            <li>
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>24/7 AI Medical Assistant for symptom guidance</span>
+            </li>
+          </ul>
+
+          <a routerLink="/register" class="btn-cta btn-patient">
+            <span>Continue as Patient</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <button class="scroll-down-indicator" (click)="scrollToSection('about')">
+        <span class="scroll-text">Discover CliniKa</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="scroll-arrow">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ABOUT US SECTION -->
+  <section id="about" class="about-section">
+    <div class="section-wrapper">
+      <div class="section-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="badge-icon">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <span>About CliniKa</span>
+      </div>
+
+      <h2 class="section-title">
+        Pioneering the Future of <span class="gradient-text">Safe, AI-Enhanced Healthcare</span>
+      </h2>
+
+      <p class="section-subtitle">
+        CliniKa is an advanced clinical intelligence ecosystem designed to bridge the gap between cutting-edge medical artificial intelligence, verified clinical practitioners, and empowered patients.
+      </p>
+
+      <!-- Key Pillars Grid -->
+      <div class="pillars-grid" id="features">
+        <div class="pillar-card">
+          <div class="pillar-icon-box icon-blue">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+              <path d="m9 15 2 2 4-4" />
+            </svg>
+          </div>
+          <h3 class="pillar-title">Intelligent Diagnostic Copilot</h3>
+          <p class="pillar-desc">
+            Assists doctors in identifying differential diagnoses, computing probability indices, and suggesting targeted lab investigations backed by clinical evidence.
+          </p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon-box icon-amber">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+              <path d="m8.5 8.5 7 7" />
+            </svg>
+          </div>
+          <h3 class="pillar-title">Real-Time Drug Interaction Engine</h3>
+          <p class="pillar-desc">
+            Protects patients against adverse drug-drug and drug-allergy contraindications with instantaneous multi-level severity warnings and clinical recommendations.
+          </p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon-box icon-emerald">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </div>
+          <h3 class="pillar-title">Verified Practitioner Network</h3>
+          <p class="pillar-desc">
+            Every registered doctor undergoes multi-tier administrative credential auditing, medical license verification, and institutional certificate authentication.
+          </p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-icon-box icon-purple">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
+          <h3 class="pillar-title">Patient Portal & AI Health Companion</h3>
+          <p class="pillar-desc">
+            Provides patients with round-the-clock symptom triaging, digital prescription access, and a unified longitudinal record of every consultation session.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="stats-strip">
+        <div class="stat-box">
+          <span class="stat-number">99.4%</span>
+          <span class="stat-label">Drug Conflict Detection</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-box">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Verified Medical Credentials</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-box">
+          <span class="stat-number">&lt;1.2s</span>
+          <span class="stat-label">AI Diagnostic Response Time</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-box">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Interactive Health Portal</span>
+        </div>
+      </div>
+
+      <!-- Security & Trust Section -->
+      <div class="security-banner" id="security">
+        <div class="security-content">
+          <div class="security-header">
+            <div class="shield-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="security-title">Institutional Grade Privacy & Security</h3>
+              <p class="security-desc">
+                Your medical data is encrypted at rest and in transit using AES-256 and TLS 1.3 standards. Strict role-based isolation ensures patients and doctors interact within secure, audited healthcare boundaries.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Quick CTA Banner -->
+      <div class="bottom-cta">
+        <div class="bottom-cta-text">
+          <h3>Ready to experience the next evolution in healthcare?</h3>
+          <p>Join thousands of doctors and patients already transforming their clinical outcomes with CliniKa.</p>
+        </div>
+        <div class="bottom-cta-buttons">
+          <a routerLink="/register-doctor" class="btn-bottom-doctor">Get Started as Doctor</a>
+          <a routerLink="/register" class="btn-bottom-patient">Get Started as Patient</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="brand">
+          <div class="brand-logo-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
+              <path d="M12 8v8" />
+              <path d="M8 12h8" />
+            </svg>
+          </div>
+          <span class="brand-title">CLINIKA</span>
+        </div>
+        <p class="footer-desc">
+          Intelligent Clinical AI Platform empowering healthcare practitioners and patients worldwide.
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <div class="link-group">
+          <h4>Platform</h4>
+          <a routerLink="/register-doctor">For Doctors</a>
+          <a routerLink="/register">For Patients</a>
+          <a routerLink="/login">Sign In</a>
+        </div>
+        <div class="link-group">
+          <h4>About</h4>
+          <a href="#about" (click)="$event.preventDefault(); scrollToSection('about')">Our Mission</a>
+          <a href="#features" (click)="$event.preventDefault(); scrollToSection('features')">Features</a>
+          <a href="#security" (click)="$event.preventDefault(); scrollToSection('security')">Security</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 CliniKa Healthcare Intelligence. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

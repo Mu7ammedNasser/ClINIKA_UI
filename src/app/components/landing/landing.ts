@@ -1,0 +1,19 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-landing',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './landing.html',
+  styleUrl: './landing.css',
+})
+export class LandingPage {
+  scrollToSection(sectionId: string): void {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}

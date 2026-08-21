@@ -1,0 +1,450 @@
+<div class="doctor-requests-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <div class="header-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="badge-icon">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        <span>Credential Verification Board</span>
+      </div>
+      <h1 class="page-title">Doctor Registration Requests</h1>
+      <p class="page-subtitle">Review physician registration submissions, inspect uploaded medical licenses & certificates, and activate verified doctor accounts.</p>
+    </div>
+  </div>
+
+  <!-- Global Alerts -->
+  @if (successMessage()) {
+  <div class="alert alert-success animate-fade-in">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <path d="m9 11 3 3L22 4" />
+    </svg>
+    <span>{{ successMessage() }}</span>
+  </div>
+  }
+
+  @if (errorMessage()) {
+  <div class="alert alert-error animate-fade-in">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
+  }
+
+  <!-- Controls Bar -->
+  <div class="controls-card">
+    <div class="status-tabs">
+      @for (tab of statusTabs; track tab.value) {
+      <button class="tab-btn" [class.active]="selectedStatus === tab.value" (click)="onTabChange(tab.value)">
+        {{ tab.label }}
+      </button>
+      }
+    </div>
+
+    <div class="search-input-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search by name, email, specialty, or license..." class="search-input" />
+    </div>
+  </div>
+
+  <!-- Requests Table / Grid -->
+  <div class="table-card">
+    @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading doctor registration requests...</p>
+    </div>
+    } @else if (filteredRequests.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon-box">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <h3>No Doctor Requests Found</h3>
+      <p>There are no registration requests matching your current filter criteria.</p>
+    </div>
+    } @else {
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Doctor Name</th>
+            <th>Email & Contact</th>
+            <th>Specialty & License</th>
+            <th>Email Status</th>
+            <th>Application Status</th>
+            <th>Submitted Date</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (req of filteredRequests; track req.id) {
+          <tr class="table-row">
+            <td>
+              <div class="doctor-cell">
+                <div class="doc-avatar">
+                  {{ req.fullName.charAt(0) || 'D' }}
+                </div>
+                <div>
+                  <div class="doc-name">Dr. {{ req.fullName }}</div>
+                  <div class="doc-ref">#DR-{{ req.id }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span class="email-text">{{ req.email }}</span>
+                <span class="phone-text">{{ req.phoneNumber }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="specialty-cell">
+                <span class="specialty-name">{{ req.primarySpecialty || 'General Practitioner' }}</span>
+                <span class="license-badge">{{ req.medicalLicenseNumber || 'License Pending' }}</span>
+              </div>
+            </td>
+            <td>
+              @if (req.isEmailConfirmed) {
+              <span class="badge badge-success">Confirmed</span>
+              } @else {
+              <span class="badge badge-warning">Unconfirmed</span>
+              }
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-pending': req.status === 'PendingAdminReview' || req.status === 'EmailConfirmed' || req.status === 'Draft',
+                'badge-active': req.status === 'Active',
+                'badge-rejected': req.status === 'Rejected'
+              }">
+                {{ req.status === 'PendingAdminReview' ? 'Pending Review' : req.status }}
+              </span>
+            </td>
+            <td>
+              <span class="date-text">{{ req.createdAt | date:'mediumDate' }}</span>
+            </td>
+            <td class="text-right">
+              <div class="actions-cell">
+                <button class="btn-action btn-inspect" (click)="viewDetails(req.id)" title="Inspect Profile & Documents">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10 7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span>Inspect</span>
+                </button>
+
+                @if (req.status !== 'Active') {
+                <button class="btn-action btn-activate" (click)="activateDoctor(req.id)" title="Activate Doctor Account">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Activate</span>
+                </button>
+                }
+
+                @if (req.status !== 'Rejected') {
+                <button class="btn-action btn-reject" (click)="openRejectModal(req.id)" title="Reject Request">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                  </svg>
+                  <span>Reject</span>
+                </button>
+                }
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+
+  <!-- INSPECT DETAILS MODAL -->
+  @if (selectedRequest()) {
+  <div class="modal-overlay animate-fade-in" (click)="closeDetails()">
+    <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-avatar">
+            {{ selectedRequest()!.fullName.charAt(0) }}
+          </div>
+          <div>
+            <h2 class="modal-title">Dr. {{ selectedRequest()!.fullName }}</h2>
+            <div class="modal-subtitle">
+              <span>{{ selectedRequest()!.fullNameArabic || selectedRequest()!.fullName }}</span>
+              <span class="bullet">•</span>
+              <span>Ref #DR-{{ selectedRequest()!.id }}</span>
+              <span class="bullet">•</span>
+              <span class="badge" [ngClass]="{
+                'badge-pending': selectedRequest()!.status === 'PendingAdminReview' || selectedRequest()!.status === 'EmailConfirmed' || selectedRequest()!.status === 'Draft',
+                'badge-active': selectedRequest()!.status === 'Active',
+                'badge-rejected': selectedRequest()!.status === 'Rejected'
+              }">
+                {{ selectedRequest()!.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" (click)="closeDetails()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Rejection reason if present -->
+        @if (selectedRequest()!.rejectionReason) {
+        <div class="rejection-box">
+          <strong>Rejection Reason:</strong> {{ selectedRequest()!.rejectionReason }}
+        </div>
+        }
+
+        <!-- Section: Personal Details -->
+        <div class="inspect-section">
+          <h3 class="inspect-section-title">1. Personal & Contact Information</h3>
+          <div class="inspect-grid">
+            <div class="inspect-item">
+              <span class="item-label">Email:</span>
+              <span class="item-value">{{ selectedRequest()!.email }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Phone:</span>
+              <span class="item-value">{{ selectedRequest()!.phoneNumber }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">National ID / Passport:</span>
+              <span class="item-value font-mono">{{ selectedRequest()!.nationalIdOrPassportNumber || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Nationality & Gender:</span>
+              <span class="item-value">{{ selectedRequest()!.nationality || 'N/A' }} ({{ selectedRequest()!.gender || 'N/A' }})</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Date of Birth:</span>
+              <span class="item-value">{{ selectedRequest()!.dateOfBirth ? (selectedRequest()!.dateOfBirth | date:'mediumDate') : 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Location:</span>
+              <span class="item-value">{{ selectedRequest()!.city || 'N/A' }}, {{ selectedRequest()!.country || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item full-width">
+              <span class="item-label">Address:</span>
+              <span class="item-value">{{ selectedRequest()!.address || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Medical Credentials -->
+        <div class="inspect-section">
+          <h3 class="inspect-section-title">2. Medical Profession & Board Licensing</h3>
+          <div class="inspect-grid">
+            <div class="inspect-item">
+              <span class="item-label">Profession:</span>
+              <span class="item-value font-semibold">{{ selectedRequest()!.medicalProfession || 'General Practitioner' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Primary Specialty:</span>
+              <span class="item-value font-semibold text-blue-700">{{ selectedRequest()!.primarySpecialty || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Sub-Specialty:</span>
+              <span class="item-value">{{ selectedRequest()!.subSpecialty || 'None' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Experience:</span>
+              <span class="item-value">{{ selectedRequest()!.yearsOfExperience || 0 }} years</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Medical License Number:</span>
+              <span class="item-value font-mono">{{ selectedRequest()!.medicalLicenseNumber || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Issuing Authority:</span>
+              <span class="item-value">{{ selectedRequest()!.licenseIssuingAuthority || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Registration Number:</span>
+              <span class="item-value font-mono">{{ selectedRequest()!.professionalRegistrationNumber || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Registration Status:</span>
+              <span class="item-value">{{ selectedRequest()!.professionalRegistrationStatus || 'Active' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Education -->
+        <div class="inspect-section">
+          <h3 class="inspect-section-title">3. Education & Qualifications</h3>
+          <div class="inspect-grid">
+            <div class="inspect-item full-width">
+              <span class="item-label">Medical School / University:</span>
+              <span class="item-value font-semibold">{{ selectedRequest()!.medicalSchoolOrUniversity || 'N/A' }}</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Degree & Year:</span>
+              <span class="item-value">{{ selectedRequest()!.medicalDegree || 'MBBCh' }} ({{ selectedRequest()!.graduationYear || 'N/A' }})</span>
+            </div>
+            <div class="inspect-item">
+              <span class="item-label">Internship Dates:</span>
+              <span class="item-value">
+                {{ selectedRequest()!.internshipStartDate ? (selectedRequest()!.internshipStartDate | date:'mediumDate') : 'N/A' }} - 
+                {{ selectedRequest()!.internshipEndDate ? (selectedRequest()!.internshipEndDate | date:'mediumDate') : 'N/A' }}
+              </span>
+            </div>
+            @if (selectedRequest()!.postgraduateQualification) {
+            <div class="inspect-item full-width">
+              <span class="item-label">Postgraduate:</span>
+              <span class="item-value">{{ selectedRequest()!.postgraduateQualification }} ({{ selectedRequest()!.institution }})</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Section: Uploaded Document Certificates -->
+        <div class="inspect-section">
+          <h3 class="inspect-section-title">4. Uploaded Credentials & Document Scans</h3>
+          <div class="documents-inspect-grid">
+            @if (selectedRequest()!.specialtyCertificationDocumentUrl) {
+            <a [href]="selectedRequest()!.specialtyCertificationDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">Specialty Certificate</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+
+            @if (selectedRequest()!.medicalDegreeCertificateDocumentUrl) {
+            <a [href]="selectedRequest()!.medicalDegreeCertificateDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">Medical Degree Certificate</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+
+            @if (selectedRequest()!.internshipCertificateDocumentUrl) {
+            <a [href]="selectedRequest()!.internshipCertificateDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">Internship Certificate</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+
+            @if (selectedRequest()!.medicalLicenseDocumentUrl) {
+            <a [href]="selectedRequest()!.medicalLicenseDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">Medical License Document</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+
+            @if (selectedRequest()!.professionalRegistrationDocumentUrl) {
+            <a [href]="selectedRequest()!.professionalRegistrationDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">Syndicate Card</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+
+            @if (selectedRequest()!.nationalIdDocumentUrl) {
+            <a [href]="selectedRequest()!.nationalIdDocumentUrl" target="_blank" class="doc-link-card">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-card-icon">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              <div>
+                <div class="doc-link-title">National ID Scan</div>
+                <span class="doc-link-action">View Document Scan &rarr;</span>
+              </div>
+            </a>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-left">
+          <span class="footer-decl">Information Accuracy Confirmed: {{ selectedRequest()!.informationAccuracyConfirmed ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="modal-footer-right">
+          <button class="btn-modal-cancel" (click)="closeDetails()">Close</button>
+          @if (selectedRequest()!.status !== 'Rejected') {
+          <button class="btn-modal-reject" (click)="openRejectModal(selectedRequest()!.id)">Reject Request</button>
+          }
+          @if (selectedRequest()!.status !== 'Active') {
+          <button class="btn-modal-activate" (click)="activateDoctor(selectedRequest()!.id)">Activate Doctor Account</button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- REJECTION REASON MODAL -->
+  @if (showRejectModal) {
+  <div class="modal-overlay animate-fade-in" (click)="closeRejectModal()">
+    <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Reject Doctor Request</h2>
+        <button class="btn-close-modal" (click)="closeRejectModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-instruction">
+          Please enter the justification reason for rejecting or deactivating this doctor registration request (e.g. invalid license number, missing diploma scan, Syndicate expiration).
+        </p>
+        <textarea [(ngModel)]="rejectionReason" rows="4" placeholder="Enter detailed rejection feedback for the applicant..." class="form-textarea"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" (click)="closeRejectModal()">Cancel</button>
+        <button class="btn-modal-confirm-reject" [disabled]="!rejectionReason.trim()" (click)="confirmReject()">
+          Confirm Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

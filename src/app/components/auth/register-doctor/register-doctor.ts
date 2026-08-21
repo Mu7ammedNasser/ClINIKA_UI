@@ -7,33 +7,35 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { RouterLink } from '@angular/router';
+import { DoctorRequestService } from '../../../core/services/doctor-request.service';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-register-doctor',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './register.html',
-  styleUrl: './register.css',
+  templateUrl: './register-doctor.html',
+  styleUrl: './register-doctor.css',
 })
-export class Register {
+export class RegisterDoctor {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly doctorRequestService = inject(DoctorRequestService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly isSubmittedSuccess = signal(false);
   readonly registeredEmail = signal('');
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
 
-  readonly registerForm = this.fb.nonNullable.group(
+  readonly doctorForm = this.fb.nonNullable.group(
     {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
+      phoneNumber: [
+        '',
+        [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)],
+      ],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -43,8 +45,9 @@ export class Register {
     }
   );
 
-  /** Cross-field validator: password must match confirmPassword. */
-  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+  private passwordMatchValidator(
+    control: AbstractControl
+  ): ValidationErrors | null {
     const password = control.get('password');
     const confirm = control.get('confirmPassword');
 
@@ -53,7 +56,6 @@ export class Register {
       return { passwordMismatch: true };
     }
 
-    // Clear only our custom error if passwords now match
     if (confirm?.errors?.['passwordMismatch']) {
       const { passwordMismatch, ...rest } = confirm.errors;
       confirm.setErrors(Object.keys(rest).length ? rest : null);
@@ -71,40 +73,38 @@ export class Register {
   }
 
   onSubmit(): void {
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
+    if (this.doctorForm.invalid) {
+      this.doctorForm.markAllAsTouched();
       return;
     }
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.successMessage.set(null);
 
-    const formValues = this.registerForm.getRawValue();
+    const formValues = this.doctorForm.getRawValue();
     this.registeredEmail.set(formValues.email);
 
-    this.authService.register(formValues).subscribe({
+    this.doctorRequestService.submitInitialRequest(formValues).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         if (response.isSuccess) {
           this.isSubmittedSuccess.set(true);
-          this.successMessage.set('Confirmation email sent to your Gmail');
         } else {
-          this.errorMessage.set(response.message || 'Registration failed. Please try again.');
+          this.errorMessage.set(
+            response.message || 'Doctor registration failed. Please try again.'
+          );
         }
       },
       error: (err) => {
         this.isLoading.set(false);
-        
         if (err.error?.errors) {
-          const firstErrorKey = Object.keys(err.error.errors)[0];
-          const validationMessage = err.error.errors[firstErrorKey][0];
-          this.errorMessage.set(validationMessage);
+          const firstKey = Object.keys(err.error.errors)[0];
+          this.errorMessage.set(err.error.errors[firstKey][0]);
           return;
         }
-
         const message =
-          err.error?.message || 'Unable to connect. Please check your connection and try again.';
+          err.error?.message ||
+          'Unable to submit doctor request. Please verify your data and connection.';
         this.errorMessage.set(message);
       },
     });

@@ -6,6 +6,23 @@ import { guestGuard } from './core/gurds/guest.guard';
 import { UserRole } from './core/interfaces/auth.interfaces';
 
 export const routes: Routes = [
+  // ─── Public Landing Page ───────────────────────────────────────
+  {
+    path: '',
+    loadComponent: () =>
+      import('./components/landing/landing').then((m) => m.LandingPage),
+  },
+  {
+    path: 'landing',
+    loadComponent: () =>
+      import('./components/landing/landing').then((m) => m.LandingPage),
+  },
+  {
+    path: 'home',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+
   // ─── Auth Routes (guest only) ──────────────────────────────────
   {
     path: 'login',
@@ -18,6 +35,21 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./components/auth/register/register').then((m) => m.Register),
+  },
+  {
+    path: 'register-doctor',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./components/auth/register-doctor/register-doctor').then(
+        (m) => m.RegisterDoctor
+      ),
+  },
+  {
+    path: 'doctor-complete-profile',
+    loadComponent: () =>
+      import(
+        './components/auth/doctor-complete-profile/doctor-complete-profile'
+      ).then((m) => m.DoctorCompleteProfile),
   },
   {
     path: 'forgot-password',
@@ -192,11 +224,17 @@ export const routes: Routes = [
             (m) => m.AllergyManagement
           ),
       },
+      {
+        path: 'doctor-requests',
+        loadComponent: () =>
+          import(
+            './components/admin/doctor-requests/doctor-requests'
+          ).then((m) => m.DoctorRequestsManagement),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 
-  // ─── Default & Wildcard ────────────────────────────────────────
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' },
+  // ─── Wildcard ──────────────────────────────────────────────────
+  { path: '**', redirectTo: '' },
 ];

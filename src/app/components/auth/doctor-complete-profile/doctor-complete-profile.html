@@ -1,0 +1,386 @@
+<div class="complete-profile-page">
+  <!-- Top Bar -->
+  <header class="page-topbar">
+    <div class="topbar-content">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 2a2 2 0 0 1 2 0l6.5 3.75a2 2 0 0 1 1 1.73v7.04a2 2 0 0 1-1 1.73L13 20a2 2 0 0 1-2 0l-6.5-3.75a2 2 0 0 1-1-1.73V7.48a2 2 0 0 1 1-1.73z" />
+            <path d="M12 8v8" />
+            <path d="M8 12h8" />
+          </svg>
+        </div>
+        <span class="brand-title">CLINIKA</span>
+      </div>
+
+      <a routerLink="/login" class="link-back-login">
+        <span>Already have active access? Sign In</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="main-container">
+      <!-- Submission Successful State -->
+      @if (isSubmittedSuccess()) {
+      <div class="success-card animate-fade-in">
+        <div class="success-icon-box">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <h1 class="success-title">Application Submitted for Review</h1>
+        <p class="success-desc">
+          Thank you for completing your doctor profile and uploading your medical credentials. Your application is now in <strong>Pending Admin Review</strong> status.
+        </p>
+
+        <div class="success-status-box">
+          <div class="status-row">
+            <span class="status-label">Request Reference ID:</span>
+            <span class="status-value">#DR-{{ requestId() }}</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Email Verification:</span>
+            <span class="status-badge badge-confirmed">Confirmed</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Administrative Status:</span>
+            <span class="status-badge badge-pending">Pending Review</span>
+          </div>
+        </div>
+
+        <p class="success-note">
+          Our administrative board reviews physician credentials within 24-48 hours. Once verified, you will receive an activation email allowing you to log in to CliniKa.
+        </p>
+
+        <div class="success-actions">
+          <a routerLink="/" class="btn-secondary">Return to Home</a>
+          <a routerLink="/login" class="btn-primary">Go to Sign In</a>
+        </div>
+      </div>
+      } @else {
+
+      <!-- Form View -->
+      <div class="profile-form-card">
+        <div class="form-header">
+          <div class="header-badge">
+            <span class="badge-step">Stage 2 of 2</span>
+            <span>Professional Profile & Credential Upload</span>
+          </div>
+          <h1 class="header-title">Complete Your Doctor Profile</h1>
+          <p class="header-subtitle">
+            Provide your official medical licensing information, university credentials, and documents to complete your verification with CliniKa.
+          </p>
+        </div>
+
+        @if (errorMessage()) {
+        <div class="alert alert-error animate-fade-in" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" x2="12" y1="8" y2="12" />
+            <line x1="12" x2="12.01" y1="16" y2="16" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+        }
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate>
+          <!-- ─── SECTION 1: Personal Information ────────────────── -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-number">1</div>
+              <div>
+                <h2 class="section-title">Personal Information</h2>
+                <p class="section-desc">Your legal identification details and contact location.</p>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Full Name in Arabic <span class="req">*</span></label>
+                <input type="text" formControlName="fullNameArabic" placeholder="الاسم الكامل باللغة العربية" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Date of Birth <span class="req">*</span></label>
+                <input type="date" formControlName="dateOfBirth" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Gender <span class="req">*</span></label>
+                <select formControlName="gender" class="form-select">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Nationality <span class="req">*</span></label>
+                <input type="text" formControlName="nationality" placeholder="e.g. Egyptian" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">National ID / Passport Number <span class="req">*</span></label>
+                <input type="text" formControlName="nationalIdOrPassportNumber" placeholder="14-digit National ID or Passport" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Personal Profile Photo</label>
+                <input type="file" (change)="onFileSelected($event, 'personalPhoto')" accept="image/*" class="form-file-input" />
+              </div>
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Country <span class="req">*</span></label>
+                <input type="text" formControlName="country" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">City <span class="req">*</span></label>
+                <input type="text" formControlName="city" placeholder="e.g. Cairo" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Clinic / Hospital Address <span class="req">*</span></label>
+                <input type="text" formControlName="address" placeholder="Full address" class="form-input" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── SECTION 2: Medical Credentials ────────────────── -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-number">2</div>
+              <div>
+                <h2 class="section-title">Medical Profession & Licensing</h2>
+                <p class="section-desc">Your clinical specialty, licensing board, and experience.</p>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Medical Profession <span class="req">*</span></label>
+                <select formControlName="medicalProfession" class="form-select">
+                  <option value="Consultant">Consultant</option>
+                  <option value="Specialist">Specialist</option>
+                  <option value="General Practitioner">General Practitioner</option>
+                  <option value="Surgeon">Surgeon</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Primary Specialty <span class="req">*</span></label>
+                <input type="text" formControlName="primarySpecialty" placeholder="e.g. Cardiology, Internal Medicine" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Sub-Specialty (Optional)</label>
+                <input type="text" formControlName="subSpecialty" placeholder="e.g. Interventional Cardiology" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Years of Experience <span class="req">*</span></label>
+                <input type="number" formControlName="yearsOfExperience" min="0" max="60" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Medical License Number <span class="req">*</span></label>
+                <input type="text" formControlName="medicalLicenseNumber" placeholder="e.g. LIC-123456" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">License Issuing Authority <span class="req">*</span></label>
+                <input type="text" formControlName="licenseIssuingAuthority" placeholder="e.g. Ministry of Health, Syndicate" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">License Issue Date <span class="req">*</span></label>
+                <input type="date" formControlName="licenseIssueDate" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">License Expiry Date <span class="req">*</span></label>
+                <input type="date" formControlName="licenseExpiryDate" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Professional Registration Number <span class="req">*</span></label>
+                <input type="text" formControlName="professionalRegistrationNumber" placeholder="e.g. REG-987654" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Registration Status <span class="req">*</span></label>
+                <select formControlName="professionalRegistrationStatus" class="form-select">
+                  <option value="Active">Active</option>
+                  <option value="Valid">Valid</option>
+                  <option value="Registered">Registered</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── SECTION 3: Education & Training ──────────────── -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-number">3</div>
+              <div>
+                <h2 class="section-title">Education & Qualifications</h2>
+                <p class="section-desc">Your university degree and postgraduate background.</p>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Medical School / University <span class="req">*</span></label>
+                <input type="text" formControlName="medicalSchoolOrUniversity" placeholder="e.g. Cairo University Faculty of Medicine" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Medical Degree <span class="req">*</span></label>
+                <input type="text" formControlName="medicalDegree" placeholder="e.g. MBBCh, MD, MBBS" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Graduation Year <span class="req">*</span></label>
+                <input type="number" formControlName="graduationYear" min="1960" max="2030" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Internship Period <span class="req">*</span></label>
+                <div class="date-range-row">
+                  <input type="date" formControlName="internshipStartDate" class="form-input" title="Start Date" />
+                  <span class="range-to">to</span>
+                  <input type="date" formControlName="internshipEndDate" class="form-input" title="End Date" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Postgraduate Qualification (Optional)</label>
+                <input type="text" formControlName="postgraduateQualification" placeholder="e.g. Master, Fellowship, PhD" class="form-input" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Postgraduate Institution (Optional)</label>
+                <input type="text" formControlName="institution" placeholder="e.g. Royal College, Ain Shams" class="form-input" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── SECTION 4: Document Attachments ──────────────── -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-number">4</div>
+              <div>
+                <h2 class="section-title">Required Document Attachments</h2>
+                <p class="section-desc">Upload scans or PDFs of your medical certificates for verification.</p>
+              </div>
+            </div>
+
+            <div class="documents-grid">
+              <div class="doc-upload-card">
+                <div class="doc-title">Specialty Certification Document</div>
+                <div class="doc-subtitle">Board or specialty certificate (PDF / Image)</div>
+                <input type="file" (change)="onFileSelected($event, 'specialtyCertificationDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+
+              <div class="doc-upload-card">
+                <div class="doc-title">Medical Degree Certificate</div>
+                <div class="doc-subtitle">Graduation certificate / diploma (PDF / Image)</div>
+                <input type="file" (change)="onFileSelected($event, 'medicalDegreeCertificateDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+
+              <div class="doc-upload-card">
+                <div class="doc-title">Internship Certificate</div>
+                <div class="doc-subtitle">Official training completion certificate</div>
+                <input type="file" (change)="onFileSelected($event, 'internshipCertificateDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+
+              <div class="doc-upload-card">
+                <div class="doc-title">National ID / Passport Scan</div>
+                <div class="doc-subtitle">Clear scan of your government identification</div>
+                <input type="file" (change)="onFileSelected($event, 'nationalIdDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+
+              <div class="doc-upload-card">
+                <div class="doc-title">Medical Practice License</div>
+                <div class="doc-subtitle">Official license issued by the health authority</div>
+                <input type="file" (change)="onFileSelected($event, 'medicalLicenseDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+
+              <div class="doc-upload-card">
+                <div class="doc-title">Syndicate / Registration Card</div>
+                <div class="doc-subtitle">Professional registration membership card</div>
+                <input type="file" (change)="onFileSelected($event, 'professionalRegistrationDocument')" accept=".pdf,image/*" class="form-file-input" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── SECTION 5: Declarations & Plan ───────────────── -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-number">5</div>
+              <div>
+                <h2 class="section-title">Declaration & Selected Plan</h2>
+                <p class="section-desc">Confirm accuracy of information and choose your CliniKa plan.</p>
+              </div>
+            </div>
+
+            <div class="plan-selection">
+              <label class="plan-card" [class.selected]="profileForm.get('selectedPlan')?.value === 'Free'">
+                <input type="radio" formControlName="selectedPlan" value="Free" class="plan-radio" />
+                <div class="plan-content">
+                  <div class="plan-name">Standard Physician</div>
+                  <div class="plan-price">Free</div>
+                  <div class="plan-desc">AI diagnostic copilot, interaction checks, and patient record management.</div>
+                </div>
+              </label>
+
+              <label class="plan-card" [class.selected]="profileForm.get('selectedPlan')?.value === 'Pro'">
+                <input type="radio" formControlName="selectedPlan" value="Pro" class="plan-radio" />
+                <div class="plan-content">
+                  <div class="plan-name">Pro Clinic Edition</div>
+                  <div class="plan-price">$29/mo</div>
+                  <div class="plan-desc">Advanced multi-modal diagnostic insights, priority processing, and clinical analytics.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="declarations-list">
+              <label class="declaration-item">
+                <input type="checkbox" formControlName="informationAccuracyConfirmed" class="form-checkbox" />
+                <span>I solemnly declare that all personal, professional, and medical credential information provided is accurate, valid, and legally verifiable.</span>
+              </label>
+
+              <label class="declaration-item">
+                <input type="checkbox" formControlName="termsAndConditionsAgreed" class="form-checkbox" />
+                <span>I agree to the CliniKa Medical Practitioner Terms of Service and Clinical Copilot Usage Guidelines.</span>
+              </label>
+
+              <label class="declaration-item">
+                <input type="checkbox" formControlName="privacyPolicyAgreed" class="form-checkbox" />
+                <span>I have read and consent to the Healthcare Data Privacy Policy and HIPAA Compliance Regulations.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-submit-row">
+            <button type="submit" class="btn-submit-profile" [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+              <span class="spinner"></span>
+              <span>Submitting application for verification...</span>
+              } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              <span>Submit Doctor Profile for Administrative Review</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+      }
+    </div>
+  </main>
+</div>

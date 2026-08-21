@@ -1,0 +1,503 @@
+/* ==========================================================================
+   DOCTOR REGISTRATION (STAGE 1) STYLING
+   ========================================================================== */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  color: #0f172a;
+}
+
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ─── Left Branding Panel ─────────────────────────────────────────── */
+.auth-branding {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #1e3a8a 0%, #0369a1 50%, #0d9488 100%);
+  color: #ffffff;
+  padding: 3rem 4rem;
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .auth-branding {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.branding-content {
+  position: relative;
+  z-index: 2;
+  max-width: 500px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.logo-icon svg {
+  width: 26px;
+  height: 26px;
+  color: #ffffff;
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-tagline {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #93c5fd;
+  margin-bottom: 1.5rem;
+}
+
+.brand-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #e0f2fe;
+  margin-bottom: 2.5rem;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.feature-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+}
+
+.deco-circle-1 {
+  width: 500px;
+  height: 500px;
+  top: -150px;
+  right: -150px;
+}
+
+.deco-circle-2 {
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  left: -100px;
+}
+
+.deco-circle-3 {
+  width: 250px;
+  height: 250px;
+  top: 40%;
+  right: 20%;
+}
+
+/* ─── Right Form Panel ────────────────────────────────────────────── */
+.auth-form-panel {
+  flex: 1.1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  overflow-y: auto;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .mobile-logo {
+    display: none;
+  }
+}
+
+.logo-icon-small {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1e3a8a, #0369a1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-icon-small svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobile-brand-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e3a8a;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.35rem;
+}
+
+.form-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.doctor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.badge-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ─── Form Controls ───────────────────────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.4rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.input-wrapper.input-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.85rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 0.85rem 0.75rem 2.6rem;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+  font-family: inherit;
+}
+
+.toggle-password {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0.85rem;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password:hover {
+  color: #475569;
+}
+
+.toggle-password svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.field-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.alert-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ─── Confirmation Screen ────────────────────────────────────────── */
+.confirmation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+.confirmation-icon-box {
+  width: 4rem;
+  height: 4rem;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.confirmation-icon-box svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.confirmation-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.75rem;
+}
+
+.confirmation-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 1.5rem;
+}
+
+.user-email {
+  color: #0284c7;
+}
+
+.confirmation-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+  line-height: 1.45;
+}
+
+.confirmation-info-box .info-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.btn-confirm-proceed {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
