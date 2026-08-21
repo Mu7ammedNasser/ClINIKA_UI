@@ -124,12 +124,6 @@
             AI Ready
           </span>
         </div>
-
-        <span class="status-badge" [class.status-completed]="report.status === 'Completed'"
-          [class.status-inprogress]="report.status === 'In Progress'"
-          [class.status-processing]="report.status === 'Processing'">
-          {{ report.status }}
-        </span>
       </div>
 
       <!-- Patient Info Header -->
@@ -139,16 +133,14 @@
         </div>
         <div class="flex-1 min-w-0">
           <h3 class="font-bold text-gray-900 text-base truncate">{{ report.patientName }}</h3>
-          <div class="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-            <span *ngIf="report.patientGender">{{ report.patientGender }}</span>
-            <span *ngIf="report.patientGender" class="text-gray-300">•</span>
+          <div class="text-xs text-gray-500 mt-0.5">
             <span>{{ formatDate(report.visitDate) }}</span>
           </div>
         </div>
       </div>
 
       <!-- Clinical Insights Summary Snippet -->
-      <div class="report-summary-box mb-4">
+      <div *ngIf="report.possibleDiagnoses || report.patientSummary || report.finalDiagnosis" class="report-summary-box mb-4">
         <p *ngIf="report.possibleDiagnoses" class="text-xs text-gray-800 line-clamp-2">
           <strong class="text-blue-900">Possible Diagnosis:</strong> {{ report.possibleDiagnoses }}
         </p>
@@ -158,10 +150,6 @@
         <p *ngIf="!report.possibleDiagnoses && !report.patientSummary && report.finalDiagnosis"
           class="text-xs text-gray-800 line-clamp-2">
           <strong class="text-emerald-900">Diagnosis:</strong> {{ report.finalDiagnosis }}
-        </p>
-        <p *ngIf="!report.possibleDiagnoses && !report.patientSummary && !report.finalDiagnosis"
-          class="text-xs text-gray-400 italic">
-          Consultation recorded. Click below to inspect findings.
         </p>
       </div>
 
@@ -237,17 +225,11 @@
             #{{ selectedSessionId }}
           </div>
           <div>
-            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h2 class="text-lg font-bold text-gray-900">
               Clinical Report
-              <span *ngIf="selectedReport?.status" class="status-badge text-xs"
-                [class.status-completed]="selectedReport?.status === 'Completed'"
-                [class.status-inprogress]="selectedReport?.status === 'In Progress'">
-                {{ selectedReport?.status }}
-              </span>
             </h2>
             <p class="text-xs text-gray-500">
               <span *ngIf="selectedReport?.patientName" class="font-semibold text-gray-800">{{ selectedReport?.patientName }}</span>
-              <span *ngIf="selectedReport?.patientGender"> ({{ selectedReport?.patientGender }})</span>
               <span *ngIf="selectedReport?.visitDate"> • {{ formatDate(selectedReport?.visitDate) }}</span>
             </p>
           </div>
