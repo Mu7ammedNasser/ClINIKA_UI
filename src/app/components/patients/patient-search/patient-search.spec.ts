@@ -42,7 +42,7 @@ describe('PatientSearch', () => {
   });
 
   it('should set isLoading to true when searching with a valid term', () => {
-    component.searchTerm = 'John';
+    component.searchTerm = '12345678901234';
     component.search();
     expect(component.isLoading).toBe(true);
   });
@@ -50,7 +50,7 @@ describe('PatientSearch', () => {
   it('should clear previous error and patient when starting a new search', () => {
     component.error = 'Previous error';
     component.patient = { patientId: 1, firstName: 'Test', lastName: 'User', email: 'test@test.com' } as any;
-    component.searchTerm = 'NewSearch';
+    component.searchTerm = '12345678901234';
     component.search();
     expect(component.error).toBe('');
     expect(component.patient).toBeNull();
