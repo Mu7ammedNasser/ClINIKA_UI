@@ -1,11 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DoctorRequestService } from '../../../core/services/doctor-request.service';
 
 @Component({
@@ -19,7 +15,6 @@ export class DoctorCompleteProfile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly doctorRequestService = inject(DoctorRequestService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
 
   readonly requestId = signal<number | null>(null);
   readonly token = signal<string | null>(null);
@@ -29,56 +24,14 @@ export class DoctorCompleteProfile implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly isSubmittedSuccess = signal(false);
 
-  // File uploads tracking
-  readonly files: Record<string, File | null> = {
-    personalPhoto: null,
-    specialtyCertificationDocument: null,
-    medicalDegreeCertificateDocument: null,
-    internshipCertificateDocument: null,
-    nationalIdDocument: null,
-    medicalLicenseDocument: null,
-    professionalRegistrationDocument: null,
-  };
+  personalPhotoFile: File | null = null;
+  personalPhotoPreview = signal<string | null>(null);
 
   readonly profileForm = this.fb.group({
-    // Personal Info
-    fullNameArabic: ['', [Validators.required, Validators.minLength(3)]],
-    dateOfBirth: ['', [Validators.required]],
-    gender: ['Male', [Validators.required]],
-    nationality: ['Egyptian', [Validators.required]],
-    nationalIdOrPassportNumber: ['', [Validators.required, Validators.minLength(8)]],
-    country: ['Egypt', [Validators.required]],
-    city: ['', [Validators.required]],
-    address: ['', [Validators.required]],
-
-    // Medical Info
-    medicalProfession: ['Specialist', [Validators.required]],
-    primarySpecialty: ['General Medicine', [Validators.required]],
-    subSpecialty: [''],
-    yearsOfExperience: [1, [Validators.required, Validators.min(0)]],
-    medicalLicenseNumber: ['', [Validators.required]],
-    licenseIssuingAuthority: ['Ministry of Health', [Validators.required]],
-    licenseIssueDate: ['', [Validators.required]],
-    licenseExpiryDate: ['', [Validators.required]],
-    professionalRegistrationNumber: ['', [Validators.required]],
-    professionalRegistrationStatus: ['Active', [Validators.required]],
-
-    // Education
-    medicalSchoolOrUniversity: ['', [Validators.required]],
-    medicalDegree: ['MBBCh', [Validators.required]],
-    graduationYear: [2020, [Validators.required, Validators.min(1950), Validators.max(2030)]],
-    internshipStartDate: ['', [Validators.required]],
-    internshipEndDate: ['', [Validators.required]],
-    postgraduateQualification: [''],
-    qualificationName: [''],
-    institution: [''],
-    yearObtained: [null as number | null],
-
-    // Declarations & Plan
-    informationAccuracyConfirmed: [false, [Validators.requiredTrue]],
-    termsAndConditionsAgreed: [false, [Validators.requiredTrue]],
-    privacyPolicyAgreed: [false, [Validators.requiredTrue]],
-    selectedPlan: ['Free', [Validators.required]],
+    fullNameArabic: [''],
+    primarySpecialty: [''],
+    yearsOfExperience: [null as number | null],
+    medicalLicenseNumber: [''],
   });
 
   ngOnInit(): void {
@@ -105,29 +58,29 @@ export class DoctorCompleteProfile implements OnInit {
         this.isLoading.set(false);
         this.isEmailConfirmed.set(true);
       },
-      error: (err) => {
+      error: () => {
         this.isLoading.set(false);
         this.isEmailConfirmed.set(true); // Allow proceeding if already confirmed
       },
     });
   }
 
-  onFileSelected(event: Event, key: string): void {
+  onPhotoSelected(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      this.files[key] = target.files[0];
+      this.personalPhotoFile = target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.personalPhotoPreview.set(reader.result as string);
+      };
+      reader.readAsDataURL(this.personalPhotoFile);
     } else {
-      this.files[key] = null;
+      this.personalPhotoFile = null;
+      this.personalPhotoPreview.set(null);
     }
   }
 
   onSubmit(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
-      this.errorMessage.set('Please fill in all required fields and accept the declarations.');
-      return;
-    }
-
     const id = this.requestId();
     if (!id) {
       this.errorMessage.set('Invalid doctor request session. Request ID is missing.');
@@ -140,21 +93,25 @@ export class DoctorCompleteProfile implements OnInit {
     const formData = new FormData();
     const raw = this.profileForm.getRawValue();
 
-    // Append regular form fields
-    Object.keys(raw).forEach((key) => {
-      const val = (raw as Record<string, any>)[key];
-      if (val !== null && val !== undefined) {
-        formData.append(key, val.toString());
-      }
-    });
+    if (raw.fullNameArabic?.trim()) {
+      formData.append('fullNameArabic', raw.fullNameArabic.trim());
+    }
 
-    // Append file attachments
-    Object.keys(this.files).forEach((key) => {
-      const file = this.files[key];
-      if (file) {
-        formData.append(key, file, file.name);
-      }
-    });
+    if (raw.primarySpecialty?.trim()) {
+      formData.append('primarySpecialty', raw.primarySpecialty.trim());
+    }
+
+    if (raw.yearsOfExperience !== null && raw.yearsOfExperience !== undefined) {
+      formData.append('yearsOfExperience', raw.yearsOfExperience.toString());
+    }
+
+    if (raw.medicalLicenseNumber?.trim()) {
+      formData.append('medicalLicenseNumber', raw.medicalLicenseNumber.trim());
+    }
+
+    if (this.personalPhotoFile) {
+      formData.append('personalPhoto', this.personalPhotoFile, this.personalPhotoFile.name);
+    }
 
     this.doctorRequestService.completeProfile(id, formData).subscribe({
       next: (res) => {
