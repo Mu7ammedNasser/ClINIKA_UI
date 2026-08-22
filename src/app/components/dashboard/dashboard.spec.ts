@@ -22,12 +22,18 @@ describe('Dashboard', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize counters to zero', () => {
+  it('should initialize admin counters to zero', () => {
     expect(component.totalUsers()).toBe(0);
     expect(component.activeUsers()).toBe(0);
     expect(component.totalRoles()).toBe(0);
     expect(component.totalDiseases()).toBe(0);
     expect(component.totalAllergies()).toBe(0);
+  });
+
+  it('should initialize doctor counters to zero', () => {
+    expect(component.doctorTotalSessions()).toBe(0);
+    expect(component.doctorTotalPatients()).toBe(0);
+    expect(component.doctorAiDiagnoses()).toBe(0);
   });
 
   it('should have a role signal', () => {

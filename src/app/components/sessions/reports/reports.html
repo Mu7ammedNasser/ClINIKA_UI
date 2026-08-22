@@ -124,12 +124,6 @@
             AI Ready
           </span>
         </div>
-
-        <span class="status-badge" [class.status-completed]="report.status === 'Completed'"
-          [class.status-inprogress]="report.status === 'In Progress'"
-          [class.status-processing]="report.status === 'Processing'">
-          {{ report.status }}
-        </span>
       </div>
 
       <!-- Patient Info Header -->
@@ -237,13 +231,8 @@
             #{{ selectedSessionId }}
           </div>
           <div>
-            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <h2 class="text-lg font-bold text-gray-900">
               Clinical Report
-              <span *ngIf="selectedReport?.status" class="status-badge text-xs"
-                [class.status-completed]="selectedReport?.status === 'Completed'"
-                [class.status-inprogress]="selectedReport?.status === 'In Progress'">
-                {{ selectedReport?.status }}
-              </span>
             </h2>
             <p class="text-xs text-gray-500">
               <span *ngIf="selectedReport?.patientName" class="font-semibold text-gray-800">{{ selectedReport?.patientName }}</span>

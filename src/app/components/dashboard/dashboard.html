@@ -1,11 +1,13 @@
 <div class="dashboard-page">
   
-  <div class="page-header">
-    <div>
-      <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Overview of your system metrics and status.</p>
+  @if (role() === 'Admin') {
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Overview of your system metrics, users, and health configurations.</p>
+      </div>
     </div>
-  </div>
+  }
 
   @if (isLoading()) {
     <div class="loading-container">
@@ -13,6 +15,182 @@
       <p>Loading metrics...</p>
     </div>
   } @else {
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- DOCTOR DASHBOARD                                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    @if (role() === 'Doctor') {
+      <div class="doctor-dashboard-container">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="doctor-hero-banner">
+          <div class="hero-left">
+            <div class="doctor-badge">
+              <span class="pulse-dot"></span>
+              <span>Clinical Workspace</span>
+            </div>
+            <h1 class="hero-title">Welcome back, Dr. {{ userName() || 'Doctor' }}</h1>
+            <p class="hero-subtitle">
+              Overview of your clinical activity, patient consultations, and diagnostic records.
+            </p>
+          </div>
+          <div class="hero-right">
+            <div class="date-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-cyan-300">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
+              <span>{{ todayDate() }}</span>
+            </div>
+            <div class="hero-actions">
+              <a routerLink="/doctor/sessions/create" class="btn-hero-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <path d="M12 5v14"/>
+                  <path d="M5 12h14"/>
+                </svg>
+                <span>New Session</span>
+              </a>
+              <a routerLink="/doctor/patients" class="btn-hero-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" x2="16.65" y1="21" y2="16.65"/>
+                </svg>
+                <span>Search Patients</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        @if (doctorError()) {
+          <div class="doctor-error-banner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-red-500">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span class="text-sm">{{ doctorError() }}</span>
+            <button (click)="loadDoctorData()" class="text-xs font-semibold text-red-700 underline hover:text-red-900 ml-auto">
+              Retry
+            </button>
+          </div>
+        }
+
+        <!-- Doctor Metric Cards Grid -->
+        <div class="metrics-grid">
+          <!-- Total Sessions Card -->
+          <div class="metric-card">
+            <div class="metric-icon-wrapper bg-blue-50 text-blue-600 border border-blue-100">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" x2="8" y1="13" y2="13"/>
+                <line x1="16" x2="8" y1="17" y2="17"/>
+                <line x1="10" x2="8" y1="9" y2="9"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <h3 class="metric-label">Total Sessions</h3>
+              <div class="flex items-baseline gap-2">
+                <p class="metric-value">{{ doctorTotalSessions() }}</p>
+                <span class="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">Consultations</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Recorded clinical visits</p>
+            </div>
+          </div>
+
+          <!-- Total Patients Card -->
+          <div class="metric-card">
+            <div class="metric-icon-wrapper bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <h3 class="metric-label">Total Patients</h3>
+              <div class="flex items-baseline gap-2">
+                <p class="metric-value">{{ doctorTotalPatients() }}</p>
+                <span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Unique</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Patients consulted</p>
+            </div>
+          </div>
+
+          <!-- AI Diagnoses Card -->
+          <div class="metric-card">
+            <div class="metric-icon-wrapper bg-cyan-50 text-cyan-600 border border-cyan-100">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+            <div class="metric-info">
+              <h3 class="metric-label">AI Diagnoses</h3>
+              <div class="flex items-baseline gap-2">
+                <p class="metric-value">{{ doctorAiDiagnoses() }}</p>
+                <span class="text-xs text-cyan-600 font-medium bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-100">AI Powered</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Generated differential reports</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Row -->
+        <div class="quick-actions-section">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="quick-actions-grid">
+            <a routerLink="/doctor/sessions/create" class="action-card group">
+              <div class="action-icon bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                  <path d="M12 5v14"/>
+                  <path d="M5 12h14"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="action-title">Start New Session</h3>
+                <p class="action-desc">Record audio consultation and run AI clinical diagnosis.</p>
+              </div>
+            </a>
+
+            <a routerLink="/doctor/patients" class="action-card group">
+              <div class="action-icon bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <circle cx="19" cy="11" r="2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="action-title">Patient Directory</h3>
+                <p class="action-desc">Search patients, review medical histories, and active conditions.</p>
+              </div>
+            </a>
+
+            <a routerLink="/doctor/sessions/reports" class="action-card group">
+              <div class="action-icon bg-purple-100 text-purple-700 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="action-title">Session Reports</h3>
+                <p class="action-desc">Access complete AI diagnostic summaries and prescriptions.</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    }
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- ADMIN DASHBOARD                                             -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
     @if (role() === 'Admin') {
       <div class="metrics-grid">
         <!-- Total Users Card -->
@@ -102,6 +280,9 @@
       </div>
     }
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- PATIENT DASHBOARD FALLBACK                                  -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
     @if (role() === 'Patient') {
       <div class="patient-welcome bg-white p-8 rounded-xl shadow-sm border border-gray-100 mt-6">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Welcome to Your Patient Dashboard</h2>
@@ -130,13 +311,6 @@
             <p class="text-sm text-gray-500">Communicate directly with your doctors.</p>
           </div>
         </div>
-      </div>
-    }
-
-    @if (role() === 'Doctor') {
-      <div class="doctor-welcome bg-white p-8 rounded-xl shadow-sm border border-gray-100 mt-6">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Welcome to Your Doctor Dashboard</h2>
-        <p class="text-gray-600 mb-6">Manage your patient sessions, diagnoses, and interactions effectively.</p>
       </div>
     }
   }
