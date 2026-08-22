@@ -328,7 +328,7 @@
               <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
               <path d="m8.5 8.5 7 7"/>
             </svg>
-            Prescriptions ({{ selectedReport.prescribedMedications.length }})
+            Medications ({{ selectedReport.prescribedMedications.length + (selectedReport.activeMedications?.length || 0) }})
           </button>
           <button (click)="setDetailTab('documents')" class="tab-btn" [class.tab-btn-active]="activeDetailTab === 'documents'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -616,8 +616,8 @@
           </div>
         </div>
 
-        <!-- TAB 5: Prescribed Medications -->
-        <div *ngIf="activeDetailTab === 'medications'" class="space-y-4 animate-slide-up">
+        <!-- TAB 5: Prescriptions & Active Medications -->
+        <div *ngIf="activeDetailTab === 'medications'" class="space-y-6 animate-slide-up">
           
           <!-- Prescriptions Table -->
           <div class="detail-box">
@@ -626,15 +626,16 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600">
                   <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                  <path d="m8.5 8.5 7 7"/>
                 </svg>
                 Prescribed Medications for this Visit
               </h4>
               <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                {{ selectedReport.prescribedMedications.length }} Items
+                {{ selectedReport.prescribedMedications.length }} Prescribed
               </span>
             </div>
 
-            <div *ngIf="selectedReport.prescribedMedications.length > 0" class="overflow-x-auto">
+            <div *ngIf="selectedReport.prescribedMedications && selectedReport.prescribedMedications.length > 0" class="overflow-x-auto">
               <table class="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr class="border-b border-gray-200 bg-gray-50/80 text-gray-600 font-bold uppercase tracking-wider">
@@ -657,8 +658,58 @@
               </table>
             </div>
 
-            <div *ngIf="selectedReport.prescribedMedications.length === 0" class="text-center py-8 text-gray-400 text-sm">
+            <div *ngIf="!selectedReport.prescribedMedications || selectedReport.prescribedMedications.length === 0" class="text-center py-8 text-gray-400 text-sm">
               No medications prescribed during this consultation.
+            </div>
+          </div>
+
+          <!-- Patient's Active Medications Table -->
+          <div class="detail-box border-blue-100 bg-blue-50/20">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="detail-box-title text-gray-900 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-blue-600">
+                  <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                </svg>
+                Patient's Active / Chronic Medications
+              </h4>
+              <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                {{ selectedReport.activeMedications?.length || 0 }} Active Meds
+              </span>
+            </div>
+
+            <div *ngIf="selectedReport.activeMedications && selectedReport.activeMedications.length > 0" class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-gray-200 bg-blue-100/50 text-gray-600 font-bold uppercase tracking-wider">
+                    <th class="py-2.5 px-3 rounded-l-lg">Drug Name</th>
+                    <th class="py-2.5 px-3">Dosage</th>
+                    <th class="py-2.5 px-3">Frequency</th>
+                    <th class="py-2.5 px-3">Start Date</th>
+                    <th class="py-2.5 px-3 rounded-r-lg">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 bg-white">
+                  <tr *ngFor="let med of selectedReport.activeMedications" class="hover:bg-blue-50/50 transition-colors">
+                    <td class="py-3 px-3 font-bold text-gray-900 flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      {{ med.drugName }}
+                    </td>
+                    <td class="py-3 px-3 font-semibold text-blue-700">{{ med.dosage || '—' }}</td>
+                    <td class="py-3 px-3 font-semibold text-purple-700">{{ med.frequency || '—' }}</td>
+                    <td class="py-3 px-3 text-gray-600">{{ med.startDate ? formatDate(med.startDate) : '—' }}</td>
+                    <td class="py-3 px-3">
+                      <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Active
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div *ngIf="!selectedReport.activeMedications || selectedReport.activeMedications.length === 0" class="text-center py-8 text-gray-400 text-sm">
+              No active or chronic medications recorded on file for this patient.
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SessionService } from '../../../core/services/session.service';
 import { PatientService } from '../../../core/services/patient.service';
 import {
+  DoctorSessionReportDto,
   DrugConflictItem,
   DrugInteractionData,
   PrescribeMedicationRequest,
@@ -85,57 +86,86 @@ export class InteractionCheck implements OnInit {
     this.isEditingPrescriptions = false;
     this.cdr.detectChanges();
 
-    // 1. Fetch Session details to get Patient ID, Prescribed Meds, and Visit Documents
+    // 1. Fetch Prescribed Medications directly for this session
+    this.sessionService.getPrescribedMedications(sessionId).subscribe({
+      next: (res: any) => {
+        const meds = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
+        if (Array.isArray(meds) && meds.length > 0) {
+          this.prescribedMedications = meds;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.warn('[InteractionCheck] Could not load prescribed meds endpoint:', err);
+      },
+    });
+
+    // 2. Fetch Session Diagnosis details (Patient ID, Visit Documents, AI details, Active Meds)
     this.sessionService.getSessionDiagnosis(sessionId).subscribe({
       next: (res: any) => {
         const dataObj = res?.data ?? res?.Data ?? res;
         const body = dataObj?.body ?? dataObj?.Body ?? dataObj;
-        const data: SessionDiagnosisResultDto = {
-          ...body,
-          sessionId: dataObj.sessionId ?? dataObj.SessionId ?? body.sessionId ?? body.SessionId ?? sessionId,
-          patientId: dataObj.patientId ?? dataObj.PatientId ?? body.patientId ?? body.PatientId ?? 0,
-          patientName: dataObj.patientName ?? dataObj.PatientName ?? body.patientName ?? body.PatientName ?? '',
-          patientGender: dataObj.patientGender ?? dataObj.PatientGender ?? body.patientGender ?? body.PatientGender ?? '',
-          prescribedMedications: dataObj.prescribedMedications ?? dataObj.PrescribedMedications ?? body.prescribedMedications ?? body.PrescribedMedications ?? [],
-          visitDocuments: dataObj.visitDocuments ?? dataObj.VisitDocuments ?? body.visitDocuments ?? body.VisitDocuments ?? [],
-        };
-        if (data && (data.sessionId || data.patientId || data.prescribedMedications.length > 0)) {
-          this.patientId = data.patientId;
-          this.patientName = data.patientName || 'Patient';
-          this.patientGender = data.patientGender || '';
-          this.prescribedMedications = data.prescribedMedications || [];
-          this.visitDocuments = data.visitDocuments || [];
 
-          // 2. Fetch Patient History for Active Medications
-          if (this.patientId) {
-            this.loadPatientHistory(this.patientId);
-          } else {
-            this.isLoadingData = false;
-            this.cdr.detectChanges();
-          }
+        const pId = dataObj.patientId ?? dataObj.PatientId ?? body.patientId ?? body.PatientId ?? 0;
+        const pName = dataObj.patientName ?? dataObj.PatientName ?? body.patientName ?? body.PatientName ?? '';
+        const pGender = dataObj.patientGender ?? dataObj.PatientGender ?? body.patientGender ?? body.PatientGender ?? '';
+        const prescribed = dataObj.prescribedMedications ?? dataObj.PrescribedMedications ?? body.prescribedMedications ?? body.PrescribedMedications ?? [];
+        const active = dataObj.activeMedications ?? dataObj.ActiveMedications ?? body.activeMedications ?? body.ActiveMedications ?? [];
+        const docs = dataObj.visitDocuments ?? dataObj.VisitDocuments ?? body.visitDocuments ?? body.VisitDocuments ?? [];
+
+        if (Array.isArray(prescribed) && prescribed.length > 0) {
+          this.prescribedMedications = prescribed;
+        }
+        if (Array.isArray(active) && active.length > 0) {
+          this.activeMedications = active;
+        }
+        if (Array.isArray(docs) && docs.length > 0) {
+          this.visitDocuments = docs;
+        }
+        if (pName) {
+          this.patientName = pName;
+        }
+        if (pGender) {
+          this.patientGender = pGender;
+        }
+
+        if (pId > 0) {
+          this.patientId = pId;
+          this.loadPatientHistory(pId);
         } else {
-          // Fallback: try loading prescribed medications directly
-          this.loadPrescribedOnly(sessionId);
+          // Fallback: lookup session in doctor reports list to find patientId
+          this.lookupPatientIdFromReports(sessionId);
         }
       },
       error: (err) => {
-        console.warn('Could not load session diagnosis details, trying direct prescribed endpoint:', err);
-        this.loadPrescribedOnly(sessionId);
+        console.warn('[InteractionCheck] Could not load session diagnosis details:', err);
+        // Fallback: lookup session in doctor reports list
+        this.lookupPatientIdFromReports(sessionId);
       },
     });
   }
 
-  private loadPrescribedOnly(sessionId: number): void {
-    this.sessionService.getPrescribedMedications(sessionId).subscribe({
+  private lookupPatientIdFromReports(sessionId: number): void {
+    this.sessionService.getDoctorReports(sessionId.toString()).subscribe({
       next: (res: any) => {
-        this.prescribedMedications = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
-        this.isLoadingData = false;
-        this.cdr.detectChanges();
+        const list: DoctorSessionReportDto[] = res?.data ?? res?.Data ?? (Array.isArray(res) ? res : []);
+        const match = Array.isArray(list) ? list.find((r) => r.sessionId === sessionId) : null;
+        if (match && match.patientId > 0) {
+          this.patientId = match.patientId;
+          if (!this.patientName && match.patientName) {
+            this.patientName = match.patientName;
+          }
+          if (!this.patientGender && match.patientGender) {
+            this.patientGender = match.patientGender;
+          }
+          this.loadPatientHistory(match.patientId);
+        } else {
+          this.isLoadingData = false;
+          this.cdr.detectChanges();
+        }
       },
-      error: (err) => {
+      error: () => {
         this.isLoadingData = false;
-        console.error('Failed to load session info:', err);
-        this.errorMessage = `Session #${sessionId} was not found or has no medications recorded.`;
         this.cdr.detectChanges();
       },
     });
@@ -148,7 +178,9 @@ export class InteractionCheck implements OnInit {
         const history: PatientHistoryDto = res?.data ?? res?.Data ?? res;
         if (history) {
           this.patientHistory = history;
-          this.activeMedications = history.activeMedications ?? [];
+          if (Array.isArray(history.activeMedications)) {
+            this.activeMedications = history.activeMedications;
+          }
           if (!this.patientName && history.fullName) {
             this.patientName = history.fullName;
           }

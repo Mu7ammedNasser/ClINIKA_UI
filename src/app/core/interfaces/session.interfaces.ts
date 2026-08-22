@@ -1,3 +1,5 @@
+import { MedicationDto } from './patient.interfaces';
+
 export interface CreateSessionRequest {
   patientId: number;
 }
@@ -52,6 +54,7 @@ export interface SessionDiagnosisResultDto {
   patientId: number;
   patientName?: string;
   patientGender?: string;
+  patientPhoneNumber?: string;
   visitDate: string;
   status: string;
   audioTranscript?: string;
@@ -73,6 +76,7 @@ export interface SessionDiagnosisResultDto {
   finalDiagnosis?: string;
   generatedAt?: string;
   prescribedMedications: PrescribedMedicationDto[];
+  activeMedications?: MedicationDto[];
   visitDocuments?: SessionDocumentDto[];
 }
 
