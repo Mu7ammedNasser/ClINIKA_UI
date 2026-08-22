@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DoctorRequestService } from '../../../core/services/doctor-request.service';
 
@@ -28,10 +28,10 @@ export class DoctorCompleteProfile implements OnInit {
   personalPhotoPreview = signal<string | null>(null);
 
   readonly profileForm = this.fb.group({
-    fullNameArabic: [''],
-    primarySpecialty: [''],
-    yearsOfExperience: [null as number | null],
-    medicalLicenseNumber: [''],
+    fullNameArabic: ['', [Validators.required]],
+    primarySpecialty: ['', [Validators.required]],
+    yearsOfExperience: [null as number | null, [Validators.required, Validators.min(0)]],
+    medicalLicenseNumber: ['', [Validators.required]],
   });
 
   ngOnInit(): void {
@@ -84,6 +84,11 @@ export class DoctorCompleteProfile implements OnInit {
     const id = this.requestId();
     if (!id) {
       this.errorMessage.set('Invalid doctor request session. Request ID is missing.');
+      return;
+    }
+
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
       return;
     }
 
